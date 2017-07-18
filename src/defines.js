@@ -29,7 +29,7 @@ function ErrorStack(error_obj, error_stack) {
 }
 
 const healthModel = {
-    type: 'eae-compute',
+    type: 'eae-service',
     version: '0.0.1',
     timestamp: '',
     expires_in: 0,

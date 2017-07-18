@@ -16,8 +16,9 @@ function EaeCompute(config) {
 
     //Bind member functions
     this._connectDb = EaeCompute.prototype._connectDb.bind(this);
+    this._mongoError = EaeCompute.prototype._mongoError.bind(this);
     this._healthHandler = EaeCompute.prototype._healthHandler.bind(this);
-    this.setupTotoController = EaeCompute.prototype.setupTotocontroller.bind(this);
+    this.setupTotoController = EaeCompute.prototype.setupTotoController.bind(this);
    
     //Remove unwanted express headers
     this.app.set('x-powered-by', false);
@@ -44,7 +45,7 @@ function EaeCompute(config) {
         _this.setupTotoController();
 
     }, function (error) {
-        this.mongoError(error);
+        this._mongoError(error);
     });
 
     return this.app;
@@ -60,14 +61,14 @@ EaeCompute.prototype._healthHandler = function () {
     var _this = this;
 
     //Connect to the registry collection
-    this.registry = this.db.collection(defines.globalRegistryCollectionName);
+    this.registry = this.db.collection(defines.globalHealthCollectionName);
     var registry_update = function () {
         //Create status object
-        var status = Object.assign({}, defines.registryModel, {
-            type: 'borderline-server',
+        var status = Object.assign({}, defines.healthModel, {
+            type: 'eae-compute',
             version: package_json.version,
             timestamp: new Date(),
-            expires_in: defines.healthDefaultUpdateInterval / 1000,
+            expires_in: defines.healthDefaultUpdateInterval / 1000, //In seconds
             port: _this.config.port,
             ip: ip.address().toString()
         });
@@ -119,6 +120,18 @@ EaeCompute.prototype._connectDb = function () {
 };
 
 /**
+ * @fn _mongoError
+ * @desc Disables every routes of the app to send back an error message
+ * @param message A message string to use in responses
+ */
+EaeCompute.prototype._mongoError = function (message) {
+    this.app.all('*', function (req, res) {
+        res.status(401);
+        res.json(defines.errorStacker('Could not connect to the database', message));
+    });
+};
+
+/**
  * @fn setupTotoController
  * @desc Initialize users account management routes and controller
  */
@@ -129,18 +142,6 @@ EaeCompute.prototype.setupTotoController = function () {
 
 	//Register routes
     //this.app.get('/toto', this.totoController.toto); //GET /toto
-};
-
-/**
- * @fn mongoError
- * @desc Disables every routes of the app to send back an error message
- * @param message A message string to use in responses
- */
-EaeCompute.prototype.mongoError = function (message) {
-    this.app.all('*', function (req, res) {
-        res.status(401);
-        res.json(defines.errorStacker('Could not connect to the database', message));
-    });
 };
 
 module.exports = EaeCompute;
