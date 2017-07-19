@@ -1,0 +1,18 @@
+sudo: required
+
+language: node_js
+
+node_js:
+  - "8"
+
+services:
+  - docker
+
+before_install:
+  - docker build -t eae/compute .
+  - docker run -d -p 127.0.0.1:80:4242 eae/compute /bin/sh -c "cd /usr/src/app; npm run lint;"
+  - docker ps -a
+  - docker run eae/compute /bin/sh -c "cd /usr/src/app; npm run lint;"
+
+script:
+  - npm run lint
