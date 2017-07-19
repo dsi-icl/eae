@@ -4,21 +4,20 @@ const path = require('path');
 const fs = require('fs-extra');
 const express = require('express');
 const body_parser = require('body-parser');
-const ip = require('ip');
-const timer = require('timers');
+const { ErrorHelper, Constants } =  require('eae-utils');
 
-const defines = require('./defines.js');
 const package_json = require('../package.json');
+const StatusController = require('./statusController.js');
 
 function EaeCompute(config) {
     this.config = config;
+    global.eae_compute_config = config;
     this.app = express();
 
     //Bind member functions
     this._connectDb = EaeCompute.prototype._connectDb.bind(this);
     this._mongoError = EaeCompute.prototype._mongoError.bind(this);
-    this._healthHandler = EaeCompute.prototype._healthHandler.bind(this);
-    this.setupTotoController = EaeCompute.prototype.setupTotoController.bind(this);
+    this.setupStatusController = EaeCompute.prototype.setupStatusController.bind(this);
    
     //Remove unwanted express headers
     this.app.set('x-powered-by', false);
@@ -33,16 +32,12 @@ function EaeCompute(config) {
 
     var _this = this;
     this._connectDb().then(function () {
-        //Setup Registry update
-        _this._healthHandler();
-
         //Init external middleware
         _this.app.use(body_parser.urlencoded({ extended: true }));
         _this.app.use(body_parser.json());
-       
 
         //Setup route using controllers
-        _this.setupTotoController();
+        _this.setupStatusController();
 
     }, function (error) {
         this._mongoError(error);
@@ -50,52 +45,6 @@ function EaeCompute(config) {
 
     return this.app;
 }
-
-/**
- * @fn _healthHandler
- * @desc Setup a routine to update the health status
- * Put a status object in the DB based on this current configuration
- * @private
- */
-EaeCompute.prototype._healthHandler = function () {
-    var _this = this;
-
-    //Connect to the registry collection
-    this.registry = this.db.collection(defines.globalHealthCollectionName);
-    var registry_update = function () {
-        //Create status object
-        var status = Object.assign({}, defines.healthModel, {
-            type: 'eae-compute',
-            version: package_json.version,
-            timestamp: new Date(),
-            expires_in: defines.healthDefaultUpdateInterval / 1000, //In seconds
-            port: _this.config.port,
-            ip: ip.address().toString()
-        });
-        //Write in DB
-        //Match by ip + port + type
-        //Create if does not exists.
-        _this.registry.findOneAndReplace({
-            ip: status.ip,
-            port: status.port,
-            type: status.type
-        }, status, { upsert: true, returnOriginal: false })
-            .then(function (success) {
-                //Nothing to do here
-            }, function (error) {
-                //Just log the error
-                // console.log(error);
-            });
-    };
-
-    //Call the update every X milliseconds
-    var interval_timer = timer.setInterval(registry_update, defines.healthDefaultUpdateInterval);
-    //Do a first update now
-    registry_update();
-
-    return interval_timer;
-};
-
 
 /**
  * @fn _connectDb
@@ -108,7 +57,7 @@ EaeCompute.prototype._connectDb = function () {
     var main_db = new Promise(function (resolve, reject) {
         mongodb.connect(_this.config.mongoURL, function (err, db) {
             if (err !== null && err !== undefined) {
-                reject(defines.errorStacker('Failed to connect to mongoDB', err));
+                reject(ErrorHelper('Failed to connect to mongoDB', err));
                 return;
             }
             _this.db = db;
@@ -127,21 +76,23 @@ EaeCompute.prototype._connectDb = function () {
 EaeCompute.prototype._mongoError = function (message) {
     this.app.all('*', function (req, res) {
         res.status(401);
-        res.json(defines.errorStacker('Could not connect to the database', message));
+        res.json(ErrorHelper('Could not connect to the database', message));
     });
 };
 
 /**
- * @fn setupTotoController
- * @desc Initialize users account management routes and controller
+ * @fn setupSpecsController
+ * @desc Initialize service status routes and controller
  */
-EaeCompute.prototype.setupTotoController = function () {
-    //Controller imports
-   // var totoControllerModule = require('./totoController.js');
-   // this.totoController = new totoControllerModule(this.db.collection(defines.totoCollectionName));
+EaeCompute.prototype.setupStatusController = function () {
+    var _this = this;
 
-	//Register routes
-    //this.app.get('/toto', this.totoController.toto); //GET /toto
+    var statusOpts = {
+        version: package_json.version
+    };
+    _this.statusController = new StatusController(_this.db.collection(Constants.EAE_STATUS_COLLECTION), statusOpts);
+    _this.app.get('/status', _this.statusController.getStatus); //GET status
+    _this.app.get('/specs', _this.statusController.getFullStatus); //GET Full status
 };
 
 module.exports = EaeCompute;
