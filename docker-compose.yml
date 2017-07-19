@@ -1,0 +1,22 @@
+version: '3'
+services:
+  compute:
+    build: .
+    depends_on:
+      - db
+    volumes:
+      - ./test/eae.compute.config.js:/usr/app/config/eae.compute.config.js
+  db:
+    image: mongo:latest
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    command: mongod --smallfiles --logpath=/dev/null # --quiet
+  lb:
+    image: dockercloud/haproxy
+    links:
+      - compute
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 80:80

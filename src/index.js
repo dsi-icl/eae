@@ -1,4 +1,5 @@
 var express = require('express');
+var os = require('os');
 var app = express();
 
 var config = require('../config/eae.compute.config.js');
@@ -16,5 +17,5 @@ app.listen(config.port, function (err) {
         return;
     }
 
-    console.log(`Listening at http://localhost:${config.port}/`);
+    console.log(`Listening at http://${os.hostname()}:${config.port}/`);
 });

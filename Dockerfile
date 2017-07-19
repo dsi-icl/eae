@@ -1,20 +1,20 @@
 # Select source image
-FROM node:latest
+FROM node:alphine
 
 # Set up metadata
 LABEL maintainer="Florian Guitton <f.guitton@imperial.ac.uk>"
 LABEL version="0.0.1"
 
 # Create app directory
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+RUN mkdir -p /usr/app
+WORKDIR /usr/app
 
 # Install app dependencies
-COPY package.json /usr/src/app/
+COPY package.json /usr/app/
 RUN npm install
 
 # Bundle app source
-COPY . /usr/src/app
+COPY src/* /usr/app/
 
 # Start application
 EXPOSE 4242
