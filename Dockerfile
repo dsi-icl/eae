@@ -1,5 +1,5 @@
 # Select source image
-FROM node:alphine
+FROM node:alpine
 
 # Set up metadata
 LABEL maintainer="Florian Guitton <f.guitton@imperial.ac.uk>"
