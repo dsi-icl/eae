@@ -1,15 +1,11 @@
-const { StatusHelper } =  require('eae-utils');
-
 /**
  * @fn StatusController
  * @desc Controller to manage the service status
- * @param statusCollection MongoDb collection storing the status entries
- * @param options Optional additional fields to add in the status
+ * @param statusHelper Helper class to interact with status
  * @constructor
  */
-function StatusController(statusCollection, options = {}) {
-    this._helper = new StatusHelper(type = 'eae-compute', port = global.eae_compute_config.port, mongoURL = null, options = options);
-    this._helper.setCollection(statusCollection);
+function StatusController(statusHelper) {
+    this._helper = statusHelper;
 
     this.getStatus = StatusController.prototype.getStatus.bind(this);
 	this.getFullStatus = StatusController.prototype.getFullStatus.bind(this);
