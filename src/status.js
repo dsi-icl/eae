@@ -30,7 +30,6 @@ function StatusHelper(config = {}) {
 
     //Perform a first update & sync
     this._update();
-    this._sync();
     //Start synchronisation with default delay
     this.startPeriodicUpdate();
 }
