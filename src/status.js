@@ -1,0 +1,205 @@
+const os = require('os');
+const mongodb = require('mongodb').MongoClient;
+const bytes = require('bytes');
+const ip = require('ip');
+const timer = require('timers');
+
+const defines = require('./defines.js');
+
+/**
+ * @fn StatusHelper
+ * @desc Global status manager. Use it to update the node's status within EAE
+ * @param config [in] Additional configurations to include in the status
+ * @constructor
+ */
+function StatusHelper(config = {}) {
+    //Init member vars
+    this._statusCollection = null;
+    this._config = config;
+    this._data = Object.assign({}, defines.EAE_STATUS_MODEL, this._config);
+    this._intervalTimeout = null;
+
+    //Bind member functions
+    this.getDataModel = StatusHelper.prototype.getDataModel.bind(this);
+    this.getStatus = StatusHelper.prototype.getStatus.bind(this);
+    this.setStatus = StatusHelper.prototype.setStatus.bind(this);
+    this.startPeriodicUpdate = StatusHelper.prototype.startPeriodicUpdate.bind(this);
+    this.stopPeriodicUpdate = StatusHelper.prototype.stopPeriodicUpdate.bind(this);
+    this._update = StatusHelper.prototype._update.bind(this);
+    this._sync = StatusHelper.prototype._sync.bind(this);
+
+    //Start synchronisation with default delay
+    this.startPeriodicUpdate();
+}
+
+/**
+ * @fn getDataModel
+ * @desc Getter on status data
+ * @return The status model in plain JS object
+ */
+StatusHelper.prototype.getDataModel = function() {
+   return this._data;
+};
+
+/**
+ * @fn getStatus
+ * @desc Getter on node status
+ * @return {String} Current status string
+ */
+StatusHelper.prototype.getStatus = function() {
+    return this._data.status;
+};
+
+/**
+ * @fn setStatus
+ * @desc Setter on node status
+ * @param status The new status string
+ * @return {String} Current status string
+ */
+StatusHelper.prototype.setStatus = function(status) {
+    if (this._data.statusLock === false) {
+        this._data.status = status;
+    }
+    return this._data.status;
+};
+
+/**
+ * @fn setCollection
+ * @desc Setup the mongoDB collection to sync against
+ * @param statusCollection Initialized mongodb collection to sync against
+ */
+StatusHelper.prototype.setCollection = function(statusCollection) {
+    this._statusCollection = statusCollection;
+};
+
+/**
+ * @fn _update
+ * @desc Initialise model from OS information
+ * @private
+ */
+StatusHelper.prototype._update = function() {
+    var _this = this;
+
+    //Assign status values
+    this._data.lastUpdate = new Date();
+    this._data.ip = ip.address().toString();
+    this._data.hostname = os.hostname();
+
+    //Retrieving system information
+    this._data.system.arch = os.arch();
+    this._data.system.type = os.type();
+    this._data.system.platform = os.platform();
+    this._data.system.version = os.release();
+
+    //Retrieving memory information
+    this._data.memory.total = bytes(os.totalmem());
+    this._data.memory.free = bytes(os.freemem());
+
+    //Retrieving CPUs information
+    this._data.cpu.loadavg = os.loadavg();
+    this._data.cpu.cores = [];
+    os.cpus().forEach(function (cpu) {
+        _this._data.cpu.cores.push({
+                model: cpu.model,
+                mhz: cpu.speed
+            }
+        );
+    });
+};
+
+/**
+ * @fn _sync
+ * @desc Update the status in the global status collection.
+ * Identification is based on the ip/port combination
+ * @return {Promise} Resolve to true if update operation has been successful
+ * @private
+ */
+StatusHelper.prototype._sync = function() {
+    var _this = this;
+    return new Promise(function(resolve, reject) {
+        if (_this._statusCollection === null || _this._statusCollection === undefined) {
+            reject(defines.errorStacker('No MongoDB collection to sync against'));
+            return;
+        }
+
+        var filter = { //Filter is based on ip/port combination
+            ip: _this._data.ip,
+            port: _this._data.port
+        };
+        //Updates model in base, upsert if does not exists
+        _this._statusCollection.findOneAndUpdate(filter,
+                                                 { $set : _this._data },
+                                                 { upsert: true, returnOriginal: false })
+            .then(function(updatedModel) {
+                //Remove ID field, let MongoDB handle ids
+                delete updatedModel.value._id;
+                _this._data = updatedModel.value;
+                resolve(true);
+            }, function(error) {
+                reject(defines.errorStacker('Update status failed', error));
+            });
+    });
+};
+
+/**
+ * @fn startPeriodicUpdate
+ * @desc Start an automatic update and synchronisation of the status
+ * @param delay The intervals (in milliseconds) on how often to update the status
+ */
+StatusHelper.prototype.startPeriodicUpdate = function(delay = defines.statusDefaultUpdateInterval) {
+    var _this = this;
+
+    //Stop previous interval if any
+    _this.stopPeriodicUpdate();
+    //Start a new interval update
+    _this._intervalTimeout = timer.setInterval(function(){
+        _this._update(); //Update model
+        _this._sync(); //Attempt to sync in base
+    }, 200);
+};
+
+/**
+ * @fn stopPeriodicUpdate
+ * @desc Stops the automatic update and synchronisation.
+ * Does nothing if the periodic update was not running
+ */
+StatusHelper.prototype.stopPeriodicUpdate = function() {
+    var _this = this;
+
+    if (_this._intervalTimeout !== null && _this._intervalTimeout !== undefined) {
+        timer.clearInterval(_this._intervalTimeout);
+        _this._intervalTimeout = null;
+    }
+};
+
+/**
+ * @fn StatusHelperExport
+ * @param type {String} Display name of the service
+ * @param port {Number} The port number used by this eae service
+ * @param mongoURL {String} A valid MongoDB connection url
+ * @param options {Object} Additional custom fields
+ * @return {StatusHelper} Helper class
+ */
+function StatusHelperExport(type = 'eae-service', port = 8080, mongoURL = null, options = {}) {
+    var opts = Object.assign({}, {
+        type : type,
+        port: port
+    }, options);
+
+    var status_helper = new StatusHelper(opts);
+
+    if (mongoURL !== null && mongoURL !== undefined) {
+        mongodb.connect(mongoURL, function (err, db) {
+            if (err !== null && err !== undefined) {
+                throw defines.errorStacker('Failed to connect to MongoDB', err);
+            }
+            else {
+                var statusCollection = db.collection(defines.EAE_STATUS_COLLECTION);
+                status_helper.setCollection(statusCollection);
+            }
+        });
+    }
+    return status_helper;
+}
+
+module.exports = StatusHelperExport;
