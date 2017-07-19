@@ -11,6 +11,7 @@ WORKDIR /usr/app
 
 # Install app dependencies
 COPY package.json /usr/app/
+RUN apk update && apk upgrade && apk add git
 RUN npm install
 
 # Bundle app source
