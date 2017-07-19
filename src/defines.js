@@ -60,6 +60,12 @@ module.exports = {
     JOB_STATUS_RUN: 'eae_job_running',
     JOB_STATUS_ERR: 'eae_job_error',
     JOB_STATUS_DONE: 'eae_job_done',
+
+    SERVICE_STATUS_IDLE: 'eae_service_idle',
+    SERVICE_STATUS_BUSY: 'eae_service_kartoffelsalat',
+    SERVICE_STATUS_LOCKED: 'eae_service_locked',
+    SERVICE_STATUS_DEAD: 'eae_service_dead',
+
     STATUS_COLLECTION_NAME: 'eae_global_status',
     JOBS_COLLECTION_NAME: 'eae_global_jobs',
     statusDefaultUpdateInterval: 60 * 1000, // 60 * 1000 ms = 1 minute
