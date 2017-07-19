@@ -28,6 +28,9 @@ function StatusHelper(config = {}) {
     this._update = StatusHelper.prototype._update.bind(this);
     this._sync = StatusHelper.prototype._sync.bind(this);
 
+    //Perform a first update & sync
+    this._update();
+    this._sync();
     //Start synchronisation with default delay
     this.startPeriodicUpdate();
 }
@@ -155,7 +158,7 @@ StatusHelper.prototype.startPeriodicUpdate = function(delay = defines.statusDefa
     _this._intervalTimeout = timer.setInterval(function(){
         _this._update(); //Update model
         _this._sync(); //Attempt to sync in base
-    }, 200);
+    }, delay);
 };
 
 /**
