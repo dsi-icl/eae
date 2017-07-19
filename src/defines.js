@@ -56,7 +56,12 @@ const statusModel = {
 
 
 module.exports = {
-    EAE_STATUS_COLLECTION: 'eae_global_status',
+    JOB_STATUS_QUEUED: 'eae_job_queued',
+    JOB_STATUS_RUN: 'eae_job_running',
+    JOB_STATUS_ERR: 'eae_job_error',
+    JOB_STATUS_DONE: 'eae_job_done',
+    STATUS_COLLECTION_NAME: 'eae_global_status',
+    JOBS_COLLECTION_NAME: 'eae_global_jobs',
     statusDefaultUpdateInterval: 60 * 1000, // 60 * 1000 ms = 1 minute
     EAE_STATUS_MODEL: statusModel,
     errorStacker: ErrorStack
