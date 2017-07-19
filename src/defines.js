@@ -63,6 +63,6 @@ module.exports = {
     STATUS_COLLECTION_NAME: 'eae_global_status',
     JOBS_COLLECTION_NAME: 'eae_global_jobs',
     statusDefaultUpdateInterval: 60 * 1000, // 60 * 1000 ms = 1 minute
-    EAE_STATUS_MODEL: statusModel,
+    STATUS_MODEL: statusModel,
     errorStacker: ErrorStack
 };

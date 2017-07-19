@@ -7,7 +7,7 @@ module.exports = {
     ErrorHelper: defines.errorStacker,
     StatusHelper: StatusHelperModule,
     DataModels: {
-        EAE_STATUS_MODEL: defines.EAE_STATUS_MODEL
+        EAE_STATUS_MODEL: defines.STATUS_MODEL
     },
     Constants: {
         EAE_JOB_STATUS_QUEUED: defines.JOB_STATUS_QUEUED,

@@ -16,7 +16,7 @@ function StatusHelper(config = {}) {
     //Init member vars
     this._statusCollection = null;
     this._config = config;
-    this._data = Object.assign({}, defines.EAE_STATUS_MODEL, this._config);
+    this._data = Object.assign({}, defines.STATUS_MODEL, this._config);
     this._intervalTimeout = null;
 
     //Bind member functions
@@ -133,8 +133,7 @@ StatusHelper.prototype._sync = function() {
                                                  { $set : _this._data },
                                                  { upsert: true, returnOriginal: false })
             .then(function(updatedModel) {
-                //Remove ID field, let MongoDB handle ids
-                delete updatedModel.value._id;
+                delete updatedModel.value._id;  //Remove ID field, let MongoDB handle ids
                 _this._data = updatedModel.value;
                 resolve(true);
             }, function(error) {
@@ -196,7 +195,7 @@ function StatusHelperExport(type = 'eae-service', port = 8080, mongoURL = null, 
                 throw defines.errorStacker('Failed to connect to MongoDB', err);
             }
             else {
-                var statusCollection = db.collection(defines.EAE_STATUS_COLLECTION);
+                var statusCollection = db.collection(defines.STATUS_COLLECTION_NAME);
                 status_helper.setCollection(statusCollection);
             }
         });
