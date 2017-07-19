@@ -9,5 +9,5 @@ before_install:
   - npm install
 
 script:
-  - node app.js
+  - node src/index.js
   - npm run lint
