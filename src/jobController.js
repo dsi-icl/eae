@@ -33,24 +33,30 @@ JobController.prototype.runJob = function(req, res) {
         res.json(ErrorHelper('Unknown job, aborting..'));
         return;
     }
+    if (_this._executor !== undefined) {
+        res.status(503);
+        res.json(ErrorHelper('Service is not available for compute'));
+        return;
+    }
 
     //Create executor based on type
-    _this._jobExecFactory.create(job_id, _this._jobCollection).then(function(executor) {
+    _this._jobExecFactory.createFromId(job_id, _this._jobCollection).then(function(executor) {
         _this._executor = executor;
         //Set the node to busy
         _this._status_helper.setStatus(Constants.EAE_SERVICE_STATUS_BUSY);
         //Trigger asynchronous execution
-        _this._executor.startExecution(function(error, jobStatus) {
+        _this._executor.startExecution(function() {
             //After exec, set the node to idle
             _this._status_helper.setStatus(Constants.EAE_SERVICE_STATUS_IDLE);
             //Cleanup executor instance
             delete _this._executor;
         });
         res.status(200);
-        res.json(_this._status_helper.getStatus());
+        res.json({ ok: true, status: Constants.EAE_JOB_STATUS_RUNNING });
     }, function(error) {
         res.status(500);
         res.json(ErrorHelper('Execution aborted', error));
+        delete _this._executor;
     });
 };
 
@@ -61,6 +67,7 @@ JobController.prototype.cancelJob = function(req, res) {
     if (_this._executor === undefined || _this._executor === null) {
         res.status(501);
         res.json(ErrorHelper('Not currently running a job'));
+        return;
     }
     _this._executor.stopExecution(function(error, jobStatus) {
         //After exec, set the node to idle

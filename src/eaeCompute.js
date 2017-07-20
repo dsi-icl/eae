@@ -1,7 +1,5 @@
 //External node module imports
 const mongodb = require('mongodb').MongoClient;
-const path = require('path');
-const fs = require('fs-extra');
 const express = require('express');
 const body_parser = require('body-parser');
 const { ErrorHelper, StatusHelper, Constants } =  require('eae-utils');
@@ -27,8 +25,8 @@ function EaeCompute(config) {
     //Allow CORS requests when enabled
     if (this.config.enableCors === true) {
         this.app.use(function (req, res, next) {
-            res.header("Access-Control-Allow-Origin", "*");
-            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            res.header('Access-Control-Allow-Origin', '*');
+            res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
             next();
         });
     }

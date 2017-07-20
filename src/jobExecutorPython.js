@@ -1,5 +1,5 @@
-// Local modules
-const { ErrorHelper, Constants } = require('eae-utils');
+const process = require('process');
+const { ErrorHelper } = require('eae-utils');
 const JobExecutorAbstract = require('./jobExecutorAbstract.js');
 
 /**
@@ -12,6 +12,13 @@ const JobExecutorAbstract = require('./jobExecutorAbstract.js');
  */
 function JobExecutorPython(jobID, jobCollection) {
     JobExecutorAbstract.call(this, jobID, jobCollection);
+
+    // Bind member functions
+    this._preExecution = JobExecutorPython.prototype._preExecution.bind(this);
+    this._postExecution = JobExecutorPython.prototype._postExecution.bind(this);
+    this.startExecution = JobExecutorPython.prototype.startExecution.bind(this);
+    this.stopExecution = JobExecutorPython.prototype.stopExecution.bind(this);
+
 }
 JobExecutorPython.prototype = Object.create(JobExecutorAbstract.prototype); //Inherit Js style
 JobExecutorPython.prototype.constructor = JobExecutorPython;
@@ -23,8 +30,11 @@ JobExecutorPython.prototype.constructor = JobExecutorPython;
  * @private
  * @pure
  */
-JobExecutorAbstract.prototype._preExecution = function() {
-    throw 'Should get inputs here';
+JobExecutorPython.prototype._preExecution = function() {
+    // throw 'Should get inputs here';
+    return new Promise(function (resolve, reject) {
+        resolve(true);
+    });
 };
 
 /**
@@ -34,26 +44,46 @@ JobExecutorAbstract.prototype._preExecution = function() {
  * @private
  * @pure
  */
-JobExecutorAbstract.prototype._postExecution = function() {
-    throw 'Shoudl store outputs here';
+JobExecutorPython.prototype._postExecution = function() {
+    // throw 'Should store outputs here';
+    return new Promise(function (resolve, reject) {
+        resolve(true);
+    });
 };
 
 /**
  * @fn startExecution
+ * @param callback {Function} Function called after execution. callback(error, status)
  * @desc Starts the execution of designated job.
- * @pure
  */
-JobExecutorAbstract.prototype.startExecution = function() {
-    throw 'Should call _exec here';
+JobExecutorPython.prototype.startExecution = function(callback) {
+    var _this = this;
+
+    _this._callback = callback;
+    _this.fetchModel().then(function() {
+        var cmd = 'python ' + _this._model.main;
+        var args = _this._model.params;
+        var opts = {
+            cwd:  process.cwd(),
+            end: process.env,
+            shell: true
+        };
+        _this._exec(cmd, args, opts);
+    }, function(error) {
+        throw error;
+    });
+    // throw 'Should call _exec here';
 };
 
 /**
  * @fn stopExecution
  * @desc Interrupts the currently executed job.
- * @pure
+ * @param callback {Function} Function called after execution. callback(error, status)
  */
-JobExecutorAbstract.prototype.stopExecution = function() {
-    throw 'Should call _kill here';
+JobExecutorPython.prototype.stopExecution = function(callback) {
+    this._callback = callback;
+    this._kill();
+    // throw 'Should call _kill here';
 };
 
 module.exports = JobExecutorPython;

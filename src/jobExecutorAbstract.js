@@ -9,19 +9,16 @@ function JobExecutorAbstract(jobID, jobCollection) {
     this._callback = null;
 
     //Bind member functions
-    this.fetchModel = this.prototype.fetchModel.bind(this);
-    this.pushModel = this.prototype.pushModel.bind(this);
-    this._exec = this.prototype._exec.bind(this);
-    this._kill = this.prototype._kill.bind(this);
+    this.fetchModel = JobExecutorAbstract.prototype.fetchModel.bind(this);
+    this.pushModel = JobExecutorAbstract.prototype.pushModel.bind(this);
+    this._exec = JobExecutorAbstract.prototype._exec.bind(this);
+    this._kill = JobExecutorAbstract.prototype._kill.bind(this);
 
     //Bind pure member functions
-    this._preExecution = this.prototype._preExecution.bind(this);
-    this._postExecution = this.prototype._postExecution.bind(this);
-    this.startExecution = this.prototype.startExecution.bind(this);
-    this.stopExecution = this.prototype.stopExecution.bind(this);
-
-    //Fetch model once
-    this.fetchModel();
+    this._preExecution = JobExecutorAbstract.prototype._preExecution.bind(this);
+    this._postExecution = JobExecutorAbstract.prototype._postExecution.bind(this);
+    this.startExecution = JobExecutorAbstract.prototype.startExecution.bind(this);
+    this.stopExecution = JobExecutorAbstract.prototype.stopExecution.bind(this);
 }
 
 /**
@@ -74,7 +71,7 @@ JobExecutorAbstract.prototype.pushModel = function() {
 JobExecutorAbstract.prototype._exec = function(command, args, options) {
     var _this = this;
 
-    var end_fn = function(status, code) {
+    var end_fn = function(status, code, message = '') {
         var save_fn = function() {
             _this.pushModel().then(function(success) {
                 if (_this.callback !== null && _this._callback !== undefined)
@@ -85,18 +82,19 @@ JobExecutorAbstract.prototype._exec = function(command, args, options) {
             });
         };
 
+        _this._model.message = message;
+        _this._model.endDate = new Date();
         _this._postExecution().then(function() {
             _this._model.status = status;
             _this._model.exitCode = code;
-            _this._model.endDate = new Date();
             if (_this._child_process !== undefined) {
                 delete _this._child_process;
             }
             save_fn();
-        }, function () {
+        }, function (error) {
             _this._model.status = Constants.EAE_JOB_STATUS_ERROR;
             _this._model.exitCode = 1;
-            _this._model.endDate = new Date();
+            _this._model.message = 'Post-exec - ' + error.toString();
             if (_this._child_process !== undefined) {
                 delete _this._child_process;
             }
@@ -109,37 +107,43 @@ JobExecutorAbstract.prototype._exec = function(command, args, options) {
     _this._model.stderr = '';
     _this._model.status = Constants.EAE_JOB_STATUS_RUNNING;
     _this._model.startDate = new Date();
-    _this._preExecution().then(function() {
+    _this.pushModel().then(function() {
+        _this._preExecution().then(function() {
+            //Fork a process on the machine
+            _this._child_process = child_process.spawn(command, args, options);
 
-        //Fork a process on the machine
-        _this._child_process = child_process.spawn(command, args, options);
+            //Stores stdout
+            _this._child_process.stdout.on('data', function (stdout_data) {
+                _this._model.stdout += stdout_data;
+            });
 
-        //Stores stdout
-        _this._child_process.stdout.on('data', function (data) {
-            _this._model.stdout += data;
+            //Stores stderr
+            _this._child_process.stderr.on('data', function (stderr_data) {
+                _this._model.stderr += stderr_data;
+            });
+
+            //Handle spawn errors
+            _this._child_process.on('error', function (error) {
+                end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, 'Spawn - ' + error.toString());
+            });
+
+            //Handle child termination
+            _this._child_process.on('exit', function (code, signal) {
+                if (code !== null) { //Successful run or interruption
+                    end_fn(Constants.EAE_JOB_STATUS_DONE, code, 'Exit success');
+                }
+                else if (signal == 'SIGTERM') {
+                    end_fn(Constants.EAE_JOB_STATUS_DONE, 1, 'Interrupt success');
+                }
+                else {
+                    end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, 'Exit error');
+                }
+            });
+        }, function (error) {
+            end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, 'Pre-exec - ' + error.toString());
         });
-
-        //Stores stderr
-        _this._child_process.stderr.on('data', function (data) {
-            _this._model.stderr += data;
-        });
-
-        //Handle spawn errors
-        _this._child_process.on('error', function () {
-            end_fn(Constants.EAE_JOB_STATUS_ERROR, 1);
-        });
-
-        //Handle child termination
-        _this._child_process.on('exit', function (code, signal) {
-            if (code !== null || signal == 'SIGTERM') { //Successful run or interruption
-               end_fn(Constants.EAE_JOB_STATUS_DONE, code);
-            }
-            else {
-                end_fn(Constants.EAE_JOB_STATUS_ERROR, 1);
-            }
-        });
-    }, function (error) {
-        end_fn(Constants.EAE_JOB_STATUS_ERROR, 1);
+    }, function(error) {
+        end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, 'Prepare -' + error.toString());
     });
 };
 
@@ -193,7 +197,7 @@ JobExecutorAbstract.prototype.startExecution = function(callback) {
 
 /**
  * @fn stopExecution
- * @desc Interrupts the currently executed job./
+ * @desc Interrupts the currently executed job.
  * @param callback {Function} Function called after execution. callback(error, status)
  * @pure
  */
