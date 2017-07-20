@@ -3,7 +3,7 @@ sudo: required
 language: node_js
 
 env:
-  - DOCKER_COMPOSE_VERSION=1.14.0
+  - CC_TEST_REPORTER_ID=0ecd705dcf8d5f29c907c233195cc2b25baa4f22c20b90f5dd03f7759813c5a2
 
 node_js:
   - "8"
