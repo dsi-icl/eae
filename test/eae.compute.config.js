@@ -4,7 +4,7 @@
  * ---------------------------------------------------------------------------------------- */
 
 module.exports = {
-    mongoURL: 'mongodb://db/compute',
+    mongoURL: 'mongodb://db/eae',
     port: 4242,
 	enableCors: true
 };

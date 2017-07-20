@@ -2,8 +2,10 @@
 FROM node:alpine
 
 # Set up metadata
+ARG version
 LABEL maintainer="Florian Guitton <f.guitton@imperial.ac.uk>"
-LABEL version="0.0.1"
+LABEL version=$version
+RUN echo "Version is to be " $version
 
 # Create app directory
 RUN mkdir -p /usr/app
@@ -11,11 +13,13 @@ WORKDIR /usr/app
 
 # Install app dependencies
 COPY package.json /usr/app/
-RUN apk update && apk upgrade && apk add git
-RUN npm install
+RUN apk update && apk add git
+RUN npm install --silent; exit 0
+RUN cat /root/.npm/_logs/*; exit 0
+RUN apk del git
 
 # Bundle app source
-COPY src/* /usr/app/
+COPY src /usr/app/
 
 # Start application
 EXPOSE 4242
