@@ -5,6 +5,6 @@
 
 module.exports = {
     mongoURL: 'mongodb://db/eae',
-    port: 4242,
-	enableCors: true
+    port: 80,
+    enableCors: true
 };

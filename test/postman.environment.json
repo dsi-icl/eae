@@ -1,0 +1,17 @@
+{
+    "name": "eae-compute-envrionment",
+    "values": [
+        {
+            "enabled": true,
+            "key": "service_url",
+            "value": "http://localhost",
+            "type": "text"
+        },
+        {
+            "enabled": true,
+            "key": "job_a",
+            "value": "59706dc40e0ae5b86a78dfef",
+            "type": "text"
+        }
+    ]
+}

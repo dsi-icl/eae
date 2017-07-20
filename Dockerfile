@@ -19,8 +19,8 @@ RUN cat /root/.npm/_logs/*; exit 0
 RUN apk del git
 
 # Bundle app source
-COPY src /usr/app/
+COPY src /usr/app/src
 
 # Start application
-EXPOSE 4242
+EXPOSE 80
 CMD [ "npm", "start" ]
