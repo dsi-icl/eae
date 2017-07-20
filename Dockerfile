@@ -5,7 +5,7 @@ FROM node:alpine
 ARG version
 LABEL maintainer="Florian Guitton <f.guitton@imperial.ac.uk>"
 LABEL version=$version
-RUN echo "Version is to be " $version
+RUN echo "Version is to be" $version
 
 # Create app directory
 RUN mkdir -p /usr/app
