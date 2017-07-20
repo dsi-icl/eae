@@ -12,8 +12,9 @@ services:
   - docker
 
 before_install:
+  - export EAE_COMPUTE_VERSION=`npm version patch`
   - docker-compose --version
-  - docker-compose build --build-arg version=$(npm version patch) compute
+  - docker-compose build --build-arg version=$EAE_COMPUTE_VERSION compute
   - docker-compose up -d --remove-orphans --scale compute=3
   - docker-compose images
   - docker ps -a
