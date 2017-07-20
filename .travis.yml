@@ -4,7 +4,6 @@ language: node_js
 
 env:
   global:
-    - CC_TEST_REPORTER_ID=0ecd705dcf8d5f29c907c233195cc2b25baa4f22c20b90f5dd03f7759813c5a2
     - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
 
 node_js:
@@ -14,9 +13,6 @@ services:
   - docker
 
 before_install:
-  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-  - chmod +x ./cc-test-reporter
-  - ./cc-test-reporter before-build
   - export EAE_COMPUTE_VERSION=`npm version patch`
   - docker-compose --version
   - docker-compose build --build-arg version=$EAE_COMPUTE_VERSION compute
@@ -26,7 +22,6 @@ before_install:
 
 script:
   - npm run lint
-  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo "Sending Coverage ..."; ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
 
 after_script:
   - docker-compose down --rmi all --remove-orphans
