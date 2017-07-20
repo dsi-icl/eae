@@ -17,7 +17,7 @@ function StatusController(statusHelper) {
  * @param req Express.js request object
  * @param res Express.js response object
  */
-StatusController.prototype.getStatus = function(req, res) {
+StatusController.prototype.getStatus = function(_unused__req, res) {
 	res.status(200);
 	res.json(this._helper.getStatus());
 };
@@ -28,7 +28,7 @@ StatusController.prototype.getStatus = function(req, res) {
  * @param req Express.js request object
  * @param res Express.js response object
  */
-StatusController.prototype.getFullStatus = function(req, res) {
+StatusController.prototype.getFullStatus = function(_unused__req, res) {
 	res.status(200);
 	res.json(this._helper.getDataModel());
 };

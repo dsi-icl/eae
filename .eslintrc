@@ -37,7 +37,7 @@
         "no-alert": 2,
         "no-console": 1,
         "quotes": [
-            1,
+            2,
             "single"
         ],
         "semi": [
@@ -45,7 +45,7 @@
             "always"
         ],
         "strict": [
-            1,
+            2,
             "global"
         ],
         "space-infix-ops": 2,
@@ -53,6 +53,13 @@
         "space-unary-ops": 2,
         "no-trailing-spaces": 1,
         "no-irregular-whitespace": 2,
-        "no-unused-vars": 1
+        "no-unused-vars": [
+            2,
+            {
+                "vars": "all",
+                "args": "all",
+                "argsIgnorePattern": "^_unused__"
+            }
+        ]
     }
 }

@@ -1,5 +1,4 @@
 const process = require('process');
-const { ErrorHelper } = require('eae-utils');
 const JobExecutorAbstract = require('./jobExecutorAbstract.js');
 
 /**
@@ -32,7 +31,7 @@ JobExecutorPython.prototype.constructor = JobExecutorPython;
  */
 JobExecutorPython.prototype._preExecution = function() {
     // throw 'Should get inputs here';
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, _unused__reject) {
         resolve(true);
     });
 };
@@ -46,7 +45,7 @@ JobExecutorPython.prototype._preExecution = function() {
  */
 JobExecutorPython.prototype._postExecution = function() {
     // throw 'Should store outputs here';
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, _unused__reject) {
         resolve(true);
     });
 };

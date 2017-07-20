@@ -61,7 +61,7 @@ JobController.prototype.runJob = function(req, res) {
 };
 
 
-JobController.prototype.cancelJob = function(req, res) {
+JobController.prototype.cancelJob = function(_unused__req, res) {
     var _this = this;
 
     if (_this._executor === undefined || _this._executor === null) {

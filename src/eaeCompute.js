@@ -24,7 +24,7 @@ function EaeCompute(config) {
     this.app.set('x-powered-by', false);
     //Allow CORS requests when enabled
     if (this.config.enableCors === true) {
-        this.app.use(function (req, res, next) {
+        this.app.use(function (_unused__req, res, next) {
             res.header('Access-Control-Allow-Origin', '*');
             res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
             next();
@@ -77,7 +77,7 @@ EaeCompute.prototype._connectDb = function () {
  * @private
  */
 EaeCompute.prototype._mongoError = function (message) {
-    this.app.all('*', function (req, res) {
+    this.app.all('*', function (_unused__req, res) {
         res.status(401);
         res.json(ErrorHelper('Could not connect to the database', message));
     });
