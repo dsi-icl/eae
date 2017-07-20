@@ -94,6 +94,26 @@
 				"description": ""
 			},
 			"response": []
+		},
+		{
+			"name": "Cancel current job",
+			"request": {
+				"url": "{{eae_compute_url}}/cancel",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"job_id\": \"{{eae_job}}\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
 		}
 	]
 }
