@@ -13,7 +13,7 @@ services:
 
 before_install:
   - docker-compose --version
-  - docker-compose build --build-arg version=$(npm version patch)
+  - docker-compose build --build-arg version=$(npm version patch) compute
   - docker-compose up -d --remove-orphans --scale compute=3
   - docker-compose images
   - docker ps -a
