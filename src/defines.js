@@ -30,7 +30,7 @@ function ErrorStack(error_obj, error_stack) {
 
 const statusModel = {
     type: 'eae-service',
-    status: null,
+    status: 'eae_service_idle',
     statusLock: false,
     version: null,
     lastUpdate: null,
