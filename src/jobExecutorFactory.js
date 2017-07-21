@@ -3,6 +3,12 @@ const { ErrorHelper } =  require('eae-utils');
 
 const JobExecutorPython = require('./jobExecutorPython.js');
 
+/**
+ * @class JobExecutorFactory
+ * @desc Jobs execution context factory.
+ * Select the right implementation for jobs based on their types
+ * @constructor
+ */
 function JobExecutorFactory() {
     //Init member vars
 
@@ -32,7 +38,5 @@ JobExecutorFactory.prototype.createFromId = function(jobID, jobCollection) {
         });
     });
 };
-
-
 
 module.exports = JobExecutorFactory;

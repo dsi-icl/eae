@@ -2,11 +2,10 @@ const process = require('process');
 const JobExecutorAbstract = require('./jobExecutorAbstract.js');
 
 /**
- * @fn QueryFile
- * @desc Query Implementation for File uploads
- * @param queryModel Plain JS Object, stored in DB
- * @param queryCollection MongoDB collection where the model is stored
- * @param storage Object storage instance to read/write query result
+ * @class JobExecutorPython
+ * @desc Specialization of JobExecutorAbstract for python scripts
+ * @param jobID {String} The job unique identifier in DB
+ * @param jobCollection MongoDB collection to sync the job model against
  * @constructor
  */
 function JobExecutorPython(jobID, jobCollection) {

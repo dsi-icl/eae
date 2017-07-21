@@ -2,6 +2,12 @@ const ObjectID = require('mongodb').ObjectID;
 const { ErrorHelper, Constants } = require('eae-utils');
 const child_process = require('child_process');
 
+/**
+ * @class JobExecutorAbstract
+ * @param jobID {String} The job unique identifier in DB
+ * @param jobCollection MongoDB collection to sync the job model against
+ * @constructor
+ */
 function JobExecutorAbstract(jobID, jobCollection) {
     this._jobID = new ObjectID(jobID);
     this._jobCollection = jobCollection;

@@ -2,7 +2,7 @@ const { Constants, ErrorHelper } =  require('eae-utils');
 const JobExecutorFactory = require('./jobExecutorFactory.js');
 
 /**
- * @fn JobController
+ * @class JobController
  * @desc Controller of the job execution
  * @param jobCollection MongoDb collection, stores the job data models
  * @param statusHelper Status helper class
@@ -60,7 +60,12 @@ JobController.prototype.runJob = function(req, res) {
     });
 };
 
-
+/**
+ * @fn cancelJob
+ * @desc Interrupts the current job
+ * @param _unused__req Express.js request object
+ * @param res Express.js response object
+ */
 JobController.prototype.cancelJob = function(_unused__req, res) {
     var _this = this;
 
