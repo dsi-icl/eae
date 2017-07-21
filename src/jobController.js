@@ -87,7 +87,7 @@ JobController.prototype.cancelJob = function(_unused__req, res) {
         else {
             //Reply inside callback so the job is stopped
             res.status(200);
-            res.json(jobStatus);
+            res.json({ status: jobStatus });
         }
     });
 };

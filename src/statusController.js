@@ -19,7 +19,7 @@ function StatusController(statusHelper) {
  */
 StatusController.prototype.getStatus = function(_unused__req, res) {
 	res.status(200);
-	res.json(this._helper.getStatus());
+	res.json({ status: this._helper.getStatus() });
 };
 
 /**
