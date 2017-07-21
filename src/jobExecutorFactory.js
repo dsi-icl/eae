@@ -2,6 +2,7 @@ const ObjectID = require('mongodb').ObjectID;
 const { ErrorHelper } =  require('eae-utils');
 
 const JobExecutorPython = require('./jobExecutorPython.js');
+const JobExecutorPip = require('./jobExecutorPip.js');
 
 /**
  * @class JobExecutorFactory
@@ -28,6 +29,9 @@ JobExecutorFactory.prototype.createFromId = function(jobID, jobCollection) {
             switch (job.type) {
                 case 'python':
                     resolve(new JobExecutorPython(jobID, jobCollection));
+                    break;
+                case 'pip':
+                    resolve(new JobExecutorPip(jobID, jobCollection));
                     break;
                 default:
                     reject(ErrorHelper('Execution is not supported for ' + job.type));
