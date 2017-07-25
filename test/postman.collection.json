@@ -18,7 +18,8 @@
                             "tests[\"Content-Type is application/json\"] = postman.getResponseHeader(\"Content-Type\") && postman.getResponseHeader(\"Content-Type\").has(\"application/json\");",
                             "",
                             "var json = JSON.parse(responseBody);",
-                            "tests[\"Service is idle upon start\"] = json.status === \"IDLE\";"
+                            "const EAE_SERVICE_STATUS_IDLE = \"eae_service_idle\";",
+                            "tests[\"Service is idle upon start\"] = json.status === EAE_SERVICE_STATUS_IDLE;"
                         ]
                     }
                 }
