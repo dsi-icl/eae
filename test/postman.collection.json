@@ -1,79 +1,96 @@
 {
-    "variables": [],
-    "info": {
-        "name": "eae-compute-test",
-        "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
-    },
-    "item": [
-        {
-            "name": "Test if idle",
-            "event": [
-                {
-                    "listen": "test",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "tests[\"Response time is less than 200ms\"] = responseTime < 200;",
-                            "tests[\"Status code is 200\"] = responseCode.code === 200;",
-                            "tests[\"Content-Type is application/json\"] = postman.getResponseHeader(\"Content-Type\") && postman.getResponseHeader(\"Content-Type\").has(\"application/json\");",
-                            "",
-                            "var json = JSON.parse(responseBody);",
-                            "const EAE_SERVICE_STATUS_IDLE = 'eae_service_idle';",
+	"variables": [],
+	"info": {
+		"name": "eae-compute-test",
+		"_postman_id": "d9b72dda-72fd-83af-0bbe-548b18a65e22",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Test if idle",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Content-Type is application/json\"] = postman.getResponseHeader(\"Content-Type\") && postman.getResponseHeader(\"Content-Type\").has(\"application/json\");",
+							"",
+							"var json = JSON.parse(responseBody);",
+							"const EAE_SERVICE_STATUS_IDLE = \"eae_service_idle\";",
 							"tests[\"Service is idle upon start\"] = json.status === EAE_SERVICE_STATUS_IDLE;"
-                        ]
-                    }
-                }
-            ],
-            "request": {
-                "url": "{{service_url}}/status",
-                "method": "GET",
-                "header": [],
-                "body": {},
-                "description": ""
-            },
-            "response": []
-        },
-        {
-            "name": "Test if has specs",
-            "event": [
-                {
-                    "listen": "test",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "tests[\"Response time is less than 200ms\"] = responseTime < 200;",
-                            "tests[\"Status code is 200\"] = responseCode.code === 200;",
-                            "tests[\"Content-Type is application/json\"] = postman.getResponseHeader(\"Content-Type\") && postman.getResponseHeader(\"Content-Type\").has(\"application/json\");",
-                            "",
-                            "var json = JSON.parse(responseBody);",
-                            "if (json && json.ip && isValidIP(json.ip))",
-                            "    tests[\"Service has valid IP (\"+ json.ip + \")\"] = true;",
-                            "else",
-                            "    tests[\"Service has valid IP\"] = false;",
-                            "    ",
-                            "if (json && json.hostname && typeof json.hostname === \"string\" && json.hostname.length > 0)",
-                            "    tests[\"Service has valid hostname (\"+ json.hostname + \")\"] = true;",
-                            "else",
-                            "    tests[\"Service has valid hostname\"] = false;",
-                            "",
-                            "function isValidIP(ip)",
-                            "{",
-                            "    if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ip)) ",
-                            "        return true;",
-                            "    return false;",
-                            "}"
-                        ]
-                    }
-                }
-            ],
-            "request": {
-                "url": "{{service_url}}/specs",
-                "method": "GET",
-                "header": [],
-                "body": {},
-                "description": ""
-            },
-            "response": []
-        }
-    ]
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"",
+							"",
+							"postman.setEnvironmentVariable(\"service_url\", \"http://zirg-pc:3000\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{service_url}}/status",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Test if has specs",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Response time is less than 200ms\"] = responseTime < 200;",
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"tests[\"Content-Type is application/json\"] = postman.getResponseHeader(\"Content-Type\") && postman.getResponseHeader(\"Content-Type\").has(\"application/json\");",
+							"",
+							"var json = JSON.parse(responseBody);",
+							"if (json && json.ip && isValidIP(json.ip))",
+							"    tests[\"Service has valid IP (\"+ json.ip + \")\"] = true;",
+							"else",
+							"    tests[\"Service has valid IP\"] = false;",
+							"    ",
+							"if (json && json.hostname && typeof json.hostname === \"string\" && json.hostname.length > 0)",
+							"    tests[\"Service has valid hostname (\"+ json.hostname + \")\"] = true;",
+							"else",
+							"    tests[\"Service has valid hostname\"] = false;",
+							"",
+							"function isValidIP(ip)",
+							"{",
+							"    if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ip)) ",
+							"        return true;",
+							"    return false;",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "{{service_url}}/specs",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
 }
