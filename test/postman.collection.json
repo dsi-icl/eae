@@ -24,18 +24,6 @@
 							"tests[\"Service is idle upon start\"] = json.status === EAE_SERVICE_STATUS_IDLE;"
 						]
 					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							"",
-							"",
-							"",
-							"postman.setEnvironmentVariable(\"service_url\", \"http://zirg-pc:3000\");"
-						]
-					}
 				}
 			],
 			"request": {
