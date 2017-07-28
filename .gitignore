@@ -65,5 +65,7 @@ typings/
 .c9/
 *.launch
 .settings/
-
 *.iml
+
+# Config Files
+config/eae.scheduler.config.js
