@@ -38,7 +38,6 @@
         "eae-utils": "https://github.com/dsi-icl/eae-utils.git",
         "express": "4.15.3",
         "fs-extra": "4.0.0",
-        "mongodb": "2.2.30",
-        "os2": "0.0.2"
+        "mongodb": "2.2.30"
     }
 }
