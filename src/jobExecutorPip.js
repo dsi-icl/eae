@@ -16,7 +16,6 @@ function JobExecutorPip(jobID, jobCollection) {
     this._postExecution = JobExecutorPip.prototype._postExecution.bind(this);
     this.startExecution = JobExecutorPip.prototype.startExecution.bind(this);
     this.stopExecution = JobExecutorPip.prototype.stopExecution.bind(this);
-
 }
 JobExecutorPip.prototype = Object.create(JobExecutorAbstract.prototype); //Inherit Js style
 JobExecutorPip.prototype.constructor = JobExecutorPip;
