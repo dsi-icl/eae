@@ -1,4 +1,4 @@
-# eae-compute
+# eae-scheduler
 [![Unicorn](https://img.shields.io/badge/made-with_unicorns-ff69b4.svg?style=flat-square)](https://eae.doc.ic.ac.uk) [![David](https://img.shields.io/david/dsi-icl/eae-scheduler.svg?style=flat-square)](https://david-dm.org/dsi-icl/eae-scheduler) [![David](https://img.shields.io/david/dev/dsi-icl/eae-scheduler.svg?style=flat-square)](https://david-dm.org/dsi-icl/eae-scheduler?type=dev) [![Travis branch](https://img.shields.io/travis/dsi-icl/eae-scheduler/master.svg?style=flat-square)](https://travis-ci.org/dsi-icl/eae-scheduler) [![Code Climate](https://img.shields.io/codeclimate/github/dsi-icl/eae-scheduler.svg?style=flat-square)](https://codeclimate.com/github/dsi-icl/eae-scheduler/code?sort=remediation_cost&sort_direction=asc) [![Code Climate](https://img.shields.io/codeclimate/coverage/github/dsi-icl/eae-scheduler.svg?style=flat-square)](https://codeclimate.com/repos/5970c25db05a95322600010f/settings/test_reporter) [![Code Climate](https://img.shields.io/codeclimate/issues/github/dsi-icl/eae-scheduler.svg?style=flat-square)](https://codeclimate.com/github/dsi-icl/eae-scheduler/issues)
 
 EAE - Scheduler micro-service

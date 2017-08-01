@@ -3,13 +3,13 @@ var os = require('os');
 var app = express();
 
 var config = require('../config/eae.scheduler.config.js');
-var EaeCompute = require('./eaeCompute.js');
+var EaeScheduler = require('./eaeScheduler.js');
 
 //Remove unwanted express headers
 app.set('x-powered-by', false);
 
 var options = Object.assign({}, config);
-app.use(EaeCompute(options));
+app.use(EaeScheduler(options));
 
 app.listen(config.port, function (err) {
     if (err) {

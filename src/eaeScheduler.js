@@ -4,18 +4,18 @@ const express = require('express');
 const body_parser = require('body-parser');
 const { ErrorHelper, StatusHelper, Constants } =  require('eae-utils');
 
+const StatusController = require('./statusController.js');
 const package_json = require('../package.json');
 
 function EaeScheduler(config) {
     this.config = config;
-    global.eae_compute_config = config;
+    global.eae_schedule_config = config;
     this.app = express();
 
     //Bind member functions
     this._connectDb = EaeScheduler.prototype._connectDb.bind(this);
     this._mongoError = EaeScheduler.prototype._mongoError.bind(this);
     this.setupStatusController = EaeScheduler.prototype.setupStatusController.bind(this);
-    this.setupJobController = EaeScheduler.prototype.setupJobController.bind(this);
 
     //Remove unwanted express headers
     this.app.set('x-powered-by', false);
@@ -33,6 +33,9 @@ function EaeScheduler(config) {
         //Init external middleware
         _this.app.use(body_parser.urlencoded({ extended: true }));
         _this.app.use(body_parser.json());
+
+        //Setup route using controllers
+        _this.setupStatusController();
 
     }, function (error) {
         this._mongoError(error);
@@ -75,5 +78,23 @@ EaeScheduler.prototype._mongoError = function (message) {
         res.json(ErrorHelper('Could not connect to the database', message));
     });
 };
+/**
+ * @fn setupStatusController
+ * @desc Initialize status service routes and controller
+ */
+EaeScheduler.prototype.setupStatusController = function () {
+    var _this = this;
+
+    var statusOpts = {
+        version: package_json.version
+    };
+    _this.status_helper = new StatusHelper('eae-scheduler', global.eae_compute_config.port, null, statusOpts);
+    _this.status_helper.setCollection(_this.db.collection(Constants.EAE_COLLECTION_STATUS));
+
+    _this.statusController = new StatusController(_this.status_helper);
+    _this.app.get('/status', _this.statusController.getStatus); //GET status
+    _this.app.get('/specs', _this.statusController.getFullStatus); //GET Full status
+};
+
 
 module.exports = EaeScheduler;
