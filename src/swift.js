@@ -21,12 +21,11 @@ function SwiftHelper(
 
     // Init member vars
     // Destructuring options to private attributes
-    ({
-        url: this._url,
-        username: this._username,
-        password: this._password,
-        chunkSize: this._chunkSize
-    } = options);
+    this._url = options.url;
+    this._username = options.username;
+    this._password = options.password;
+    this._chunkSize = options.chunkSize;
+
     // Creates os2 instances
     this._store = new os2.Store(this._url);
     this._account = new os2.Account(this._store, this._username, this._password);
@@ -220,7 +219,7 @@ SwiftHelper.prototype.createFile = function(containerName, filename, fileRef) {
                 reject(defines.errorStacker('Create file error: Invalid file input'));
                 return;
             }
-            s.createFromStream(stream, _this.chunkSize).then(function(create_status) {
+            s.createFromStream(stream, _this._chunkSize).then(function(create_status) {
                 resolve(create_status);
             }, function(error) {
                 reject(defines.errorStacker('os2 creating file failed', error));
