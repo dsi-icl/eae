@@ -5,9 +5,9 @@ const defines = require('./defines.js');
 
 //Expose utilities in package
 module.exports = {
-    ErrorHelper: defines.errorStacker,
     StatusHelper: StatusHelperModule,
     SwiftHelper: SwiftHelperModule,
+    ErrorHelper: defines.errorStacker,
     DataModels: {
         EAE_STATUS_MODEL: defines.STATUS_MODEL
     },
