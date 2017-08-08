@@ -2,6 +2,10 @@ function ErrorStack(error_obj, error_stack) {
     var error = {};
     var error_message = '';
 
+    error.toString = function() {
+        return JSON.stringify(this);
+    };
+
     //Extract current error message
     if (typeof error_obj === 'string')
         error_message = error_obj;
