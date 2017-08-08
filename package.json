@@ -10,7 +10,11 @@
     "eae",
     "utility"
   ],
-  "author": "Jean Grizet <jean.grizet16@imperial.ac.uk>",
+  "contributors": [
+      "Jean Grizet <jean.grizet16@imperial.ac.uk>",
+      "Florian Guitton <f.guitton@imperial.ac.uk>",
+      "Axel Oehmichen <axelfrancois.oehmichen11@imperial.ac.uk>"
+  ],
   "license": "MIT",
   "readme": "README.md",
   "repository": {
@@ -33,6 +37,8 @@
     "bytes": "2.5.0",
     "fs-extra": "4.0.0",
     "ip": "1.1.5",
-    "mongodb": "2.2.30"
+    "memorystream": "0.3.1",
+    "mongodb": "2.2.30",
+    "os2": "0.0.7"
   }
 }

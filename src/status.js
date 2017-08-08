@@ -9,7 +9,7 @@ const defines = require('./defines.js');
 /**
  * @fn StatusHelper
  * @desc Global status manager. Use it to update the node's status within EAE
- * @param config [in] Additional configurations to include in the status
+ * @param config [in] Additional fields to include in the status
  * @constructor
  */
 function StatusHelper(config = {}) {
@@ -30,8 +30,6 @@ function StatusHelper(config = {}) {
 
     //Perform a first update & sync
     this._update();
-    //Start synchronisation with default delay
-    this.startPeriodicUpdate();
 }
 
 /**

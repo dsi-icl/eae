@@ -1,11 +1,13 @@
 //Include utility classes
-var StatusHelperModule = require('./status.js');
-var defines = require('./defines.js');
+let StatusHelperModule = require('./status.js');
+let SwiftHelperModule = require('./swift.js');
+const defines = require('./defines.js');
 
 //Expose utilities in package
 module.exports = {
     ErrorHelper: defines.errorStacker,
     StatusHelper: StatusHelperModule,
+    SwiftHelper: SwiftHelperModule,
     DataModels: {
         EAE_STATUS_MODEL: defines.STATUS_MODEL
     },
