@@ -38,7 +38,7 @@ function SwiftHelper(
     this.listContainers = SwiftHelper.prototype.listContainers.bind(this);
     this.createContainer = SwiftHelper.prototype.createContainer.bind(this);
     this.deleteContainer = SwiftHelper.prototype.deleteContainer.bind(this);
-    this.statContainer = SwiftHelper.prototype.statContainer(this);
+    this.statContainer = SwiftHelper.prototype.statContainer.bind(this);
     this.getContainerMetadata = SwiftHelper.prototype.getContainerMetadata.bind(this);
     this.setContainerMetadata = SwiftHelper.prototype.setContainerMetadata.bind(this);
     this.createFile = SwiftHelper.prototype.createFile.bind(this);
@@ -59,7 +59,10 @@ function SwiftHelper(
  * @private
  */
 SwiftHelper.prototype._authClosure = function(callback, ...args) {
-    var _this = this;
+    let _this = this;
+
+    if (_this._account === undefined || _this._account === null)
+        return Promise.reject(defines.errorStacker('Swift account missing'));
 
     if (_this._account.isConnected()) {
         return callback.apply(_this, args);
@@ -67,9 +70,7 @@ SwiftHelper.prototype._authClosure = function(callback, ...args) {
     return _this._account.connect().then(function(__unused__connected) {
         return callback.apply(_this, args);
     }, function(error) {
-        return new Promise(function(__unused__r, reject) {
-            reject(defines.errorStacker('Failed to connect', error));
-        });
+        return Promise.reject(defines.errorStacker('Failed to connect', error));
     });
 };
 
@@ -80,7 +81,7 @@ SwiftHelper.prototype._authClosure = function(callback, ...args) {
  * on success, rejects an errorStack otherwise.
  */
 SwiftHelper.prototype.listContainers = function() {
-    var _this = this;
+    let _this = this;
     return _this._authClosure(function(){
         return new Promise(function(resolve, reject) {
             _this._account.listContainers().then(function(container_list) {
@@ -100,7 +101,7 @@ SwiftHelper.prototype.listContainers = function() {
  * rejects an error stack otherwise
  */
 SwiftHelper.prototype.createContainer = function(containerName) {
-    var _this = this;
+    let _this = this;
     return _this._authClosure(function() {
         return new Promise(function (resolve, reject) {
             let c = new os2.Container(_this._account, containerName);
@@ -121,7 +122,7 @@ SwiftHelper.prototype.createContainer = function(containerName) {
  * @return {Promise} Resolves to the status content on success, rejects an error stack otherwise.
  */
 SwiftHelper.prototype.deleteContainer = function(containerName) {
-    var _this = this;
+    let _this = this;
     return _this._authClosure(function() {
         return new Promise(function(resolve, reject) {
             let c = new os2.Container(_this._account, containerName);
@@ -141,7 +142,7 @@ SwiftHelper.prototype.deleteContainer = function(containerName) {
  * @return {Promise} Resolves to an {Array} of objects name or rejects to an error stack.
  */
 SwiftHelper.prototype.statContainer = function(containerName) {
-    var _this = this;
+    let _this = this;
     return _this._authClosure(function() {
         return new Promise(function (resolve, reject) {
             let c = new os2.Container(_this._account, containerName);
@@ -162,7 +163,7 @@ SwiftHelper.prototype.statContainer = function(containerName) {
  * rejects error stack otherwise.
  */
 SwiftHelper.prototype.getContainerMetadata = function(containerName) {
-    var _this = this;
+    let _this = this;
     return _this._authClosure(function() {
         return new Promise(function (resolve, reject) {
             let c = new os2.Container(_this._account, containerName);
@@ -182,7 +183,7 @@ SwiftHelper.prototype.getContainerMetadata = function(containerName) {
  * @return {Promise} On success resolve to the updated metadata key:values or rejects an error stack
  */
 SwiftHelper.prototype.setContainerMetadata = function(containerName, metadata) {
-    var _this = this;
+    let _this = this;
     return _this._authClosure(function() {
         return new Promise(function (resolve, reject) {
             let c = new os2.Container(_this._account, containerName);
@@ -204,7 +205,7 @@ SwiftHelper.prototype.setContainerMetadata = function(containerName, metadata) {
  * @return {Promise} Resolves to created {StaticLargeObject} instance or rejects an error stack.
  */
 SwiftHelper.prototype.createFile = function(containerName, filename, fileRef) {
-    var _this = this;
+    let _this = this;
     return _this._authClosure(function() {
         return new Promise(function (resolve, reject) {
             let c = new os2.Container(_this._account, containerName);
