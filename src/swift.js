@@ -1,4 +1,5 @@
 const os2 = require('os2');
+const stream = require('stream');
 const MemoryStream = require('memorystream');
 const defines = require('./defines.js');
 
@@ -205,28 +206,34 @@ SwiftHelper.prototype.setContainerMetadata = function(containerName, metadata) {
  */
 SwiftHelper.prototype.createFile = function(containerName, filename, fileRef) {
     let _this = this;
+    filename = new String(filename); // Conversion to String object in case of a primitive string
     return _this._authClosure(function() {
         return new Promise(function (resolve, reject) {
             let c = new os2.Container(_this._account, containerName);
             let s = new os2.StaticLargeObject(c, filename);
-            let stream = null;
+            let data_stream = null;
 
-            if (typeof fileRef === 'string' || fileRef instanceof Buffer)
-                stream = new MemoryStream(Buffer.from(fileRef));
+            if (fileRef instanceof String || fileRef instanceof Buffer)
+                data_stream = new MemoryStream(Buffer.from(fileRef));
+
             if (stream.Readable.prototype.isPrototypeOf(fileRef)) // Is a readable stream
-                stream = fileRef;
-            if (stream === null || stream === undefined) {
+                data_stream = fileRef;
+
+            if (data_stream === null || data_stream === undefined) {
                 reject(defines.errorStacker('Create file error: Invalid file input'));
                 return;
             }
-            s.createFromStream(stream, _this._chunkSize).then(function(create_status) {
+            console.log('coucou');
+
+            s.createFromStream(data_stream, _this._chunkSize).then(function(create_status) {
+                console.log('coucou');
                 resolve(create_status);
             }, function(error) {
+                console.log('not coucou');
                 reject(defines.errorStacker('os2 creating file failed', error));
             });
         });
     });
-
 };
 
 /**
