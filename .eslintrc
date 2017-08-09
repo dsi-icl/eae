@@ -58,7 +58,7 @@
             {
                 "vars": "all",
                 "args": "all",
-                "argsIgnorePattern": "^_unused__"
+                "argsIgnorePattern": "^__unused__"
             }
         ]
     }
