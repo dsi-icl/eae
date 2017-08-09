@@ -213,23 +213,27 @@ SwiftHelper.prototype.createFile = function(containerName, filename, fileRef) {
             let s = new os2.StaticLargeObject(c, filename);
             let data_stream = null;
 
+            //If content is a string or buffer, transform it to a stream
             if (fileRef instanceof String || fileRef instanceof Buffer)
                 data_stream = new MemoryStream(Buffer.from(fileRef));
 
-            if (stream.Readable.prototype.isPrototypeOf(fileRef)) // Is a readable stream
+            // Is a readable stream
+            if (stream.Readable.prototype.isPrototypeOf(fileRef))
                 data_stream = fileRef;
 
+            // Conversion failed or type is not supported
             if (data_stream === null || data_stream === undefined) {
-                reject(defines.errorStacker('Create file error: Invalid file input'));
+                reject(defines.errorStacker('Invalid file input ' + typeof fileRef));
                 return;
             }
-            console.log('coucou');
 
+            // Start uploading
             s.createFromStream(data_stream, _this._chunkSize).then(function(create_status) {
-                console.log('coucou');
+                console.log('created');
                 resolve(create_status);
             }, function(error) {
-                console.log('not coucou');
+                console.log('fail create');
+                console.log(error);
                 reject(defines.errorStacker('os2 creating file failed', error));
             });
         });
