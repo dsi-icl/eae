@@ -229,11 +229,8 @@ SwiftHelper.prototype.createFile = function(containerName, filename, fileRef) {
 
             // Start uploading
             s.createFromStream(data_stream, _this._chunkSize).then(function(create_status) {
-                console.log('created');
                 resolve(create_status);
             }, function(error) {
-                console.log('fail create');
-                console.log(error);
                 reject(defines.errorStacker('os2 creating file failed', error));
             });
         });
