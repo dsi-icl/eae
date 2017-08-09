@@ -15,7 +15,7 @@ function StatusController(statusHelper) {
 /**
  * @fn getStatus
  * @desc HTTP method GET handler on this service status
- * @param _unused__req Express.js request object
+ * @param __unused__req Express.js request object
  * @param res Express.js response object
  */
 StatusController.prototype.getStatus = function(__unused__req, res) {
@@ -26,7 +26,7 @@ StatusController.prototype.getStatus = function(__unused__req, res) {
 /**
  * @fn getFullStatus
  * @desc HTTP method GET handler on this service status & specifications
- * @param _unused__req Express.js request object
+ * @param __unused__req Express.js request object
  * @param res Express.js response object
  */
 StatusController.prototype.getFullStatus = function(__unused__req, res) {
