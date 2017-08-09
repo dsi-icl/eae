@@ -27,9 +27,6 @@ function StatusHelper(config = {}) {
     this.stopPeriodicUpdate = StatusHelper.prototype.stopPeriodicUpdate.bind(this);
     this._update = StatusHelper.prototype._update.bind(this);
     this._sync = StatusHelper.prototype._sync.bind(this);
-
-    //Perform a first update & sync
-    this._update();
 }
 
 /**
