@@ -1,15 +1,29 @@
 const process = require('process');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
 const JobExecutorAbstract = require('./jobExecutorAbstract.js');
+const { SwiftHelper, ErrorHelper } = require('eae-utils');
 
 /**
  * @class JobExecutorPython
  * @desc Specialization of JobExecutorAbstract for python scripts
  * @param jobID {String} The job unique identifier in DB
  * @param jobCollection MongoDB collection to sync the job model against
+ * @param jobModel {Object} Plain js Job model from the mongoDB, optional if fetchModel is called
  * @constructor
  */
-function JobExecutorPython(jobID, jobCollection) {
-    JobExecutorAbstract.call(this, jobID, jobCollection);
+function JobExecutorPython(jobID, jobCollection, jobModel) {
+    JobExecutorAbstract.call(this, jobID, jobCollection, jobModel);
+
+    // Init member attributes
+    this._swift = new SwiftHelper({
+        url: global.eae_compute_config.swiftURL,
+        username: global.eae_compute_config.swiftUsername,
+        password: global.eae_compute_config.swiftPassword
+    });
+    this._tmpDirectory = null;
 
     // Bind member functions
     this._preExecution = JobExecutorPython.prototype._preExecution.bind(this);
@@ -29,9 +43,52 @@ JobExecutorPython.prototype.constructor = JobExecutorPython;
  * @pure
  */
 JobExecutorPython.prototype._preExecution = function() {
-    // throw 'Should get inputs here';
-    return new Promise(function (resolve, _unused__reject) {
-        resolve(true);
+    let _this = this;
+
+    return new Promise(function (resolve, reject) {
+        // Compute input container name
+        let container_name = _this._jobID.toString() + '_input';
+        // Create input directory
+        fs.mkdirSync(path.join(_this._tmpDirectory, 'input'));
+        let file_transfer_promises = [];
+
+        // Download each input file in the model from the swift store
+        _this._model.input.forEach(function(file) {
+            // Store the file in the input subdirectory
+            let tmpDestination = path.join(_this._tmpDirectory, 'input', file);
+
+            // Get download stream
+            let p = _this._swift.getFileReadStream(container_name, file).then(function(rs) {
+                let ws = fs.createWriteStream(tmpDestination); // Open file descriptor
+                rs.pipe(ws); //Pipe received data to be written in the file
+
+                // Listen to then end of the file transfer
+                resolve(new Promise(function(file_resolve, file_reject) {
+                    rs.on('end', function() {
+                        file_resolve(true);
+                    });
+                    rs.on('error', function(error) {
+                        file_reject(ErrorHelper('Downloading ' + file + ' failed', error));
+                    });
+                }));
+            }, function(error) {
+                reject(ErrorHelper('Downloading ' + file + ' has error', error));
+            });
+
+            // Push the file transfer promise into array
+            file_transfer_promises.push(p);
+        });
+
+        //Wait for all files to be transferred
+        Promise.all(file_transfer_promises).then(function(__unused__ok_array) {
+            //Create output directory if doesnt exists
+            if (fs.existsSync(path.join(_this._tmpDirectory, 'output')) === false) {
+                fs.mkdirSync(path.join(_this._tmpDirectory, 'output'));
+            }
+            resolve(true); // All good
+        }, function(error) {
+            reject(ErrorHelper('Input download failed', error));
+        });
     });
 };
 
@@ -43,9 +100,54 @@ JobExecutorPython.prototype._preExecution = function() {
  * @pure
  */
 JobExecutorPython.prototype._postExecution = function() {
-    // throw 'Should store outputs here';
-    return new Promise(function (resolve, _unused__reject) {
-        resolve(true);
+    let _this = this;
+    return new Promise(function (resolve, reject) {
+        let container_name = _this._jobID.toString() + '_output';
+        let tmpSource = path.join(_this._tmpDirectory, 'output');
+        let upload_file_promises = [];
+
+        // Cleanup current output in model
+        _this._model.output = [];
+
+        // Create container
+        _this._swift.createContainer(container_name).then(function(__unused__ok) {
+
+            if (fs.existsSync(tmpSource) === false) {
+                resolve(true); // No outputs
+                return;
+            }
+
+            // List whats in the output directory
+            fs.readdir(tmpSource, function(error, files) {
+                if (error) {
+                    reject(ErrorHelper('Listing output files failed', error));
+                    return;
+                }
+
+                // Upload each file
+                files.forEach(function(file) {
+                    // Register file in output
+                    _this._model.output.push(file);
+
+                    let tmpFile = path.join(tmpSource, file);
+                    let rs = fs.createReadStream(tmpFile);
+
+                    // Upload file to swift container
+                    let p = _this._swift.createFile(container_name, file, rs);
+                    // Register uploading promise
+                    upload_file_promises.push(p);
+                });
+
+                // Wait for all uploads to complete
+                Promise.all(upload_file_promises).then(function(__unused__ok_array) {
+                    resolve(true); // All good
+                }, function(error) {
+                    reject(ErrorHelper('Uploading output files failed', error));
+                });
+            });
+        }, function(error) {
+            reject(ErrorHelper('Creating output container failed', error));
+        });
     });
 };
 
@@ -55,22 +157,30 @@ JobExecutorPython.prototype._postExecution = function() {
  * @desc Starts the execution of designated job.
  */
 JobExecutorPython.prototype.startExecution = function(callback) {
-    var _this = this;
+    let _this = this;
 
     _this._callback = callback;
-    _this.fetchModel().then(function() {
-        var cmd = 'python ' + _this._model.main;
-        var args = _this._model.params;
-        var opts = {
-            cwd:  process.cwd(),
-            end: process.env,
-            shell: true
-        };
-        _this._exec(cmd, args, opts);
-    }, function(error) {
-        throw error;
+    // Create tmp directory
+    fs.mkdtemp(os.tmpdir() + path.sep, function(error, directoryPath) {
+        if (error) {
+            callback(error);
+            return;
+        }
+        _this._tmpDirectory = directoryPath; //Save tmp dir
+
+        _this.fetchModel().then(function () {
+            let cmd = 'python ' + _this._model.main;
+            let args = _this._model.params;
+            let opts = {
+                cwd: _this._tmpDirectory,
+                end: process.env,
+                shell: true
+            };
+            _this._exec(cmd, args, opts);
+        }, function (error) {
+            callback(error);
+        });
     });
-    // throw 'Should call _exec here';
 };
 
 /**

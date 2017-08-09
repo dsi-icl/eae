@@ -7,6 +7,7 @@
 function StatusController(statusHelper) {
     this._helper = statusHelper;
 
+    // Bind member functions
     this.getStatus = StatusController.prototype.getStatus.bind(this);
 	this.getFullStatus = StatusController.prototype.getFullStatus.bind(this);
 }
@@ -17,7 +18,7 @@ function StatusController(statusHelper) {
  * @param _unused__req Express.js request object
  * @param res Express.js response object
  */
-StatusController.prototype.getStatus = function(_unused__req, res) {
+StatusController.prototype.getStatus = function(__unused__req, res) {
 	res.status(200);
 	res.json({ status: this._helper.getStatus() });
 };
@@ -28,7 +29,7 @@ StatusController.prototype.getStatus = function(_unused__req, res) {
  * @param _unused__req Express.js request object
  * @param res Express.js response object
  */
-StatusController.prototype.getFullStatus = function(_unused__req, res) {
+StatusController.prototype.getFullStatus = function(__unused__req, res) {
 	res.status(200);
 	res.json(this._helper.getDataModel());
 };

@@ -45,7 +45,7 @@ JobController.prototype.runJob = function(req, res) {
         //Set the node to busy
         _this._status_helper.setStatus(Constants.EAE_SERVICE_STATUS_BUSY);
         //Trigger asynchronous execution
-        _this._executor.startExecution(function() {
+        _this._executor.startExecution(function(__unused__error) {
             //After exec, set the node to idle
             _this._status_helper.setStatus(Constants.EAE_SERVICE_STATUS_IDLE);
             //Cleanup executor instance
@@ -66,7 +66,7 @@ JobController.prototype.runJob = function(req, res) {
  * @param _unused__req Express.js request object
  * @param res Express.js response object
  */
-JobController.prototype.cancelJob = function(_unused__req, res) {
+JobController.prototype.cancelJob = function(__unused__req, res) {
     var _this = this;
 
     if (_this._executor === undefined || _this._executor === null) {

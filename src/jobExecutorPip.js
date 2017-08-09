@@ -6,10 +6,11 @@ const JobExecutorAbstract = require('./jobExecutorAbstract.js');
  * @desc Specialization of JobExecutorAbstract for python scripts
  * @param jobID {String} The job unique identifier in DB
  * @param jobCollection MongoDB collection to sync the job model against
+ * @param jobModel {Object} Plain js Job model from the mongoDB, optional if fetchModel is called
  * @constructor
  */
-function JobExecutorPip(jobID, jobCollection) {
-    JobExecutorAbstract.call(this, jobID, jobCollection);
+function JobExecutorPip(jobID, jobCollection, jobModel) {
+    JobExecutorAbstract.call(this, jobID, jobCollection, jobModel);
 
     // Bind member functions
     this._preExecution = JobExecutorPip.prototype._preExecution.bind(this);
@@ -28,7 +29,7 @@ JobExecutorPip.prototype.constructor = JobExecutorPip;
  */
 JobExecutorPip.prototype._preExecution = function() {
     // No file to transfer here, just resolve to true
-    return new Promise(function (resolve, _unused__reject) {
+    return new Promise(function (resolve, __unused__reject) {
         resolve(true);
     });
 };
@@ -41,7 +42,7 @@ JobExecutorPip.prototype._preExecution = function() {
  */
 JobExecutorPip.prototype._postExecution = function() {
     // No file to transfer here, just resolve to true
-    return new Promise(function (resolve, _unused__reject) {
+    return new Promise(function (resolve, __unused__reject) {
         resolve(true);
     });
 };
@@ -52,13 +53,13 @@ JobExecutorPip.prototype._postExecution = function() {
  * @desc Starts the execution of designated job.
  */
 JobExecutorPip.prototype.startExecution = function(callback) {
-    var _this = this;
+    let _this = this;
 
     _this._callback = callback;
     _this.fetchModel().then(function() {
-        var cmd = 'pip';
-        var args = _this._model.params;
-        var opts = {
+        let cmd = 'pip';
+        let args = _this._model.params;
+        let opts = {
             cwd:  process.cwd(),
             end: process.env,
             shell: true

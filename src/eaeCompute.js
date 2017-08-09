@@ -14,35 +14,35 @@ function EaeCompute(config) {
     global.eae_compute_config = config;
     this.app = express();
 
-    //Bind member functions
+    // Bind member functions
     this._connectDb = EaeCompute.prototype._connectDb.bind(this);
     this._mongoError = EaeCompute.prototype._mongoError.bind(this);
     this.setupStatusController = EaeCompute.prototype.setupStatusController.bind(this);
     this.setupJobController = EaeCompute.prototype.setupJobController.bind(this);
 
-    //Remove unwanted express headers
+    // Remove unwanted express headers
     this.app.set('x-powered-by', false);
-    //Allow CORS requests when enabled
+    // Allow CORS requests when enabled
     if (this.config.enableCors === true) {
-        this.app.use(function (_unused__req, res, next) {
+        this.app.use(function (__unused__req, res, next) {
             res.header('Access-Control-Allow-Origin', '*');
             res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
             next();
         });
     }
 
-    var _this = this;
+    let _this = this;
     this._connectDb().then(function () {
-        //Init external middleware
+        // Init external middleware
         _this.app.use(body_parser.urlencoded({ extended: true }));
         _this.app.use(body_parser.json());
 
-        //Setup route using controllers
+        // Setup route using controllers
         _this.setupStatusController();
         _this.setupJobController();
 
     }, function (error) {
-        this._mongoError(error);
+        _this._mongoError(error);
     });
 
     return this.app;
@@ -55,8 +55,8 @@ function EaeCompute(config) {
  * @private
  */
 EaeCompute.prototype._connectDb = function () {
-    var _this = this;
-    var main_db = new Promise(function (resolve, reject) {
+    let _this = this;
+    let main_db = new Promise(function (resolve, reject) {
         mongodb.connect(_this.config.mongoURL, function (err, db) {
             if (err !== null && err !== undefined) {
                 reject(ErrorHelper('Failed to connect to mongoDB', err));
@@ -77,7 +77,7 @@ EaeCompute.prototype._connectDb = function () {
  * @private
  */
 EaeCompute.prototype._mongoError = function (message) {
-    this.app.all('*', function (_unused__req, res) {
+    this.app.all('*', function (__unused__req, res) {
         res.status(401);
         res.json(ErrorHelper('Could not connect to the database', message));
     });
@@ -88,17 +88,18 @@ EaeCompute.prototype._mongoError = function (message) {
  * @desc Initialize status service routes and controller
  */
 EaeCompute.prototype.setupStatusController = function () {
-    var _this = this;
+    let _this = this;
 
-    var statusOpts = {
+    let statusOpts = {
         version: package_json.version
     };
     _this.status_helper = new StatusHelper('eae-compute', global.eae_compute_config.port, null, statusOpts);
     _this.status_helper.setCollection(_this.db.collection(Constants.EAE_COLLECTION_STATUS));
+    _this.status_helper.startPeriodicUpdate(5 * 1000); // Update status every 5 seconds
 
     _this.statusController = new StatusController(_this.status_helper);
-    _this.app.get('/status', _this.statusController.getStatus); //GET status
-    _this.app.get('/specs', _this.statusController.getFullStatus); //GET Full status
+    _this.app.get('/status', _this.statusController.getStatus); // GET status
+    _this.app.get('/specs', _this.statusController.getFullStatus); // GET Full status
 };
 
 /**
@@ -106,11 +107,11 @@ EaeCompute.prototype.setupStatusController = function () {
  * @desc Initialize job execution service routes and controller
  */
 EaeCompute.prototype.setupJobController = function () {
-    var _this = this;
+    let _this = this;
 
     _this.jobController = new JobController(_this.db.collection(Constants.EAE_COLLECTION_JOBS), _this.status_helper);
-    _this.app.post('/run', _this.jobController.runJob); //POST run a job from ID
-    _this.app.post('/cancel', _this.jobController.cancelJob); //POST cancel current job
+    _this.app.post('/run', _this.jobController.runJob); // POST run a job from ID
+    _this.app.post('/cancel', _this.jobController.cancelJob); // POST cancel current job
 };
 
 module.exports = EaeCompute;

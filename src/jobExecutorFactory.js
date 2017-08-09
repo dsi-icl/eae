@@ -21,20 +21,20 @@ function JobExecutorFactory() {
  * @fn createFromID
  * @param jobID {String} Job unique identifier in DB (24 hex chars)
  * @param jobCollection MongoDD job storage collection
- * @return {Promise} Resolve to executor implementation based on job type OR reject an error stack
+ * @return {Promise} Resolve to executor implementation based on job type OR rejects an error stack
  */
 JobExecutorFactory.prototype.createFromId = function(jobID, jobCollection) {
     return new Promise(function(resolve, reject) {
-        jobCollection.findOne({ _id: new ObjectID(jobID) }, { fields : { 'type': 1 } }).then(function(job) {
-            switch (job.type) {
+        jobCollection.findOne({ _id: new ObjectID(jobID) }).then(function(jobModel) {
+            switch (jobModel.type) {
                 case 'python':
-                    resolve(new JobExecutorPython(jobID, jobCollection));
+                    resolve(new JobExecutorPython(jobID, jobCollection, jobModel));
                     break;
                 case 'pip':
-                    resolve(new JobExecutorPip(jobID, jobCollection));
+                    resolve(new JobExecutorPip(jobID, jobCollection, jobModel));
                     break;
                 default:
-                    reject(ErrorHelper('Execution is not supported for ' + job.type));
+                    reject(ErrorHelper('Execution is not supported for ' + jobModel.type));
                     break;
             }
         }, function (error) {
