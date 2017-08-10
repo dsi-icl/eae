@@ -10,18 +10,24 @@ const JobController = require('./jobController.js');
 
 
 function EaeCompute(config) {
+    // Init member attributes
     this.config = config;
-    global.eae_compute_config = config;
     this.app = express();
+    global.eae_compute_config = config;
 
-    // Bind member functions
+    // Bind public member functions
+    this.start = EaeCompute.prototype.start.bind(this);
+    this.stop = EaeCompute.prototype.stop.bind(this);
+
+    // Bind private member functions
     this._connectDb = EaeCompute.prototype._connectDb.bind(this);
-    this._mongoError = EaeCompute.prototype._mongoError.bind(this);
-    this.setupStatusController = EaeCompute.prototype.setupStatusController.bind(this);
-    this.setupJobController = EaeCompute.prototype.setupJobController.bind(this);
+    this._setupStatusController = EaeCompute.prototype._setupStatusController.bind(this);
+    this._setupJobController = EaeCompute.prototype._setupJobController.bind(this);
+
 
     // Remove unwanted express headers
     this.app.set('x-powered-by', false);
+
     // Allow CORS requests when enabled
     if (this.config.enableCors === true) {
         this.app.use(function (__unused__req, res, next) {
@@ -30,23 +36,49 @@ function EaeCompute(config) {
             next();
         });
     }
-
-    let _this = this;
-    this._connectDb().then(function () {
-        // Init external middleware
-        _this.app.use(body_parser.urlencoded({ extended: true }));
-        _this.app.use(body_parser.json());
-
-        // Setup route using controllers
-        _this.setupStatusController();
-        _this.setupJobController();
-
-    }, function (error) {
-        _this._mongoError(error);
-    });
-
-    return this.app;
+    // Init third party middleware
+    this.app.use(body_parser.urlencoded({ extended: true }));
+    this.app.use(body_parser.json());
 }
+
+/**
+ * @fn start
+ * @desc Starts the eae compute service
+ * @return {Promise} Resolves to a Express.js Application router on success,
+ * rejects an error stack otherwise
+ */
+EaeCompute.prototype.start = function() {
+    let _this = this;
+    return new Promise(function (resolve, reject) {
+        _this._connectDb().then(function () {
+            // Setup route using controllers
+            _this._setupStatusController();
+            _this._setupJobController();
+
+            // Start status periodic update
+            _this.status_helper.startPeriodicUpdate(5 * 1000); // Update status every 5 seconds
+
+            resolve(_this.app); // All good, returns application
+        }, function (error) {
+            reject(ErrorHelper('Cannot establish mongoDB connection', error))
+        });
+    });
+};
+
+EaeCompute.prototype.stop = function() {
+    let _this = this;
+    return new Promise(function (resolve, reject) {
+        // Stop status update
+        _this.status_helper.stopPeriodicUpdate();
+        // Disconnect DB --force
+        _this.db.close(true).then(function(error) {
+            if (error)
+                reject(ErrorHelper('Closing mongoDB connection failed', error));
+            else
+                resolve(true);
+        })
+    });
+};
 
 /**
  * @fn _connectDb
@@ -56,7 +88,7 @@ function EaeCompute(config) {
  */
 EaeCompute.prototype._connectDb = function () {
     let _this = this;
-    let main_db = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         mongodb.connect(_this.config.mongoURL, function (err, db) {
             if (err !== null && err !== undefined) {
                 reject(ErrorHelper('Failed to connect to mongoDB', err));
@@ -66,36 +98,20 @@ EaeCompute.prototype._connectDb = function () {
             resolve(true);
         });
     });
-
-	return main_db;
 };
 
 /**
- * @fn _mongoError
- * @desc Disables every routes of the app to send back an error message
- * @param message A message string to use in responses
- * @private
- */
-EaeCompute.prototype._mongoError = function (message) {
-    this.app.all('*', function (__unused__req, res) {
-        res.status(401);
-        res.json(ErrorHelper('Could not connect to the database', message));
-    });
-};
-
-/**
- * @fn setupStatusController
+ * @fn _setupStatusController
  * @desc Initialize status service routes and controller
  */
-EaeCompute.prototype.setupStatusController = function () {
+EaeCompute.prototype._setupStatusController = function () {
     let _this = this;
 
     let statusOpts = {
         version: package_json.version
     };
-    _this.status_helper = new StatusHelper('eae-compute', global.eae_compute_config.port, null, statusOpts);
+    _this.status_helper = new StatusHelper(Constants.EAE_COMPUTE, global.eae_compute_config.port, null, statusOpts);
     _this.status_helper.setCollection(_this.db.collection(Constants.EAE_COLLECTION_STATUS));
-    _this.status_helper.startPeriodicUpdate(5 * 1000); // Update status every 5 seconds
 
     _this.statusController = new StatusController(_this.status_helper);
     _this.app.get('/status', _this.statusController.getStatus); // GET status
@@ -103,10 +119,10 @@ EaeCompute.prototype.setupStatusController = function () {
 };
 
 /**
- * @fn setupJobController
+ * @fn _setupJobController
  * @desc Initialize job execution service routes and controller
  */
-EaeCompute.prototype.setupJobController = function () {
+EaeCompute.prototype._setupJobController = function () {
     let _this = this;
 
     _this.jobController = new JobController(_this.db.collection(Constants.EAE_COLLECTION_JOBS), _this.status_helper);

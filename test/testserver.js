@@ -19,42 +19,45 @@ TestServer.prototype.run = function() {
         // Setup node env to test during test
         process.env.TEST = 1;
 
-        // Plugs eae compute routes
+        // Create eae compute server
         _this.eae_compute = new EaeCompute(config);
-        _this._app.use(_this.eae_compute);
 
-        // Serves eae compute
-        _this._app.listen(config.port, function(error) {
-            if (error)
-                reject(error);
-        });
-
-        mongodb.connect(config.mongoURL, function(error, db) {
-            if (error)
-                reject(error);
-            else {
-                _this.db = db;
-                resolve(true);
-            }
+        // Start server
+        _this.eae_compute.start().then(function (compute_router) {
+            _this._app.use(compute_router);
+            _this._server = _this._app.listen(config.port, function (error) {
+                if (error)
+                    reject(error);
+                else
+                    resolve(true);
+            });
+        }, function (error) {
+            reject(error);
         });
     });
 };
 
 TestServer.prototype.stop = function() {
     let _this = this;
-    return new Promise(function(resolve, __unused__reject) {
+    return new Promise(function(resolve, reject) {
         // Remove test flag from env
         delete process.env.TEST;
 
-        _this.db.close();
-        delete _this.eae_compute;
-
-        resolve(true);
+        _this.eae_compute.stop().then(function() {
+            _this._server.close(function(error) {
+                    if (error)
+                        reject(error);
+                    else
+                        resolve(true);
+                });
+            }, function (error) {
+                reject(error);
+        });
     });
 };
 
 TestServer.prototype.mongo = function() {
-    return this.db;
+    return this.eae_compute.db
 };
 
 module.exports = TestServer;

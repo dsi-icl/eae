@@ -9,12 +9,18 @@ let EaeCompute = require('./eaeCompute.js');
 app.set('x-powered-by', false);
 
 let options = Object.assign({}, config);
-app.use(EaeCompute(options));
+let compute = new EaeCompute(options);
 
-app.listen(config.port, function (err) {
-    if (err) {
-        console.error(err); // eslint-disable-line no-console
-        return;
-    }
-    console.log(`Listening at http://${os.hostname()}:${config.port}/`); // eslint-disable-line no-console
+compute.start().then(function(compute_router) {
+    app.use(compute_router);
+    app.listen(config.port, function (error) {
+        if (error) {
+            console.error(error); // eslint-disable-line no-console
+            return;
+        }
+        console.log(`Listening at http://${os.hostname()}:${config.port}/`); // eslint-disable-line no-console
+    });
+}, function(error) {
+    console.error(error); // eslint-disable-line no-console
 });
+

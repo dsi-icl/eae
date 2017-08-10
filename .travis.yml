@@ -21,7 +21,7 @@ before_install:
   - docker ps -a
 
 script:
-  - docker run --net="host" -v `pwd`:npm test
+  - docker run --net="host" -v `pwd`/test:/etc/newman -t postman/newman_ubuntu1404 run -e postman.environment.json postman.collection.json
 
 after_script:
   - docker-compose down --rmi all --remove-orphans
