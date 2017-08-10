@@ -115,7 +115,7 @@ EaeScheduler.prototype._setupStatusController = function () {
     let statusOpts = {
         version: package_json.version
     };
-    _this.status_helper = new StatusHelper(Constants.EAE_SERVICE_TYPE_SC, global.eae_compute_config.port, null, statusOpts);
+    _this.status_helper = new StatusHelper(Constants.EAE_SERVICE_TYPE_SCHEDULER, global.eae_compute_config.port, null, statusOpts);
     _this.status_helper.setCollection(_this.db.collection(Constants.EAE_COLLECTION_STATUS));
 
     _this.statusController = new StatusController(_this.status_helper);
@@ -131,7 +131,6 @@ EaeScheduler.prototype._setupStatusController = function () {
 EaeScheduler.prototype._setupNodesWatchdog = function () {
     var _this = this;
 
-    _this.status_helper.startPeriodicUpdate(5 * 1000); // Update status every 5 seconds
 
 };
 
