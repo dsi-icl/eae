@@ -10,7 +10,7 @@ services:
 
   swift:
     image: bouncestorage/swift-aio
-    command: npm start
+    command: /bin/bash /bin/swift
     ports:
       - 8080:8080
 
