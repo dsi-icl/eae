@@ -13,15 +13,17 @@ services:
   - docker
 
 before_install:
+  - docker build -t bouncestorage/swift-aio .
   - export EAE_COMPUTE_VERSION=`npm version patch`
   - docker-compose --version
-  - docker-compose build --build-arg version=$EAE_COMPUTE_VERSION compute
+  - docker-compose build --build-arg version=$EAE_COMPUTE_VERSION tests
   - docker-compose up -d --remove-orphans --scale compute=3
   - docker-compose images
   - docker ps -a
 
 script:
-  - docker run --net="host" -v `pwd`/test:/etc/newman -t postman/newman_ubuntu1404 run -e postman.environment.json postman.collection.json
+  - docker run -v `pwd`/swift:/swift/nodes -t bouncestorage/swift-aio
+  - docker run --net="host"
 
 after_script:
   - docker-compose down --rmi all --remove-orphans

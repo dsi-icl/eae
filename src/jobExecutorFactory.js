@@ -1,5 +1,5 @@
 const ObjectID = require('mongodb').ObjectID;
-const { ErrorHelper } =  require('eae-utils');
+const { ErrorHelper, Constants } =  require('eae-utils');
 
 const JobExecutorPython = require('./jobExecutorPython.js');
 const JobExecutorPip = require('./jobExecutorPip.js');
@@ -27,10 +27,10 @@ JobExecutorFactory.prototype.createFromId = function(jobID, jobCollection) {
     return new Promise(function(resolve, reject) {
         jobCollection.findOne({ _id: new ObjectID(jobID) }).then(function(jobModel) {
             switch (jobModel.type) {
-                case 'python':
+                case Constants.EAE_JOB_TYPE_PYTHON2:
                     resolve(new JobExecutorPython(jobID, jobCollection, jobModel));
                     break;
-                case 'pip':
+                case Constants.EAE_JOB_TYPE_PIP:
                     resolve(new JobExecutorPip(jobID, jobCollection, jobModel));
                     break;
                 default:
