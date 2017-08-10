@@ -1,14 +1,14 @@
-var express = require('express');
-var os = require('os');
-var app = express();
+let express = require('express');
+let os = require('os');
+let app = express();
 
-var config = require('../config/eae.scheduler.config.js');
-var EaeScheduler = require('./eaeScheduler.js');
+let config = require('../config/eae.scheduler.config.js');
+let EaeScheduler = require('./eaeScheduler.js');
 
 //Remove unwanted express headers
 app.set('x-powered-by', false);
 
-var options = Object.assign({}, config);
+let options = Object.assign({}, config);
 app.use(EaeScheduler(options));
 
 app.listen(config.port, function (err) {

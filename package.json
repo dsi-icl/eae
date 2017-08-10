@@ -11,7 +11,12 @@
     "eae",
     "compute"
   ],
-  "license": "Apache 2",
+  "contributors": [
+    "Axel Oehmichen <axelfrancois.oehmichen11@imperial.ac.uk>",
+    "Jean Grizet <jean.grizet16@imperial.ac.uk>",
+    "Florian Guitton <f.guitton@imperial.ac.uk>"
+  ],
+  "license": "MIT",
   "readme": "README.md",
   "repository": {
     "type": "git",
@@ -30,7 +35,7 @@
   },
   "dependencies": {
     "body-parser": "1.17.2",
-    "eae-utils": "https://github.com/dsi-icl/eae-utils.git",
+    "eae-utils": "git+https://github.com/dsi-icl/eae-utils.git",
     "express": "4.15.3",
     "fs-extra": "4.0.0",
     "mongodb": "2.2.30"
