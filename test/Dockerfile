@@ -23,4 +23,4 @@ COPY src /usr/app/src
 
 # Start application
 EXPOSE 80
-CMD [ "npm", "test" ]
+CMD npm test
