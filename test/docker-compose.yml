@@ -14,19 +14,15 @@ services:
     ports:
       - 8080:8080
 
-  lb: # Load balancing
-    image: dockercloud/haproxy
-    links:
-      - compute
+  tests:
+    build:
+        context: .
+        dockerfile: ./test/Dockerfile
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    ports:
-      - 80:80
-
-  compute:
-    build: .
+      - ./config/eae.compute.test.config.js:/usr/app/config/eae.compute.config.js
     depends_on:
       - db
       - swift
-    volumes:
-      - ./config/eae.compute.config.sample.js:/usr/app/config/eae.compute.config.js
+    ports:
+        - 80:80
+    command: npm test

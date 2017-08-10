@@ -14,19 +14,16 @@ services:
 
 before_install:
   - docker build -t bouncestorage/swift-aio .
-  - export EAE_COMPUTE_VERSION=`npm version patch`
-  - docker-compose --version
-  - docker-compose build --build-arg version=$EAE_COMPUTE_VERSION tests
-
+  - docker-compose -f ./test/docker-compose.yml build tests
 
 script:
-  - docker run -v `pwd`/swift:/swift/nodes -t bouncestorage/swift-aio
-  - docker-compose up -d --remove-orphans tests
-  - docker-compose images
+  - docker-compose -f ./test/docker-compose.yml up -d --remove-orphans tests
+  - docker-compose -f ./test/docker-compose.yml images
   - docker ps -a
+  - docker run -w /usr/app/ tests npm test
 
 after_script:
-  - docker-compose down --rmi all --remove-orphans
+  - docker-compose -f ./test/docker-compose.yml down --rmi all --remove-orphans
 
 notifications:
     email: false

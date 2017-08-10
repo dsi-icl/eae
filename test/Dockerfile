@@ -1,26 +1,23 @@
 # Select source image
 FROM ubuntu:14.04
 
-# Set up metadata
-ARG version
-LABEL version=$version
-RUN echo "Version is to be" $version
-
 # Install all dependencies
 RUN apt-get update
 RUN apt-get install -y nodejs
 
-# Create app directory
+# Create app directories
 RUN mkdir -p /usr/app
+RUN mkdir -p /usr/app/src
+RUN mkdir -p /usr/app/config
 WORKDIR /usr/app
-
-COPY package.json /usr/app/
-RUN npm install --silent; exit 0
-RUN cat /root/.npm/_logs/*; exit 0
 
 # Bundle app source
 COPY src /usr/app/src
+COPY package.json /usr/app/
+COPY config/eae.compute.test.config.js /usr/app/config/eae.compute.config.js
 
-# Start application
+# Install eae-compute npm dependencies
+RUN npm install --silent; exit 0
+RUN cat /root/.npm/_logs/*; exit 0
+
 EXPOSE 80
-CMD npm test
