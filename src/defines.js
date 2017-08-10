@@ -58,6 +58,20 @@ const statusModel = {
     }
 };
 
+const jobModel = {
+    type : "eae-job-type",
+    status: "eae_job_done",
+    startDate: new Date(0),
+    main: "main.py",
+    params: [],
+    input: [],
+    endDate: new Date(0),
+    exitCode: -1,
+    stdout: null,
+    stderr: null,
+    output: [],
+    message: null
+};
 
 module.exports = {
     JOB_STATUS_QUEUED: 'eae_job_queued',
@@ -78,6 +92,8 @@ module.exports = {
     STATUS_COLLECTION_NAME: 'eae_global_status',
     JOBS_COLLECTION_NAME: 'eae_global_jobs',
     statusDefaultUpdateInterval: 60 * 1000, // 60 * 1000 ms = 1 minute
+
     STATUS_MODEL: statusModel,
+    JOB_MODEL: jobModel,
     errorStacker: ErrorStack
 };

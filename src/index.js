@@ -9,7 +9,8 @@ module.exports = {
     SwiftHelper: SwiftHelperModule,
     ErrorHelper: defines.errorStacker,
     DataModels: {
-        EAE_STATUS_MODEL: defines.STATUS_MODEL
+        EAE_STATUS_MODEL: defines.STATUS_MODEL,
+        EAE_JOB_MODEL: defines.JOB_MODEL
     },
     Constants: {
         EAE_COMPUTE: defines.SERVICE_TYPE_COMPUTE,
