@@ -74,20 +74,23 @@ const jobModel = {
 };
 
 module.exports = {
-    JOB_STATUS_QUEUED: 'eae_job_queued',
-    JOB_STATUS_RUN: 'eae_job_running',
-    JOB_STATUS_ERR: 'eae_job_error',
-    JOB_STATUS_DONE: 'eae_job_done',
+    SERVICE_TYPE_COMPUTE: 'eae_compute',
+    SERVICE_TYPE_SCHEDULER: 'eae_scheduler',
+    SERVICE_TYPE_CARRIER: 'eae_carrier',
+    SERVICE_TYPE_API: 'eae_api',
 
     SERVICE_STATUS_IDLE: 'eae_service_idle',
     SERVICE_STATUS_BUSY: 'eae_service_kartoffelsalat',
     SERVICE_STATUS_LOCKED: 'eae_service_locked',
     SERVICE_STATUS_DEAD: 'eae_service_dead',
 
-    SERVICE_TYPE_COMPUTE: 'eae_compute',
-    SERVICE_TYPE_SCHEDULER: 'eae_scheduler',
-    SERVICE_TYPE_CARRIER: 'eae_carrier',
-    SERVICE_TYPE_API: 'eae_api',
+    JOB_TYPE_PYTHON2: 'python2',
+    JOB_TYPE_PIP: 'pip',
+
+    JOB_STATUS_QUEUED: 'eae_job_queued',
+    JOB_STATUS_RUN: 'eae_job_running',
+    JOB_STATUS_ERR: 'eae_job_error',
+    JOB_STATUS_DONE: 'eae_job_done',
 
     STATUS_COLLECTION_NAME: 'eae_global_status',
     JOBS_COLLECTION_NAME: 'eae_global_jobs',
