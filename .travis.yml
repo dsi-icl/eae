@@ -17,13 +17,13 @@ before_install:
   - export EAE_COMPUTE_VERSION=`npm version patch`
   - docker-compose --version
   - docker-compose build --build-arg version=$EAE_COMPUTE_VERSION tests
-  - docker-compose up -d --remove-orphans tests
-  - docker-compose images
-  - docker ps -a
+
 
 script:
   - docker run -v `pwd`/swift:/swift/nodes -t bouncestorage/swift-aio
-  - docker run --net="host" tests
+  - docker-compose up -d --remove-orphans tests
+  - docker-compose images
+  - docker ps -a
 
 after_script:
   - docker-compose down --rmi all --remove-orphans
