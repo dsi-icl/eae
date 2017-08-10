@@ -60,11 +60,17 @@ EaeCompute.prototype.start = function() {
 
             resolve(_this.app); // All good, returns application
         }, function (error) {
-            reject(ErrorHelper('Cannot establish mongoDB connection', error))
+            reject(ErrorHelper('Cannot establish mongoDB connection', error));
         });
     });
 };
 
+/**
+ * @fn stop
+ * @desc Stop the eae compute service
+ * @return {Promise} Resolves to a Express.js Application router on success,
+ * rejects an error stack otherwise
+ */
 EaeCompute.prototype.stop = function() {
     let _this = this;
     return new Promise(function (resolve, reject) {
@@ -76,7 +82,7 @@ EaeCompute.prototype.stop = function() {
                 reject(ErrorHelper('Closing mongoDB connection failed', error));
             else
                 resolve(true);
-        })
+        });
     });
 };
 
