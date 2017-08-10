@@ -17,9 +17,9 @@ services:
   tests:
     build:
         context: .
-        dockerfile: ./test/Dockerfile
+        dockerfile: ./Dockerfile
     volumes:
-      - ./config/eae.compute.test.config.js:/usr/app/config/eae.compute.config.js
+      - ../config/eae.compute.test.config.js:/usr/app/config/eae.compute.config.js
     depends_on:
       - db
       - swift
