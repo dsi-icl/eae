@@ -25,6 +25,7 @@ services:
       - ./config/eae.compute.config.js:/usr/app/config/eae.compute.config.js
   tests:
     build:
+        context: .
         dockerfile: ./test/Dockerfile
     volumes:
       - ./config/eae.compute.test.config.js:/usr/app/config/eae.compute.config.js
