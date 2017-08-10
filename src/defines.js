@@ -70,6 +70,11 @@ module.exports = {
     SERVICE_STATUS_LOCKED: 'eae_service_locked',
     SERVICE_STATUS_DEAD: 'eae_service_dead',
 
+    SERVICE_TYPE_COMPUTE: 'eae_compute',
+    SERVICE_TYPE_SCHEDULER: 'eae_scheduler',
+    SERVICE_TYPE_CARRIER: 'eae_carrier',
+    SERVICE_TYPE_API: 'eae_api',
+
     STATUS_COLLECTION_NAME: 'eae_global_status',
     JOBS_COLLECTION_NAME: 'eae_global_jobs',
     statusDefaultUpdateInterval: 60 * 1000, // 60 * 1000 ms = 1 minute
