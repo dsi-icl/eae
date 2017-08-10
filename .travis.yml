@@ -23,7 +23,7 @@ before_install:
 
 script:
   - docker run -v `pwd`/swift:/swift/nodes -t bouncestorage/swift-aio
-  - docker run --net="host"
+  - docker run --net="host" tests
 
 after_script:
   - docker-compose down --rmi all --remove-orphans

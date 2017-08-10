@@ -68,7 +68,7 @@ EaeCompute.prototype.start = function() {
 /**
  * @fn stop
  * @desc Stop the eae compute service
- * @return {Promise} Resolves to a Express.js Application router on success,
+ * @return {Promise} Resolves to true on success,
  * rejects an error stack otherwise
  */
 EaeCompute.prototype.stop = function() {
