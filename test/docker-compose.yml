@@ -22,5 +22,8 @@ services:
     depends_on:
       - mongodb
       - swift
+    links:
+      - mongodb
+      - swift
     ports:
         - 80:80
