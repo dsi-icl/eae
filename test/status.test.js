@@ -32,7 +32,8 @@ test('Service status IDLE', function(done) {
             expect(body).toBeDefined();
             expect(body.status).toEqual(eaeutils.Constants.EAE_SERVICE_STATUS_IDLE);
             done();
-    });
+        }
+    );
 });
 
 test('Service specs', function(done) {
