@@ -20,4 +20,3 @@ COPY ./src /usr/app/src
 COPY ./config/eae.compute.test.config.js /usr/app/config/eae.compute.config.js
 
 EXPOSE 80
-CMD npm test

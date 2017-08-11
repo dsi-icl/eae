@@ -12,16 +12,16 @@ node_js:
 services:
   - docker
 
-before_install:
-  - docker build -t bouncestorage/swift-aio .
-
 install:
-  - docker-compose -f ./test/docker-compose.yml build tests
+  - docker-compose -f ./test/docker-compose.yml build -remove-orphans
   - docker-compose -f ./test/docker-compose.yml images
+  - docker ps -a
 
 script:
-  - docker-compose -f ./test/docker-compose.yml up -d --remove-orphans tests
+  - docker-compose -d -f ./test/docker-compose.yml up mongodb
+  - docker-compose -d -f ./test/docker-compose.yml up swift
   - docker ps -a
+  - docker-compose run -f ./test/docker-compose.yml tests npm test
 
 after_script:
   - docker-compose -f ./test/docker-compose.yml down --rmi all --remove-orphans
