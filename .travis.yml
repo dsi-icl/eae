@@ -20,7 +20,7 @@ before_script:
   - docker ps -a
 
 script:
-  - docker-compose -f ./test/docker-compose.yml run tests npm lint
+  - docker-compose -f ./test/docker-compose.yml run tests npm run lint
   - docker-compose -f ./test/docker-compose.yml run tests npm test
 
 after_script:
