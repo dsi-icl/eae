@@ -18,7 +18,7 @@ RUN cat /root/.npm/_logs/*; exit 0;
 # Bundle app
 COPY ./src /usr/app/src
 COPY ./.eslintrc /usr/app/.eslintrc
-COPY ./test/*.js /usr/app/test
+COPY ./test/*.js /usr/app/test/
 COPY ./test/jobs /usr/app/test/jobs
 COPY ./config/eae.compute.test.config.js /usr/app/config/eae.compute.config.js
 
