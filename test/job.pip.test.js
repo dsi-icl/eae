@@ -21,7 +21,7 @@ test('Create pip job & start running', function(done) {
     ts.createJob(eaeutils.Constants.EAE_JOB_TYPE_PIP,
         '', ['install', 'pymongo'], [ ]).then(function(job_model) {
         expect(job_model).toBeDefined();
-        expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2);
+        expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_PIP);
         job = job_model;
         request(
             {
@@ -52,7 +52,7 @@ test('Create pip job & start running', function(done) {
 
 test('Wait for compute to go idle or dead', function(done) {
     expect.assertions(1);
-    var t = setInterval(function() {
+    let t = setInterval(function() {
         request(
             {
                 method: 'GET',
@@ -84,7 +84,6 @@ test('Create pymongo job & start running', function(done) {
         './input/pymongo.py', [], [ './test/jobs/pymongo/pymongo.py' ]).then(function(job_model) {
         expect(job_model).toBeDefined();
         expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2);
-        job_model.output = [ ]; //Manually insert expected output files
         job = job_model;
         request(
             {
