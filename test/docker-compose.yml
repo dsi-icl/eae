@@ -21,7 +21,7 @@ services:
     volumes:
       - ../config/eae.compute.test.config.js:/usr/app/config/eae.compute.config.js
     depends_on:
-      - mongodb``
+      - mongodb
       - swift
     ports:
         - 80:80
