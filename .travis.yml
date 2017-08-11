@@ -17,7 +17,6 @@ install:
   - docker-compose -f ./test/docker-compose.yml build swift
   - docker-compose -f ./test/docker-compose.yml build tests
   - docker-compose -f ./test/docker-compose.yml images
-  - docker ps -a
 
 before_script:
   - docker-compose -f ./test/docker-compose.yml up tests
