@@ -73,7 +73,7 @@ TestServer.prototype.mongo = function() {
     return this.eae_compute.db
 };
 
-TestServer.prototype.createJob = function(type, mainScript, inputFiles = []) {
+TestServer.prototype.createJob = function(type, mainScript, params, inputFiles = []) {
     let _this = this;
     return new Promise(function(resolve, reject) {
         let job_id = new ObjectID();
@@ -84,6 +84,7 @@ TestServer.prototype.createJob = function(type, mainScript, inputFiles = []) {
                 _id: job_id,
                 type: type,
                 main: mainScript,
+                params: params,
                 input: inputFiles.map(function (file) {
                     return path.basename(file)
                 })
