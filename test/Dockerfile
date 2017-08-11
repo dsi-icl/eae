@@ -6,6 +6,7 @@ RUN apt-get update
 
 # Create app directories
 RUN mkdir -p /usr/app
+RUN mkdir -p /usr/test
 WORKDIR /usr/app
 
 # Install app dependencies
@@ -16,6 +17,8 @@ RUN cat /root/.npm/_logs/*; exit 0;
 
 # Bundle app
 COPY ./src /usr/app/src
+COPY ./test/*.js /usr/app/test
+COPY ./test/jobs /usr/app/test/jobs
 COPY ./config/eae.compute.test.config.js /usr/app/config/eae.compute.config.js
 
 EXPOSE 80
