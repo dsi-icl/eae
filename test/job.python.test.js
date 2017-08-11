@@ -22,6 +22,7 @@ test('Create dummy job & start running', function(done) {
         './input/dummy.py', [ './test/jobs/dummy/dummy.py' ]).then(function(job_model) {
         expect(job_model).toBeDefined();
         expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2);
+        job_model.output = [ "test.txt" ]; //Manually insert expected output files
         job = job_model;
         request(
             {
