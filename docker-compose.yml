@@ -1,6 +1,6 @@
 version: '3'
 services:
-  db:
+  mongodb:
     image: mongo:latest
     environment:
       - MONGO_DATA_DIR=/data/db
@@ -27,7 +27,7 @@ services:
     build:
      context: .
     depends_on:
-      - db
+      - mongodb
       - swift
     volumes:
       - ./config/eae.compute.config.sample.js:/usr/app/config/eae.compute.config.js
