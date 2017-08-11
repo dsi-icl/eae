@@ -1,6 +1,6 @@
 version: '3'
 services:
-  db:
+  mongodb:
     image: mongo:latest
     environment:
       - MONGO_DATA_DIR=/data/db
@@ -21,8 +21,7 @@ services:
     volumes:
       - ../config/eae.compute.test.config.js:/usr/app/config/eae.compute.config.js
     depends_on:
-      - db
+      - mongodb``
       - swift
     ports:
         - 80:80
-    command: npm test

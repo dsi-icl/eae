@@ -24,7 +24,8 @@ services:
       - 80:80
 
   compute:
-    build: .
+    build:
+     context: .
     depends_on:
       - db
       - swift

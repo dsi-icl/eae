@@ -14,11 +14,13 @@ services:
 
 before_install:
   - docker build -t bouncestorage/swift-aio .
-  - docker-compose -f ./test/docker-compose.yml build tests
 
-script:
+install:
+  - docker-compose -f ./test/docker-compose.yml build tests
   - docker-compose -f ./test/docker-compose.yml up -d --remove-orphans tests
   - docker-compose -f ./test/docker-compose.yml images
+
+script:
   - docker ps -a
   - docker run -w /usr/app/ tests npm test
 
