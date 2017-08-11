@@ -3,7 +3,6 @@ FROM node:wheezy
 
 # Install all dependencies
 RUN apt-get update
-RUN apt-get install -y nodejs
 
 # Create app directories
 RUN mkdir -p /usr/app
