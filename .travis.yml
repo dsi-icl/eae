@@ -13,17 +13,24 @@ services:
   - docker
 
 install:
-  - docker-compose -f ./test/docker-compose.yml build -remove-orphans
+  - docker-compose -f ./test/docker-compose.yml build mongodb
+  - docker-compose -f ./test/docker-compose.yml build swift
+  - docker-compose -f ./test/docker-compose.yml build tests
   - docker-compose -f ./test/docker-compose.yml images
   - docker ps -a
 
-script:
-  - docker-compose -f ./test/docker-compose.yml -d up mongodb
-  - docker-compose -f ./test/docker-compose.yml -d up swift
+before_script:
+  - docker-compose -f ./test/docker-compose.yml start mongodb
+  - docker-compose -f ./test/docker-compose.yml start swift
   - docker ps -a
-  - docker-compose -f ./test/docker-compose.yml run  tests npm test
+
+script:
+  - docker-compose -f ./test/docker-compose.yml run tests npm test
 
 after_script:
+  - docker-compose -f ./test/docker-compose.yml stop mongodb
+  - docker-compose -f ./test/docker-compose.yml stop swift
+  - docker ps -a
   - docker-compose -f ./test/docker-compose.yml down --rmi all --remove-orphans
 
 notifications:
