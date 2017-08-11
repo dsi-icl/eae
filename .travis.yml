@@ -23,7 +23,7 @@ before_script:
   - docker ps -a
 
 script:
-  - docker-compose -f ./test/docker-compose.yml run tests npm test
+  - docker-compose -f ./test/docker-compose.yml run tests /bin/sh -c npm test
 
 after_script:
   - docker-compose -f ./test/docker-compose.yml down --rmi all --remove-orphans
