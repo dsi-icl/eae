@@ -20,18 +20,15 @@ install:
   - docker ps -a
 
 before_script:
-  - docker-compose -f ./test/docker-compose.yml start mongodb
-  - docker-compose -f ./test/docker-compose.yml start swift
+  - docker-compose -f ./test/docker-compose.yml up tests
   - docker ps -a
 
 script:
   - docker-compose -f ./test/docker-compose.yml run tests npm test
 
 after_script:
-  - docker-compose -f ./test/docker-compose.yml stop mongodb
-  - docker-compose -f ./test/docker-compose.yml stop swift
-  - docker ps -a
   - docker-compose -f ./test/docker-compose.yml down --rmi all --remove-orphans
+  - docker ps -a
 
 notifications:
     email: false
