@@ -16,7 +16,7 @@ beforeAll(function() {
     });
 });
 
-test('Create pip job & start running', function(done) {
+test('Create pip install pymongo job & start running', function(done) {
     expect.assertions(6);
     ts.createJob(eaeutils.Constants.EAE_JOB_TYPE_PIP,
         '', ['install', 'pymongo'], [ ]).then(function(job_model) {
