@@ -16,8 +16,8 @@ services:
 
   tests:
     build:
-        context: .
-        dockerfile: ./Dockerfile
+        context: ..
+        dockerfile: ./test/Dockerfile
     depends_on:
       - mongodb
       - swift
