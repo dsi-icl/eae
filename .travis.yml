@@ -18,10 +18,10 @@ install:
   - docker ps -a
 
 script:
-  - docker-compose -d -f ./test/docker-compose.yml up mongodb
-  - docker-compose -d -f ./test/docker-compose.yml up swift
+  - docker-compose -f ./test/docker-compose.yml -d up mongodb
+  - docker-compose -f ./test/docker-compose.yml -d up swift
   - docker ps -a
-  - docker-compose run -f ./test/docker-compose.yml tests npm test
+  - docker-compose -f ./test/docker-compose.yml run  tests npm test
 
 after_script:
   - docker-compose -f ./test/docker-compose.yml down --rmi all --remove-orphans
