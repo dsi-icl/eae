@@ -79,7 +79,7 @@ test('Wait for compute to go idle or dead', function(done) {
     }, 300); // Every 300 ms
 });
 
-test('Check output result and delete job', function(done) {
+test('Check dummy output result and delete job', function(done) {
     expect.assertions(1);
     ts.deleteJob(job).then(function(result) {
         expect(result).toBeTruthy();
@@ -146,6 +146,7 @@ test('Check timer job is running', function(done) {
     );
 });
 
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000; // 20 seconds
 test('Wait for compute to go idle or dead', function(done) {
     expect.assertions(1);
     var t = setInterval(function() {
@@ -174,7 +175,7 @@ test('Wait for compute to go idle or dead', function(done) {
     }, 300); // Every 300 ms
 });
 
-test('Check output result and delete job', function(done) {
+test('Delete timer job', function(done) {
     expect.assertions(1);
     ts.deleteJob(job).then(function(result) {
         expect(result).toBeTruthy();
