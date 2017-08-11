@@ -17,12 +17,11 @@ before_install:
 
 install:
   - docker-compose -f ./test/docker-compose.yml build tests
-  - docker-compose -f ./test/docker-compose.yml up -d --remove-orphans tests
   - docker-compose -f ./test/docker-compose.yml images
 
 script:
+  - docker-compose -f ./test/docker-compose.yml up -d --remove-orphans tests
   - docker ps -a
-  - docker run -w /usr/app/ tests npm test
 
 after_script:
   - docker-compose -f ./test/docker-compose.yml down --rmi all --remove-orphans
