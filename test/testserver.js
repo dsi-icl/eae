@@ -131,7 +131,7 @@ TestServer.prototype.deleteJob = function(job_model) {
             delete_promises.push(dp);
         });
         // Delete output files
-        job_model.input.forEach(function (file) {
+        job_model.output.forEach(function (file) {
             let dp = _this._swift.deleteFile(output_container, file);
             delete_promises.push(dp);
         });
