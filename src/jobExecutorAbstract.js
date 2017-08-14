@@ -2,10 +2,17 @@ const ObjectID = require('mongodb').ObjectID;
 const { ErrorHelper, Constants } = require('eae-utils');
 const child_process = require('child_process');
 
-function JobExecutorAbstract(jobID, jobCollection) {
+/**
+ * @class JobExecutorAbstract
+ * @param jobID {String} The job unique identifier in DB
+ * @param jobCollection MongoDB collection to sync the job model against
+ * @param jobModel {Object} Plain js Job model from the mongoDB, optional if fetchModel is called
+ * @constructor
+ */
+function JobExecutorAbstract(jobID, jobCollection, jobModel) {
     this._jobID = new ObjectID(jobID);
     this._jobCollection = jobCollection;
-    this._model = undefined;
+    this._model = jobModel;
     this._callback = null;
 
     //Bind member functions
@@ -27,7 +34,7 @@ function JobExecutorAbstract(jobID, jobCollection) {
  * @return {Promise} Resolve to the retrieved data model on success, errorStack on error
  */
 JobExecutorAbstract.prototype.fetchModel = function() {
-    var _this = this;
+    let _this = this;
 
     return new Promise(function(resolve, reject) {
         _this._jobCollection.findOne({ _id : _this._jobID })
@@ -46,11 +53,11 @@ JobExecutorAbstract.prototype.fetchModel = function() {
  * @return {Promise} Resolve to the updated data model on success, errorStack on error
  */
 JobExecutorAbstract.prototype.pushModel = function() {
-    var _this = this;
+    let _this = this;
 
     return new Promise(function(resolve, reject) {
-        var replacementData = _this._model;
-        delete replacementData._id; //Cleanup MongoDB managed _id field, if any
+        let replacementData = _this._model;
+        delete replacementData._id; // Cleanup MongoDB managed _id field, if any
         _this._jobCollection.findOneAndReplace({ _id : _this._jobID }, replacementData, { upsert: true, returnOriginal: false })
             .then(function(success) {
                 resolve(success.value);
@@ -69,10 +76,10 @@ JobExecutorAbstract.prototype.pushModel = function() {
  * @private
  */
 JobExecutorAbstract.prototype._exec = function(command, args, options) {
-    var _this = this;
+    let _this = this;
 
-    var end_fn = function(status, code, message = '') {
-        var save_fn = function() {
+    let end_fn = function(status, code, message = '') {
+        let save_fn = function() {
             _this.pushModel().then(function(success) {
                 if (_this.callback !== null && _this._callback !== undefined)
                     _this._callback(null, success.status);
@@ -132,7 +139,7 @@ JobExecutorAbstract.prototype._exec = function(command, args, options) {
                 if (code !== null) { //Successful run or interruption
                     end_fn(Constants.EAE_JOB_STATUS_DONE, code, 'Exit success');
                 }
-                else if (signal == 'SIGTERM') {
+                else if (signal === 'SIGTERM') {
                     end_fn(Constants.EAE_JOB_STATUS_DONE, 1, 'Interrupt success');
                 }
                 else {
@@ -153,7 +160,7 @@ JobExecutorAbstract.prototype._exec = function(command, args, options) {
  * @private
  */
 JobExecutorAbstract.prototype._kill = function() {
-    var _this = this;
+    let _this = this;
 
     if (_this._child_process !== undefined) {
         _this._child_process.kill('SIGTERM');

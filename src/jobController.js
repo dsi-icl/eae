@@ -2,7 +2,7 @@ const { Constants, ErrorHelper } =  require('eae-utils');
 const JobExecutorFactory = require('./jobExecutorFactory.js');
 
 /**
- * @fn JobController
+ * @class JobController
  * @desc Controller of the job execution
  * @param jobCollection MongoDb collection, stores the job data models
  * @param statusHelper Status helper class
@@ -45,7 +45,7 @@ JobController.prototype.runJob = function(req, res) {
         //Set the node to busy
         _this._status_helper.setStatus(Constants.EAE_SERVICE_STATUS_BUSY);
         //Trigger asynchronous execution
-        _this._executor.startExecution(function() {
+        _this._executor.startExecution(function(__unused__error) {
             //After exec, set the node to idle
             _this._status_helper.setStatus(Constants.EAE_SERVICE_STATUS_IDLE);
             //Cleanup executor instance
@@ -60,8 +60,13 @@ JobController.prototype.runJob = function(req, res) {
     });
 };
 
-
-JobController.prototype.cancelJob = function(_unused__req, res) {
+/**
+ * @fn cancelJob
+ * @desc Interrupts the current job
+ * @param _unused__req Express.js request object
+ * @param res Express.js response object
+ */
+JobController.prototype.cancelJob = function(__unused__req, res) {
     var _this = this;
 
     if (_this._executor === undefined || _this._executor === null) {
@@ -76,13 +81,13 @@ JobController.prototype.cancelJob = function(_unused__req, res) {
         delete _this._executor;
 
         if (error !== undefined && error !== null) {
-            res.status(501);
+            res.status(500);
             res.json(ErrorHelper('Failed to interrupt job', error));
         }
         else {
             //Reply inside callback so the job is stopped
             res.status(200);
-            res.json(jobStatus);
+            res.json({ status: jobStatus });
         }
     });
 };

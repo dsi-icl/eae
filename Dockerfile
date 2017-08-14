@@ -1,26 +1,23 @@
 # Select source image
-FROM node:alpine
+FROM node:wheezy
 
-# Set up metadata
-ARG version
-LABEL maintainer="Florian Guitton <f.guitton@imperial.ac.uk>"
-LABEL version=$version
-RUN echo "Version is to be" $version
+# Install all dependencies
+RUN apt-get update
 
-# Create app directory
+# Create app directories
 RUN mkdir -p /usr/app
 WORKDIR /usr/app
 
 # Install app dependencies
-COPY package.json /usr/app/
-RUN apk update && apk add git
-RUN npm install --silent; exit 0
-RUN cat /root/.npm/_logs/*; exit 0
-RUN apk del git
+COPY ./package.json /usr/app/
+# Install eae-compute npm dependencies
+RUN npm install --silent; exit 0;
+RUN cat /root/.npm/_logs/*; exit 0;
 
-# Bundle app source
-COPY src /usr/app/src
+# Bundle app
+COPY ./src /usr/app/src
+COPY ./config/eae.compute.config.js /usr/app/config/eae.compute.config.js
 
-# Start application
+# Run compute service
 EXPOSE 80
 CMD [ "npm", "start" ]

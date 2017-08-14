@@ -15,20 +15,10 @@ services:
         ports:
             - 8080:8080
 
-    lb: # Load balancing
-        image: dockercloud/haproxy
-        depends_on:
-            - compute
-        links:
-            - compute
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        ports:
-            - 80:80
-
-    compute:
+    tests:
         build:
-            context: .
+            context: ..
+            dockerfile: ./test/Dockerfile
         depends_on:
             - mongodb
             - swift

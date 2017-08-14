@@ -65,4 +65,8 @@ typings/
 .c9/
 *.launch
 .settings/
+*.iml
 
+# Config Files
+config/eae.compute.config.js
+package-lock.json
