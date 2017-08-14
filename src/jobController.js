@@ -81,7 +81,7 @@ JobController.prototype.cancelJob = function(__unused__req, res) {
         delete _this._executor;
 
         if (error !== undefined && error !== null) {
-            res.status(501);
+            res.status(500);
             res.json(ErrorHelper('Failed to interrupt job', error));
         }
         else {
