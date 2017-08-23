@@ -1,6 +1,7 @@
 /**
  * @class JobsWatchdog
- * @param
+ * @desc Periodic status update of compute nodes
+ * @param None
  * @constructor
  */
 function JobsWatchdog() {

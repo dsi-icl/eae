@@ -5,6 +5,9 @@ const body_parser = require('body-parser');
 const { ErrorHelper, StatusHelper, Constants } =  require('eae-utils');
 
 const StatusController = require('./statusController.js');
+const JobsScheduler = require('./jobsScheduler');
+const JobsWatchdog = require('./jobsWatchdog');
+const NodesWatchdog = require('./nodesWatchdog');
 const package_json = require('../package.json');
 
 function EaeScheduler(config) {
@@ -108,6 +111,7 @@ EaeScheduler.prototype._connectDb = function () {
 /**
  * @fn _setupStatusController
  * @desc Initialize status service routes and controller
+ * @private
  */
 EaeScheduler.prototype._setupStatusController = function () {
     let _this = this;
@@ -126,10 +130,13 @@ EaeScheduler.prototype._setupStatusController = function () {
 
 /**
  * @fn _setupNodesWatchdog
- * @desc Initialize status service routes and controller
+ * @desc Initialize the periodic status update of the compute nodes
+ * @private
  */
 EaeScheduler.prototype._setupNodesWatchdog = function () {
     var _this = this;
+
+    _this.jobs_watchdog = new JobsWatchdog();
 
 
 };
