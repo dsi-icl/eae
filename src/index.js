@@ -9,13 +9,17 @@ let EaeScheduler = require('./eaeScheduler.js');
 app.set('x-powered-by', false);
 
 let options = Object.assign({}, config);
-app.use(EaeScheduler(options));
+let scheduler = new EaeScheduler(options);
 
-app.listen(config.port, function (err) {
-    if (err) {
-        console.error(err); // eslint-disable-line no-console
-        return;
-    }
-
-    console.log(`Listening at http://${os.hostname()}:${config.port}/`); // eslint-disable-line no-console
+scheduler.start().then(function(scheduler_router) {
+    app.use(scheduler_router);
+    app.listen(config.port, function (error) {
+        if (error) {
+            console.error(error); // eslint-disable-line no-console
+            return;
+        }
+        console.log(`Listening at http://${os.hostname()}:${config.port}/`); // eslint-disable-line no-console
+    });
+}, function(error) {
+    console.error(error); // eslint-disable-line no-console
 });

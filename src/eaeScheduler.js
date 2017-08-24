@@ -4,11 +4,13 @@ const express = require('express');
 const body_parser = require('body-parser');
 const { ErrorHelper, StatusHelper, Constants } =  require('eae-utils');
 
-const StatusController = require('./statusController.js');
-const JobsScheduler = require('./jobsScheduler');
-const JobsWatchdog = require('./jobsWatchdog');
-const NodesWatchdog = require('./nodesWatchdog');
+const MongoHelper = require('./mongoHelper');
+
 const package_json = require('../package.json');
+const StatusController = require('./statusController.js');
+// const JobsScheduler = require('./jobsScheduler');
+// const JobsWatchdog = require('./jobsWatchdog');
+const NodesWatchdog = require('./nodesWatchdog');
 
 function EaeScheduler(config) {
     // Init member attributes
@@ -16,6 +18,7 @@ function EaeScheduler(config) {
     this.app = express();
     global.eae_scheduler_config = config;
     global.eae_compute_nodes_status = [];
+    this.mongo_helper = new MongoHelper();
 
     // Bind public member functions
     this.start = EaeScheduler.prototype.start.bind(this);
@@ -40,7 +43,7 @@ function EaeScheduler(config) {
     }
 
     // Init third party middleware
-    this.app.use(body_parser.urlencoded({extended: true}));
+    this.app.use(body_parser.urlencoded({ extended: true }));
     this.app.use(body_parser.json());
 }
 
@@ -119,7 +122,7 @@ EaeScheduler.prototype._setupStatusController = function () {
     let statusOpts = {
         version: package_json.version
     };
-    _this.status_helper = new StatusHelper(Constants.EAE_SERVICE_TYPE_SCHEDULER, global.eae_compute_config.port, null, statusOpts);
+    _this.status_helper = new StatusHelper(Constants.EAE_SERVICE_TYPE_SCHEDULER, global.eae_scheduler_config.port, null, statusOpts);
     _this.status_helper.setCollection(_this.db.collection(Constants.EAE_COLLECTION_STATUS));
 
     _this.statusController = new StatusController(_this.status_helper);
@@ -136,7 +139,8 @@ EaeScheduler.prototype._setupStatusController = function () {
 EaeScheduler.prototype._setupNodesWatchdog = function () {
     var _this = this;
 
-    _this.jobs_watchdog = new JobsWatchdog();
+    _this.mongo_helper.setCollection(_this.db.collection(Constants.EAE_COLLECTION_STATUS));
+    _this.nodes_watchdog = new NodesWatchdog(_this.mongo_helper);
 
 
 };
