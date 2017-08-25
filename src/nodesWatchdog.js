@@ -21,11 +21,6 @@ function NodesWatchdog(mongoHelper) {
 }
 
 /**
- * @fn
- *
- */
-
-/**
  * @fn _purgeExpired
  * @desc Remove all Nodes that have been Busy or Reserved for longer than a defined threshold
  * @private
@@ -39,12 +34,6 @@ NodesWatchdog.prototype._purgeExpired = function() {
         status: {$in: statuses},
         lastUpdate : {'$gte': new Date(0), '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.expiredStatusTime))}
     };
-
-    // let projection = {
-    //     ip : 1,
-    //     port : 1
-    //     status : 1
-    // };
 
     _this._nodesComputeStatus = _this._mongoHelper.retrieveNodesStatus(filter).then(function (docs) {
         console.log(docs.toString());
@@ -60,9 +49,18 @@ NodesWatchdog.prototype._purgeExpired = function() {
  * @private
  */
 NodesWatchdog.prototype._invalidateDead = function() {
-    // let _this = this;
-    // let statuses = [Constants.EAE_SERVICE_STATUS_DEAD];
-    //
+    let _this = this;
+    let statuses = [Constants.EAE_SERVICE_STATUS_DEAD];
+
+    let filter = {
+        status: {$in: statuses}
+    };
+
+    _this._nodesComputeStatus = _this._mongoHelper.retrieveNodesStatus(filter).then(function (docs) {
+        console.log(docs.toString());
+    }, function(error) {
+        console.log('Failed to retrieve nodes status. Filter:' + filter.toString() , error);
+    });
 };
 
 /**

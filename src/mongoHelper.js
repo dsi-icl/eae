@@ -3,16 +3,18 @@ const { ErrorHelper } =  require('eae-utils');
 function MongoHelper(){
     //Init member vars
     this._statusCollection = null;
-
+    this._jobsCollection = null;
 }
 
 /**
  * @fn setCollection
  * @desc Setup the mongoDB collection to sync against
- * @param statusCollection Initialized mongodb collection to sync against
+ * @param statusCollection Initialized mongodb collection to work against for nodes' status
+ * @param jobsCollection Initialized mongodb collection to work against for jobs processing
  */
-MongoHelper.prototype.setCollection = function(statusCollection) {
+MongoHelper.prototype.setCollections = function(statusCollection, jobsCollection) {
     this._statusCollection = statusCollection;
+    this._jobsCollection = jobsCollection;
 };
 
 /**

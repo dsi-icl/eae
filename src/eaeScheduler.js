@@ -27,6 +27,7 @@ function EaeScheduler(config) {
     // Bind private member functions
     this._connectDb = EaeScheduler.prototype._connectDb.bind(this);
     this._setupStatusController = EaeScheduler.prototype._setupStatusController.bind(this);
+    this._setupMongoHelper = EaeScheduler.prototype._setupMongoHelper(this);
     this._setupNodesWatchdog = EaeScheduler.prototype._setupNodesWatchdog.bind(this);
     //this.jobsoller = EaeScheduler.prototype.jobsProcessingController.bind(this);
 
@@ -137,19 +138,26 @@ EaeScheduler.prototype._setupStatusController = function () {
     _this.app.get('/specs', _this.statusController.getFullStatus); // GET Full status
 };
 
-
 /**
- * @fn _setupNodesWatchdog
+ * @fn _setupMongoHelper
  * @desc Initialize the periodic status update of the compute nodes
  * @private
  */
+EaeScheduler.prototype._setupMongoHelper = function () {
+    let _this = this;
+    _this.mongo_helper.setCollections(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
+                                      _this.db.collection(Constants.EAE_COLLECTION_JOBS));
+};
+
+/**
+ * @fn _setupNodesWatchdog
+ * @desc Initialize the periodic monitoring  of the compute nodes
+ * @private
+ */
 EaeScheduler.prototype._setupNodesWatchdog = function () {
-    var _this = this;
+    let _this = this;
 
-    _this.mongo_helper.setCollection(_this.db.collection(Constants.EAE_COLLECTION_STATUS));
     _this.nodes_watchdog = new NodesWatchdog(_this.mongo_helper);
-
-
 };
 
 module.exports = EaeScheduler;
