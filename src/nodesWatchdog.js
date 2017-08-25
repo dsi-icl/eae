@@ -26,25 +26,37 @@ function NodesWatchdog(mongoHelper) {
  */
 
 /**
- * @fn _update
- * @desc
+ * @fn _purgeExpired
+ * @desc Remove all Nodes that have been Busy or Reserved for longer than a defined threshold
  * @private
  */
 NodesWatchdog.prototype._purgeExpired = function() {
     let _this = this;
     let statuses = [Constants.EAE_SERVICE_STATUS_BUSY, Constants.EAE_SERVICE_STATUS_LOCKED];
+    var currentTime = new Date();
 
-    _this._nodesComputeStatus = _this._mongoHelper.retrieveNodesWithStatus(statuses);
+    let filter = {
+        status: {$in: statuses},
+        lastUpdate : {'$gte': new Date(0), '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.expiredStatusTime))}
+    };
 
+    // let projection = {
+    //     ip : 1,
+    //     port : 1
+    //     status : 1
+    // };
 
-
+    _this._nodesComputeStatus = _this._mongoHelper.retrieveNodesStatus(filter).then(function (docs) {
+        console.log(docs.toString());
+    }, function(error) {
+        console.log('Failed to retrieve nodes status. Filter:' + filter.toString() , error);
+    });
 };
 
 /**
- * @fn _sync
- * @desc Update the status in the global status collection.
- * Identification is based on the ip/port combination
- * @return {Promise} Resolve to true if update operation has been successful
+ * @fn _invalidateDead
+ * @desc Remove nodes whose status is Dead from available resources
+ * @return
  * @private
  */
 NodesWatchdog.prototype._invalidateDead = function() {

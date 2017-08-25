@@ -18,10 +18,11 @@ MongoHelper.prototype.setCollection = function(statusCollection) {
 /**
  * @fn retrieveNodesWithStatus
  * @desc Retrieves the list of Nodes for the list of specified status.
- * @param statusArray Array of desired status -- Idle, Busy, Reserved or Dead
+ * @param filter
+ * @param projection
  * @return {Array} returns and array with all the nodes matching the desired status
  */
-MongoHelper.prototype.retrieveNodesWithStatus = function(statusArray){
+MongoHelper.prototype.retrieveNodesStatus = function(filter, projection = {}){
     let _this = this;
 
     return new Promise(function(resolve, reject) {
@@ -30,14 +31,10 @@ MongoHelper.prototype.retrieveNodesWithStatus = function(statusArray){
             return;
         }
 
-        let filter = {
-            status: {$all: statusArray}
-        };
-
-        _this._statusCollection.find(filter).toArray().then(function(docs) {
+        _this._statusCollection.find(filter, projection).toArray().then(function(docs) {
                 resolve(docs);
             },function(error) {
-                reject(ErrorHelper('Update status failed', error));
+                reject(ErrorHelper('Retrieve Nodes Status has failed', error));
             }
         );
     });

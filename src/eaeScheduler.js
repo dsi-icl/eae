@@ -49,7 +49,7 @@ function EaeScheduler(config) {
 
 /**
  * @fn start
- * @desc Starts the eae compute service
+ * @desc Starts the eae scheduler service
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
@@ -60,8 +60,14 @@ EaeScheduler.prototype.start = function() {
             // Setup route using controllers
             _this._setupStatusController();
 
+            // Setup the monitoring of the nodes' status
+            _this._setupNodesWatchdog();
+
             // Start status periodic update
             _this.status_helper.startPeriodicUpdate(5 * 1000); // Update status every 5 seconds
+
+            // Start the monitoring of the nodes' status
+            _this.nodes_watchdog.startPeriodicUpdate(5 * 1000); // Update status every 5 seconds
 
             resolve(_this.app); // All good, returns application
         }, function (error) {
@@ -124,6 +130,7 @@ EaeScheduler.prototype._setupStatusController = function () {
     };
     _this.status_helper = new StatusHelper(Constants.EAE_SERVICE_TYPE_SCHEDULER, global.eae_scheduler_config.port, null, statusOpts);
     _this.status_helper.setCollection(_this.db.collection(Constants.EAE_COLLECTION_STATUS));
+    _this.status_helper.setStatus(Constants.EAE_SERVICE_STATUS_BUSY);
 
     _this.statusController = new StatusController(_this.status_helper);
     _this.app.get('/status', _this.statusController.getStatus); // GET status
