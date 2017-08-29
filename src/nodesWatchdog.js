@@ -1,10 +1,11 @@
 const timer = require('timers');
-const { Constants } =  require('eae-utils');
+const request = require('request');
+const { ErrorHelper, Constants } =  require('eae-utils');
 
 /**
  * @class NodesWatchdog
  * @desc Compute nodes status watchdog. Use it to track the compute status of he nodes, purge expired status and invalidate dead nodes.
- * @param mongoHelper Hlper class to interact with Mongo
+ * @param mongoHelper Helper class to interact with Mongo
  * @constructor
  */
 function NodesWatchdog(mongoHelper) {
@@ -16,9 +17,53 @@ function NodesWatchdog(mongoHelper) {
     //Bind member functions
     this.startPeriodicUpdate = NodesWatchdog.prototype.startPeriodicUpdate.bind(this);
     this.stopPeriodicUpdate = NodesWatchdog.prototype.stopPeriodicUpdate.bind(this);
+
+    // Action Methods
+    this._notifyAdmin = NodesWatchdog.prototype._notifyAdmin.bind(this);
+    this._excludeNodes = NodesWatchdog.prototype._excludeNodes.bind(this);
     this._invalidateDead = NodesWatchdog.prototype._invalidateDead.bind(this);
     this._purgeExpired = NodesWatchdog.prototype._purgeExpired.bind(this);
 }
+
+/**
+ * @fn _notifyAdmin
+ * @desc Sends a mail to the Administrator with the nodes which are in DEAD status
+ * @param {JSON} deadNode
+ * @private
+ */
+NodesWatchdog.prototype._notifyAdmin = function(deadNode){
+    // For now it just prints to the console but in the future we want it to send a mail. #TODO
+    console.log('The node with IP ' + deadNode.ip + ' and port ' + deadNode.port);
+};
+
+/**
+ * @fn _excludeNodes
+ * @desc Set the status of the dead nodes to excluded
+ * @param {Array} deadNodes List of dead nodes
+ * @private
+ */
+NodesWatchdog.prototype._excludeNodes = function(deadNodes){
+    let _this = this;
+
+    return new Promise(function(resolve, reject) {
+        deadNodes.forEach(function (node) {
+            let filter = { //Filter is based on ip/port combination
+                ip: node.ip,
+                port: node.port
+            };
+
+            let fields = {
+                statusLock: true
+            };
+            _this._mongoHelper.updateNodeStatus(filter, fields).then(function (success) {
+                _this._notifyAdmin(node);
+                resolve(success);
+            }, function (error) {
+                reject(ErrorHelper('Failed to update the nodes status to dead. Filter:' + filter.toString(), error));
+            });
+        });
+    });
+};
 
 /**
  * @fn _purgeExpired
@@ -32,13 +77,44 @@ NodesWatchdog.prototype._purgeExpired = function() {
 
     let filter = {
         status: {$in: statuses},
-        lastUpdate : {'$gte': new Date(0), '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.expiredStatusTime))}
+        lastUpdate: {
+            '$gte': new Date(0),
+            '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.expiredStatusTime))
+        }
     };
 
-    _this._nodesComputeStatus = _this._mongoHelper.retrieveNodesStatus(filter).then(function (docs) {
-        console.log(docs.toString());
-    }, function(error) {
-        console.log('Failed to retrieve nodes status. Filter:' + filter.toString() , error);
+    _this._nodesComputeStatus = _this._mongoHelper.retrieveNodesStatus(filter).then(function (nodes) {
+        nodes.forEach(function (node) {
+                let filter = { //Filter is based on ip/port combination
+                    ip: node.ip,
+                    port: node.port
+                };
+                let fields = {
+                    statusLock: true
+                };
+                // lock the node
+                _this._mongoHelper.updateNodeStatus(filter, fields).then(function (success) {
+                    // send kill command to workers
+                    request({
+                        method: 'POST',
+                        baseUrl: 'https://' + node.ip + ':' + node.port,
+                        uri:'/cancel'
+                        },
+                        function (error, response, body) {
+                            if (error) {
+                                return console.error('upload failed:', error);
+                            }
+                            console.log('Upload successful!  Server responded with:', body);
+                        });
+                    // set status to idle and unlock
+
+                }, function (error) {
+                    ErrorHelper('Failed to lock the node status. Filter:' + filter.toString(), error);
+                });
+            },
+            function (error) {
+                console.log('Failed to retrieve nodes status. Filter:' + filter.toString(), error);
+            });
     });
 };
 
@@ -53,11 +129,14 @@ NodesWatchdog.prototype._invalidateDead = function() {
     let statuses = [Constants.EAE_SERVICE_STATUS_DEAD];
 
     let filter = {
-        status: {$in: statuses}
+        status: {$in: statuses},
+        statusLock: false
     };
 
-    _this._nodesComputeStatus = _this._mongoHelper.retrieveNodesStatus(filter).then(function (docs) {
-        console.log(docs.toString());
+    _this._nodesComputeStatus = _this._mongoHelper.retrieveNodesStatus(filter).then(function (deadNodes) {
+        if(deadNodes.length > 0){
+            _this._excludeNodes(deadNodes);
+        }
     }, function(error) {
         console.log('Failed to retrieve nodes status. Filter:' + filter.toString() , error);
     });

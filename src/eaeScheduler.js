@@ -12,6 +12,12 @@ const StatusController = require('./statusController.js');
 // const JobsWatchdog = require('./jobsWatchdog');
 const NodesWatchdog = require('./nodesWatchdog');
 
+/**
+ * @class EaeScheduler
+ * @desc Core class of the scheduler microservice
+ * @param config Configurations for the scheduler
+ * @constructor
+ */
 function EaeScheduler(config) {
     // Init member attributes
     this.config = config;
@@ -27,7 +33,7 @@ function EaeScheduler(config) {
     // Bind private member functions
     this._connectDb = EaeScheduler.prototype._connectDb.bind(this);
     this._setupStatusController = EaeScheduler.prototype._setupStatusController.bind(this);
-    this._setupMongoHelper = EaeScheduler.prototype._setupMongoHelper(this);
+    this._setupMongoHelper = EaeScheduler.prototype._setupMongoHelper.bind(this);
     this._setupNodesWatchdog = EaeScheduler.prototype._setupNodesWatchdog.bind(this);
     //this.jobsoller = EaeScheduler.prototype.jobsProcessingController.bind(this);
 
@@ -61,6 +67,9 @@ EaeScheduler.prototype.start = function() {
             // Setup route using controllers
             _this._setupStatusController();
 
+            //Setup the mongoHelper
+            _this._setupMongoHelper();
+
             // Setup the monitoring of the nodes' status
             _this._setupNodesWatchdog();
 
@@ -68,7 +77,7 @@ EaeScheduler.prototype.start = function() {
             _this.status_helper.startPeriodicUpdate(5 * 1000); // Update status every 5 seconds
 
             // Start the monitoring of the nodes' status
-            _this.nodes_watchdog.startPeriodicUpdate(5 * 1000); // Update status every 5 seconds
+            _this.nodes_watchdog.startPeriodicUpdate(600 * 1000); // Update status every 10 minutes
 
             resolve(_this.app); // All good, returns application
         }, function (error) {
@@ -105,7 +114,7 @@ EaeScheduler.prototype.stop = function() {
  * @private
  */
 EaeScheduler.prototype._connectDb = function () {
-    var _this = this;
+    let _this = this;
     return new Promise(function (resolve, reject) {
         mongodb.connect(_this.config.mongoURL, function (err, db) {
             if (err !== null && err !== undefined) {
