@@ -75,7 +75,7 @@ StatusHelper.prototype.setCollection = function(statusCollection) {
  * @private
  */
 StatusHelper.prototype._update = function() {
-    var _this = this;
+    let _this = this;
 
     //Assign status values
     this._data.lastUpdate = new Date();
@@ -112,14 +112,14 @@ StatusHelper.prototype._update = function() {
  * @private
  */
 StatusHelper.prototype._sync = function() {
-    var _this = this;
+    let _this = this;
     return new Promise(function(resolve, reject) {
         if (_this._statusCollection === null || _this._statusCollection === undefined) {
             reject(defines.errorStacker('No MongoDB collection to sync against'));
             return;
         }
 
-        var filter = { //Filter is based on ip/port combination
+        let filter = { //Filter is based on ip/port combination
             ip: _this._data.ip,
             port: _this._data.port
         };
@@ -143,7 +143,7 @@ StatusHelper.prototype._sync = function() {
  * @param delay The intervals (in milliseconds) on how often to update the status
  */
 StatusHelper.prototype.startPeriodicUpdate = function(delay = defines.statusDefaultUpdateInterval) {
-    var _this = this;
+    let _this = this;
 
     //Stop previous interval if any
     _this.stopPeriodicUpdate();
@@ -160,7 +160,7 @@ StatusHelper.prototype.startPeriodicUpdate = function(delay = defines.statusDefa
  * Does nothing if the periodic update was not running
  */
 StatusHelper.prototype.stopPeriodicUpdate = function() {
-    var _this = this;
+    let _this = this;
 
     if (_this._intervalTimeout !== null && _this._intervalTimeout !== undefined) {
         timer.clearInterval(_this._intervalTimeout);
@@ -177,12 +177,12 @@ StatusHelper.prototype.stopPeriodicUpdate = function() {
  * @return {StatusHelper} Helper class
  */
 function StatusHelperExport(type = 'eae-service', port = 8080, mongoURL = null, options = {}) {
-    var opts = Object.assign({}, {
+    let opts = Object.assign({}, {
         type : type,
         port: port
     }, options);
 
-    var status_helper = new StatusHelper(opts);
+    let status_helper = new StatusHelper(opts);
 
     if (mongoURL !== null && mongoURL !== undefined) {
         mongodb.connect(mongoURL, function (err, db) {
@@ -190,7 +190,7 @@ function StatusHelperExport(type = 'eae-service', port = 8080, mongoURL = null, 
                 throw defines.errorStacker('Failed to connect to MongoDB', err);
             }
             else {
-                var statusCollection = db.collection(defines.STATUS_COLLECTION_NAME);
+                let statusCollection = db.collection(defines.STATUS_COLLECTION_NAME);
                 status_helper.setCollection(statusCollection);
             }
         });

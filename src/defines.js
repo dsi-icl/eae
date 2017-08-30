@@ -1,6 +1,6 @@
 function ErrorStack(error_obj, error_stack) {
-    var error = {};
-    var error_message = '';
+    let error = {};
+    let error_message = '';
 
     error.toString = function() {
         return JSON.stringify(this);
@@ -59,10 +59,10 @@ const statusModel = {
 };
 
 const jobModel = {
-    type : "eae-job-type",
-    status: "eae_job_done",
+    type : 'eae-job-type',
+    status: 'eae_job_done',
     startDate: new Date(0),
-    main: "main.py",
+    main: 'main.py',
     params: [],
     input: [],
     endDate: new Date(0),

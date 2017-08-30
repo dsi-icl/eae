@@ -33,6 +33,8 @@
         "jsx": true
     },
     "rules": {
+        "eqeqeq": 2,
+        "no-var" : 2,
         "no-alert": 2,
         "no-console": 1,
         "quotes": [
@@ -52,6 +54,13 @@
         "space-unary-ops": 2,
         "no-trailing-spaces": 1,
         "no-irregular-whitespace": 2,
-        "no-unused-vars": 1
+        "no-unused-vars": [
+            2,
+            {
+                "vars": "all",
+                "args": "all",
+                "argsIgnorePattern": "^__unused__"
+            }
+        ]
     }
 }
