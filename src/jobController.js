@@ -70,7 +70,7 @@ JobController.prototype.cancelJob = function(__unused__req, res) {
     let _this = this;
 
     if (_this._executor === undefined || _this._executor === null) {
-        res.status(501);
+        res.status(400);
         res.json(ErrorHelper('Not currently running a job'));
         return;
     }
