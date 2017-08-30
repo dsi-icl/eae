@@ -77,7 +77,7 @@ EaeScheduler.prototype.start = function() {
             _this.status_helper.startPeriodicUpdate(5 * 1000); // Update status every 5 seconds
 
             // Start the monitoring of the nodes' status
-            _this.nodes_watchdog.startPeriodicUpdate(600 * 1000); // Update status every 10 minutes
+            _this.nodes_watchdog.startPeriodicUpdate(300 * 1000); // Update status every 5 minutes
 
             resolve(_this.app); // All good, returns application
         }, function (error) {

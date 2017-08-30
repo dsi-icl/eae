@@ -1,5 +1,4 @@
 const timer = require('timers');
-const request = require('request');
 const { ErrorHelper, Constants } =  require('eae-utils');
 
 /**
@@ -77,6 +76,7 @@ NodesWatchdog.prototype._purgeExpired = function() {
 
     let filter = {
         status: {$in: statuses},
+        statusLock: false,
         lastUpdate: {
             '$gte': new Date(0),
             '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.expiredStatusTime))
@@ -85,36 +85,28 @@ NodesWatchdog.prototype._purgeExpired = function() {
 
     _this._nodesComputeStatus = _this._mongoHelper.retrieveNodesStatus(filter).then(function (nodes) {
         nodes.forEach(function (node) {
-                let filter = { //Filter is based on ip/port combination
-                    ip: node.ip,
-                    port: node.port
-                };
-                let fields = {
-                    statusLock: true
-                };
-                // lock the node
-                _this._mongoHelper.updateNodeStatus(filter, fields).then(function (success) {
-                    // send kill command to workers
-                    request({
-                        method: 'POST',
-                        baseUrl: 'https://' + node.ip + ':' + node.port,
-                        uri:'/cancel'
-                        },
-                        function (error, response, body) {
-                            if (error) {
-                                return console.error('upload failed:', error);
-                            }
-                            console.log('Upload successful!  Server responded with:', body);
-                        });
-                    // set status to idle and unlock
-
-                }, function (error) {
-                    ErrorHelper('Failed to lock the node status. Filter:' + filter.toString(), error);
+            let filter = { //Filter is based on ip/port combination
+                ip: node.ip,
+                port: node.port
+            };
+            let fields = {
+                status: Constants.EAE_SERVICE_STATUS_DEAD,
+                statusLock: true
+            };
+            // lock the node
+            _this._mongoHelper.updateNodeStatus(filter, fields).then(
+                function (success) {
+                    if(success.nModified === 1){
+                        console.log('The expired node' + node.ip + ':' + node.port + 'has been set to DEAD successfully');
+                    }else{
+                        console.log('The node has already been updated ' + node.ip + ':' + node.port);
+                    }},
+                function (error) {
+                    ErrorHelper('Failed to lock the node and set its status to DEAD. Filter:' + filter.toString(), error);
                 });
-            },
-            function (error) {
-                console.log('Failed to retrieve nodes status. Filter:' + filter.toString(), error);
-            });
+        });
+    },function (error){
+        console.log('Failed to retrieve nodes status. Filter:' + filter.toString(), error);
     });
 };
 

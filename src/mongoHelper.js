@@ -94,12 +94,12 @@ MongoHelper.prototype.updateNodeStatus = function(filter, fields){
             return;
         }
 
-        _this._statusCollection.findOneAndUpdate(filter,
-                                                { $set : fields },
-                                                { returnOriginal: false })
+        _this._statusCollection.updateOne(filter,
+                                        { $set : fields},
+                                        { returnOriginal: false, w: 'majority', j: false })
             .then(function(success) {
-                resolve(success.value);
-            },function(error) {
+                resolve(success.result);
+            },function(error){
                 reject(ErrorHelper('The update of the nodes status dead to locked has failed', error));
             }
         );
