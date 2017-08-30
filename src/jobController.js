@@ -25,8 +25,8 @@ function JobController(jobCollection, statusHelper) {
  * @param res Express.js response object
  */
 JobController.prototype.runJob = function(req, res) {
-    var _this = this;
-    var job_id = req.body ? req.body.job_id : undefined;
+    let _this = this;
+    let job_id = req.body ? req.body.job_id : undefined;
 
     if (job_id === undefined || job_id === null) {
         res.status(401);
@@ -67,7 +67,7 @@ JobController.prototype.runJob = function(req, res) {
  * @param res Express.js response object
  */
 JobController.prototype.cancelJob = function(__unused__req, res) {
-    var _this = this;
+    let _this = this;
 
     if (_this._executor === undefined || _this._executor === null) {
         res.status(501);
