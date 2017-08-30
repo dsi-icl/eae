@@ -11,9 +11,9 @@
     "utility"
   ],
   "contributors": [
-      "Jean Grizet <jean.grizet16@imperial.ac.uk>",
-      "Florian Guitton <f.guitton@imperial.ac.uk>",
-      "Axel Oehmichen <axelfrancois.oehmichen11@imperial.ac.uk>"
+    "Jean Grizet <jean.grizet16@imperial.ac.uk>",
+    "Axel Oehmichen <axelfrancois.oehmichen11@imperial.ac.uk>",
+    "Florian Guitton <f.guitton@imperial.ac.uk>"
   ],
   "license": "MIT",
   "readme": "README.md",

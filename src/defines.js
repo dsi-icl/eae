@@ -88,9 +88,12 @@ module.exports = {
     JOB_TYPE_PIP: 'pip',
 
     JOB_STATUS_QUEUED: 'eae_job_queued',
+    JOB_STATUS_SCHEDULED: 'eae_job_scheduled',
     JOB_STATUS_RUN: 'eae_job_running',
     JOB_STATUS_ERR: 'eae_job_error',
+    JOB_STATUS_CANCELLED: 'eae_job_cancelled',
     JOB_STATUS_DONE: 'eae_job_done',
+    JOB_STATUS_COMPLETED: 'eae_job_completed',
 
     STATUS_COLLECTION_NAME: 'eae_global_status',
     JOBS_COLLECTION_NAME: 'eae_global_jobs',
