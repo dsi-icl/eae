@@ -1,4 +1,5 @@
 const { ErrorHelper } =  require('eae-utils');
+const ObjectID = require('mongodb').ObjectID;
 
 /**
  * @class MongoHelper
@@ -9,12 +10,15 @@ function MongoHelper(){
     //Init member vars
     this._statusCollection = null;
     this._jobsCollection = null;
+    this._jobsArchiveCollection = null;
 
     //Bind member functions
     this.setCollections = MongoHelper.prototype.setCollections.bind(this);
     this.retrieveNodesStatus = MongoHelper.prototype.retrieveNodesStatus.bind(this);
     this.retrieveJobs = MongoHelper.prototype.retrieveJobs.bind(this);
     this.updateNodeStatus = MongoHelper.prototype.updateNodeStatus.bind(this);
+    this.updateJob = MongoHelper.prototype.updateJob.bind(this);
+    this.archiveJob = MongoHelper.prototype.archiveJob.bind(this);
 }
 
 /**
@@ -22,10 +26,12 @@ function MongoHelper(){
  * @desc Setup the mongoDB collection to sync against
  * @param statusCollection Initialized mongodb collection to work against for nodes' status
  * @param jobsCollection Initialized mongodb collection to work against for jobs processing
+ * @param jobsArchiveCollection  Initialized mongodb collection to work against for archiving jobs
  */
-MongoHelper.prototype.setCollections = function(statusCollection, jobsCollection) {
+MongoHelper.prototype.setCollections = function(statusCollection, jobsCollection, jobsArchiveCollection) {
     this._statusCollection = statusCollection;
     this._jobsCollection = jobsCollection;
+    this._jobsArchiveCollection = jobsArchiveCollection;
 };
 
 /**
@@ -94,13 +100,84 @@ MongoHelper.prototype.updateNodeStatus = function(filter, fields){
             return;
         }
 
-        _this._statusCollection.updateOne(filter,
+        _this._statusCollection.findOneAndUpdate(filter,
                                         { $set : fields},
-                                        { returnOriginal: false, w: 'majority', j: false })
-            .then(function(success) {
-                resolve(success.result);
+                                        { returnOriginal: true, w: 'majority', j: false })
+            .then(function(res) {
+                resolve(res);
             },function(error){
                 reject(ErrorHelper('The update of the nodes status dead to locked has failed', error));
+            }
+        );
+    });
+};
+
+/**
+ * @fn updateJob
+ * @desc Update the job for the specified filter and projection.
+ * @param filter
+ * @param fields
+ * @return {Promise} Resolve to true if update operation has been successful
+ */
+MongoHelper.prototype.updateJob = function(filter, fields){
+    let _this = this;
+
+    return new Promise(function(resolve, reject) {
+        if (_this._jobsCollection === null || _this._jobsCollection === undefined) {
+            reject(ErrorHelper('No MongoDB collection to retrieve the jobs against'));
+            return;
+        }
+
+        _this._jobsCollection.updateOne(filter,
+            { $set : fields},
+            { w: 'majority', j: false })
+            .then(function(success) {
+                    resolve(success.result);
+                },function(error){
+                    reject(ErrorHelper('The update of the job has failed', error));
+                }
+            );
+    });
+};
+
+/**
+ * @fn archiveJob
+ * @desc transfer an expired job to the archive of jobs and purges swift.
+ * @param jobId id of the job to be transferred to the archive.
+ */
+MongoHelper.prototype.archiveJob = function(jobId){
+    let _this = this;
+
+    return new Promise(function(resolve, reject) {
+        if (_this._jobsCollection === null || _this._jobsCollection === undefined ||
+                _this._jobsArchiveCollection === null || _this._jobsArchiveCollection === undefined) {
+            reject(ErrorHelper('Jobs and/or Archive collections in MongoDB is/are not accessible'));
+            return;
+        }
+
+        let filter = { id:  jobId };
+
+        _this._jobsCollection.findOne(filter).then(function(job) {
+                delete job._id;
+                _this._jobsArchiveCollection.insert(job).then(function(success) {
+                        if (success.insertedCount === 1) {
+                            _this._jobsCollection.delete(filter).then(function(){
+                                resolve('The job ' + jobId + 'has been successfully archived');
+                            },function(error){
+                                reject(ErrorHelper('The old job could not be deleted properly from jobsCollection. ' +
+                                    'JobID:' + jobId ,error));
+                            });
+                        }else{
+                            reject(ErrorHelper('The job couldn\'t be inserted properly. The insert count != 1. ' +
+                                'JobID:' + jobId));
+                        }
+                    },function(error){
+                        reject(ErrorHelper('The job couldn\'t be inserted properly. The insert count != 1. ' +
+                            'JobID:' + jobId, error));
+                    }
+                );
+            },function(error){
+                reject(ErrorHelper('The job couldn\'t be found JobID:' + jobId, error));
             }
         );
     });

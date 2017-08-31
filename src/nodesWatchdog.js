@@ -83,7 +83,7 @@ NodesWatchdog.prototype._purgeExpired = function() {
         }
     };
 
-    _this._nodesComputeStatus = _this._mongoHelper.retrieveNodesStatus(filter).then(function (nodes) {
+    _this._mongoHelper.retrieveNodesStatus(filter).then(function (nodes) {
         nodes.forEach(function (node) {
             let filter = { //Filter is based on ip/port combination
                 ip: node.ip,
@@ -125,7 +125,7 @@ NodesWatchdog.prototype._invalidateDead = function() {
         statusLock: false
     };
 
-    _this._nodesComputeStatus = _this._mongoHelper.retrieveNodesStatus(filter).then(function (deadNodes) {
+    _this._mongoHelper.retrieveNodesStatus(filter).then(function (deadNodes) {
         if(deadNodes.length > 0){
             _this._excludeNodes(deadNodes);
         }

@@ -5,12 +5,14 @@ const { ErrorHelper, Constants } =  require('eae-utils');
  * @class JobsWatchdog
  * @desc Periodic monitoring of jobs - Archive completed jobs, Invalidate timing out jobs
  * @param mongoHelper Helper class to interact with Mongo
+ * @param swiftHelper Helper class to interact with Swift
  * @constructor
  */
-function JobsWatchdog(mongoHelper) {
+function JobsWatchdog(mongoHelper, swiftHelper) {
     //Init member vars
     this._intervalTimeout = null;
     this._mongoHelper = mongoHelper;
+    this._swiftHelper = swiftHelper;
 
     //Bind member functions
     this.startPeriodicUpdate = JobsWatchdog.prototype.startPeriodicUpdate.bind(this);
@@ -18,14 +20,16 @@ function JobsWatchdog(mongoHelper) {
 
     // Action Methods
     this._archiveJobs = JobsWatchdog.prototype._archiveJobs.bind(this);
-    this._invalidateTimingOutJobs = JobsWatchdog.prototype._invalidateTimingOutJobs.bind(this);
+    // this._invalidateTimingOutJobs = JobsWatchdog.prototype._invalidateTimingOutJobs.bind(this);
 }
 
 /**
  * @fn _archiveJob
+ * @desc
+ *
  */
 JobsWatchdog.prototype._archiveJobs = function(){
-    var _this = this;
+    let _this = this;
     return new Promise(function(resolve, reject) {
         let statuses = [Constants.EAE_JOB_STATUS_COMPLETED];
         var currentTime = new Date();
@@ -33,14 +37,39 @@ JobsWatchdog.prototype._archiveJobs = function(){
         let filter = {
             status: {$in: statuses},
             statusLock: false,
-            lastUpdate: {
-                '$gte': new Date(0),
+            endDate: {
                 '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.jobsExpiredStatusTime))
             }
         };
 
-        _this._nodesComputeStatus = _this._mongoHelper.retrieveJobs(filter).then(function (jobs) {
-
+        _this._mongoHelper.retrieveJobs(filter).then(function (jobs) {
+            jobs.forEach(function (job) {
+                let filter = {
+                    _id: job._id
+                };
+                let fields = {
+                    statusLock: true
+                };
+                // lock the node
+                _this._mongoHelper.updateJob(filter, fields).then(
+                    function (res) {
+                        if(res.nModified === 1){
+                            // We archive the Job
+                            _this._mongoHelper.archiveJob(job._id);
+                            // We purge the results from swift
+                            _this._swiftHelper.delete();
+                            // #TODO purge swift both input, output
+                            resolve('The job has been successfully archived');
+                        }else{
+                            resolve('The job has already been updated');
+                        }},
+                    function (error) {
+                        reject(ErrorHelper('Failed to lock the job. Filter:' + filter.toString(), error));
+                    });
+            });
+        },function (error){
+           reject(ErrorHelper('Failed to retrieve Jobs. Filter:' + filter.toString(), error));
+        });
     });
 };
 

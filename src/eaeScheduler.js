@@ -2,14 +2,14 @@
 const mongodb = require('mongodb').MongoClient;
 const express = require('express');
 const body_parser = require('body-parser');
-const { ErrorHelper, StatusHelper, Constants } =  require('eae-utils');
+const { ErrorHelper, StatusHelper, SwiftHelper, Constants } = require('eae-utils');
 
 const MongoHelper = require('./mongoHelper');
 
 const package_json = require('../package.json');
 const StatusController = require('./statusController.js');
 // const JobsScheduler = require('./jobsScheduler');
-// const JobsWatchdog = require('./jobsWatchdog');
+const JobsWatchdog = require('./jobsWatchdog');
 const NodesWatchdog = require('./nodesWatchdog');
 
 /**
@@ -25,6 +25,7 @@ function EaeScheduler(config) {
     global.eae_scheduler_config = config;
     global.eae_compute_nodes_status = [];
     this.mongo_helper = new MongoHelper();
+    this.swift_helper = null;
 
     // Bind public member functions
     this.start = EaeScheduler.prototype.start.bind(this);
@@ -34,6 +35,7 @@ function EaeScheduler(config) {
     this._connectDb = EaeScheduler.prototype._connectDb.bind(this);
     this._setupStatusController = EaeScheduler.prototype._setupStatusController.bind(this);
     this._setupMongoHelper = EaeScheduler.prototype._setupMongoHelper.bind(this);
+    this._setupSwiftHelper = EaeScheduler.prototype._setupSwiftHelper.bind(this);
     this._setupNodesWatchdog = EaeScheduler.prototype._setupNodesWatchdog.bind(this);
     //this.jobsoller = EaeScheduler.prototype.jobsProcessingController.bind(this);
 
@@ -73,11 +75,17 @@ EaeScheduler.prototype.start = function() {
             // Setup the monitoring of the nodes' status
             _this._setupNodesWatchdog();
 
+            // Setup the monitoring of jobs - Archive completed jobs, Invalidate timing out jobs
+            _this._setupJobsWatchdog();
+
             // Start status periodic update
-            _this.status_helper.startPeriodicUpdate(5 * 1000); // Update status every 5 seconds
+            // _this.status_helper.startPeriodicUpdate(5 * 1000); // Update status every 5 seconds
 
             // Start the monitoring of the nodes' status
-            _this.nodes_watchdog.startPeriodicUpdate(300 * 1000); // Update status every 5 minutes
+            // _this.nodes_watchdog.startPeriodicUpdate(300 * 1000); // Update status every 5 minutes
+
+            // Start the monitoring of the nodes' status
+            _this.jobs_watchdog.startPeriodicUpdate(3 * 1000); // Update status every 30 minutes
 
             resolve(_this.app); // All good, returns application
         }, function (error) {
@@ -149,13 +157,28 @@ EaeScheduler.prototype._setupStatusController = function () {
 
 /**
  * @fn _setupMongoHelper
- * @desc Initialize the periodic status update of the compute nodes
+ * @desc Initialize the mongo helper
  * @private
  */
 EaeScheduler.prototype._setupMongoHelper = function () {
     let _this = this;
     _this.mongo_helper.setCollections(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
-                                      _this.db.collection(Constants.EAE_COLLECTION_JOBS));
+                                      _this.db.collection(Constants.EAE_COLLECTION_JOBS),
+                                      _this.db.collection(Constants.EAE_COLLECTION_JOBS_ARCHIVE));
+};
+
+/**
+ * @fn _setupSwiftHelper
+ * @desc Initialize the helper class to intereact with Swift
+ * @private
+ */
+EaeScheduler.prototype._setupSwiftHelper = function () {
+    let _this = this;
+    _this.swift_helper = new SwiftHelper({
+                url: _this.config.swiftURL,
+                username: _this.config.swiftUsername,
+                password: _this.config.swiftPassword
+    });
 };
 
 /**
@@ -165,8 +188,18 @@ EaeScheduler.prototype._setupMongoHelper = function () {
  */
 EaeScheduler.prototype._setupNodesWatchdog = function () {
     let _this = this;
-
     _this.nodes_watchdog = new NodesWatchdog(_this.mongo_helper);
 };
+
+/**
+ * @fn _setupJobsWatchdog
+ * @desc Initialize the periodic monitoring of the Jobs
+ * @private
+ */
+EaeScheduler.prototype._setupJobsWatchdog = function () {
+    let _this = this;
+    _this.jobs_watchdog = new JobsWatchdog(_this.mongo_helper, _this.swift_helper);
+};
+
 
 module.exports = EaeScheduler;
