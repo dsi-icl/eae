@@ -94,6 +94,7 @@ module.exports = {
     JOB_STATUS_CANCELLED: 'eae_job_cancelled',
     JOB_STATUS_DONE: 'eae_job_done',
     JOB_STATUS_COMPLETED: 'eae_job_completed',
+    JOB_STATUS_ARCHIVED: 'eae_job_archived',
 
     STATUS_COLLECTION_NAME: 'eae_global_status',
     JOBS_COLLECTION_NAME: 'eae_global_jobs',
