@@ -1,0 +1,44 @@
+{
+  "name": "eae-scheduler",
+  "version": "0.0.1",
+  "description": "eAE - Scheduler micro-service",
+  "main": "./src/eaeScheduler.js",
+  "scripts": {
+    "start": "node ./src/index.js",
+    "lint": "eslint src"
+  },
+  "keywords": [
+    "eae",
+    "compute"
+  ],
+  "contributors": [
+    "Axel Oehmichen <axelfrancois.oehmichen11@imperial.ac.uk>",
+    "Jean Grizet <jean.grizet16@imperial.ac.uk>",
+    "Florian Guitton <f.guitton@imperial.ac.uk>"
+  ],
+  "license": "MIT",
+  "readme": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dsi-icl/eae-scheduler.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dsi-icl/eae-scheduler/issues"
+  },
+  "homepage": "https://github.com/dsi-icl/eae-scheduler#readme",
+  "devDependencies": {
+    "babel-core": "6.25.0",
+    "babel-eslint": "7.2.3",
+    "babel-preset-es2015": "6.24.1",
+    "babel-preset-stage-0": "6.24.1",
+    "eslint": "4.2.0",
+    "request": "2.81.0"
+  },
+  "dependencies": {
+    "body-parser": "1.17.2",
+    "eae-utils": "git+https://github.com/dsi-icl/eae-utils.git",
+    "express": "4.15.3",
+    "fs-extra": "4.0.0",
+    "mongodb": "2.2.30"
+  }
+}
