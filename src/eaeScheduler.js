@@ -69,8 +69,9 @@ EaeScheduler.prototype.start = function() {
             // Setup route using controllers
             _this._setupStatusController();
 
-            //Setup the mongoHelper
+            //Setup the Helpers
             _this._setupMongoHelper();
+            _this._setupSwiftHelper();
 
             // Setup the monitoring of the nodes' status
             _this._setupNodesWatchdog();

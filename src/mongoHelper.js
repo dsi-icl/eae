@@ -154,13 +154,13 @@ MongoHelper.prototype.archiveJob = function(jobId){
             return;
         }
 
-        let filter = { id:  jobId };
+        let filter = { _id:  jobId };
 
         _this._jobsCollection.findOne(filter).then(function(job) {
                 delete job._id;
                 _this._jobsArchiveCollection.insert(job).then(function(success) {
                         if (success.insertedCount === 1) {
-                            _this._jobsCollection.delete(filter).then(function(){
+                            _this._jobsCollection.deleteOne(filter).then(function(){
                                 console.log('The job ' + jobId + 'has been successfully archived');
                                 resolve(job);
                             },function(error){

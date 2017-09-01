@@ -19,9 +19,36 @@ function JobsWatchdog(mongoHelper, swiftHelper) {
     this.stopPeriodicUpdate = JobsWatchdog.prototype.stopPeriodicUpdate.bind(this);
 
     // Action Methods
+    this._deleteSwiftFilesAndContainer = JobsWatchdog.prototype._deleteSwiftFilesAndContainer.bind(this);
     this._archiveJobs = JobsWatchdog.prototype._archiveJobs.bind(this);
     // this._invalidateTimingOutJobs = JobsWatchdog.prototype._invalidateTimingOutJobs.bind(this);
 }
+
+JobsWatchdog.prototype._deleteSwiftFilesAndContainer = function(container, filesArray) {
+    let _this = this;
+
+    if(Array.isArray(filesArray)) {
+        let filesToBeDeleted = [];
+        filesArray.forEach(function (file) {
+            let d = _this._swiftHelper.deleteFile(container, file).then(
+                function (_unused_deleteStatus) {
+                    console.log('File : ' + file + ' has been successfully deleted from container : ' + container);
+                },
+                function (error) {
+                    ErrorHelper('Failed to delete file in swift: container - '
+                        + container + ' file - ' + file, error);
+                }
+            );
+            filesToBeDeleted.push(d);
+        });
+
+        Promise.all(filesToBeDeleted).then(function (_unused_array) {
+            _this._swiftHelper.deleteContainer(container);
+        }, function (error) {
+            ErrorHelper('Failed to delete conatiner:' + container, error);
+        });
+    }
+};
 
 /**
  * @fn _archiveJob
@@ -60,15 +87,8 @@ JobsWatchdog.prototype._archiveJobs = function(){
                             // We archive the Job
                             _this._mongoHelper.archiveJob(job._id).then(function(job){
                                     // We purge the input and output files from Swift
-                                    job.input.forEach(function(inputFile){
-                                        _this._swiftHelper.deleteFile(inputContainer,inputFile);
-                                    });
-                                    job.output.forEach(function(outputFile){
-                                        _this._swiftHelper.deleteFile(outputContainer, outputFile);
-                                    });
-                                    // We delete the two empty container
-                                    _this._swiftHelper.deleteContainer();
-                                    _this._swiftHelper.deleteContainer();
+                                    _this._deleteSwiftFilesAndContainer(inputContainer, job.input);
+                                    _this._deleteSwiftFilesAndContainer(outputContainer, job.output);
                                 },
                                 function (error){
                                     reject(ErrorHelper('Failed to archive the job: ' + job._id, error));
