@@ -54,21 +54,36 @@ JobsWatchdog.prototype._archiveJobs = function(){
                 _this._mongoHelper.updateJob(filter, fields).then(
                     function (res) {
                         if(res.nModified === 1){
+                            // We save the job id before archiving the job
+                            let inputContainer = job._id + '_input';
+                            let outputContainer = job._id + '_output';
                             // We archive the Job
-                            _this._mongoHelper.archiveJob(job._id);
-                            // We purge the results from swift
-                            _this._swiftHelper.delete();
-                            // #TODO purge swift both input, output
-                            resolve('The job has been successfully archived');
+                            _this._mongoHelper.archiveJob(job._id).then(function(job){
+                                    // We purge the input and output files from Swift
+                                    job.input.forEach(function(inputFile){
+                                        _this._swiftHelper.deleteFile(inputContainer,inputFile);
+                                    });
+                                    job.output.forEach(function(outputFile){
+                                        _this._swiftHelper.deleteFile(outputContainer, outputFile);
+                                    });
+                                    // We delete the two empty container
+                                    _this._swiftHelper.deleteContainer();
+                                    _this._swiftHelper.deleteContainer();
+                                },
+                                function (error){
+                                    reject(ErrorHelper('Failed to archive the job: ' + job._id, error));
+                                }
+                            );
+                            resolve('The job has been successfully archived and files removed from swift');
                         }else{
-                            resolve('The job has already been updated');
+                            resolve('The job has already been archived');
                         }},
                     function (error) {
                         reject(ErrorHelper('Failed to lock the job. Filter:' + filter.toString(), error));
                     });
             });
         },function (error){
-           reject(ErrorHelper('Failed to retrieve Jobs. Filter:' + filter.toString(), error));
+            reject(ErrorHelper('Failed to retrieve Jobs. Filter:' + filter.toString(), error));
         });
     });
 };

@@ -1,5 +1,4 @@
 const { ErrorHelper } =  require('eae-utils');
-const ObjectID = require('mongodb').ObjectID;
 
 /**
  * @class MongoHelper
@@ -162,7 +161,8 @@ MongoHelper.prototype.archiveJob = function(jobId){
                 _this._jobsArchiveCollection.insert(job).then(function(success) {
                         if (success.insertedCount === 1) {
                             _this._jobsCollection.delete(filter).then(function(){
-                                resolve('The job ' + jobId + 'has been successfully archived');
+                                console.log('The job ' + jobId + 'has been successfully archived');
+                                resolve(job);
                             },function(error){
                                 reject(ErrorHelper('The old job could not be deleted properly from jobsCollection. ' +
                                     'JobID:' + jobId ,error));

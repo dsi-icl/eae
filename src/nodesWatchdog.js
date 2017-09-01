@@ -10,7 +10,6 @@ const { ErrorHelper, Constants } =  require('eae-utils');
 function NodesWatchdog(mongoHelper) {
     //Init member vars
     this._intervalTimeout = null;
-    this._nodesComputeStatus = [];
     this._mongoHelper = mongoHelper;
 
     //Bind member functions
