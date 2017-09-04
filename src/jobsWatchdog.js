@@ -4,7 +4,8 @@ const { ErrorHelper, Constants } =  require('eae-utils');
 
 /**
  * @class JobsWatchdog
- * @desc Periodic monitoring of jobs - Archive completed jobs, Invalidate timing out jobs
+ * @desc Periodic monitoring of jobs - Archive completed jobs, Invalidate timing out jobs.
+ * Job Statuses Managed: Scheduled, Running, Completed
  * @param mongoHelper Helper class to interact with Mongo
  * @param swiftHelper Helper class to interact with Swift
  * @constructor
@@ -194,10 +195,10 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
 
 /**
  * @fn startPeriodicUpdate
- * @desc Start an automatic update and synchronisation of the compute status of the nodes
+ * @desc Start an automatic archiving of jobs and invalidation of timed out jobs
  * @param delay The intervals (in milliseconds) on how often to update the status
  */
-JobsWatchdog.prototype.startPeriodicUpdate = function(delay = Constants.statusDefaultUpdateInterval) {
+JobsWatchdog.prototype.startPeriodicUpdate = function(delay = Constants.STATUS_DEFAULT_UPDATE_INTERVAL) {
     let _this = this;
 
     //Stop previous interval if any
@@ -211,7 +212,7 @@ JobsWatchdog.prototype.startPeriodicUpdate = function(delay = Constants.statusDe
 
 /**
  * @fn stopPeriodicUpdate
- * @desc Stops the automatic update and synchronisation of the compute status of the nodes
+ * @desc Stops the automatic archiving of jobs and invalidation of timed out jobs
  * Does nothing if the periodic update was not running
  */
 JobsWatchdog.prototype.stopPeriodicUpdate = function() {
