@@ -138,7 +138,7 @@ NodesWatchdog.prototype._invalidateDead = function() {
  * @desc Start an automatic update and synchronisation of the compute status of the nodes
  * @param delay The intervals (in milliseconds) on how often to update the status
  */
-NodesWatchdog.prototype.startPeriodicUpdate = function(delay = Constants.statusDefaultUpdateInterval) {
+NodesWatchdog.prototype.startPeriodicUpdate = function(delay = Constants.STATUS_DEFAULT_UPDATE_INTERVAL) {
     let _this = this;
 
     //Stop previous interval if any
