@@ -61,8 +61,8 @@ MongoHelper.prototype.retrieveNodesStatus = function(filter, projection = {}){
 /**
  * @fn retrieveJobs
  * @desc Retrieves the list of Jobs
- * @param filter
- * @param projection
+ * @param filter MongoDB filter for the query
+ * @param projection MongoDB projection
  * @return {Promise} returns an array with all the jobs matching the desired status
  */
 MongoHelper.prototype.retrieveJobs = function(filter, projection = {}){
@@ -86,8 +86,8 @@ MongoHelper.prototype.retrieveJobs = function(filter, projection = {}){
 /**
  * @fn retrieveNodesWithStatus
  * @desc Retrieves the list of Nodes for the list of specified filter and projection.
- * @param filter
- * @param fields
+ * @param filter MongoDB filter for the query
+ * @param fields Fields in the document to be updated
  * @return {Promise} Resolve to true if update operation has been successful
  */
 MongoHelper.prototype.updateNodeStatus = function(filter, fields){
@@ -114,9 +114,9 @@ MongoHelper.prototype.updateNodeStatus = function(filter, fields){
 /**
  * @fn updateJob
  * @desc Update the job for the specified filter and projection.
- * @param filter
- * @param fields
- * @return {Promise} Resolve to true if update operation has been successful
+ * @param filter MongoDB filter for the query
+ * @param fields Fields in the document to be updated
+ * @return {Promise} Resolve to the result of the update if update operation has been successful
  */
 MongoHelper.prototype.updateJob = function(filter, fields){
     let _this = this;
@@ -143,6 +143,7 @@ MongoHelper.prototype.updateJob = function(filter, fields){
  * @fn archiveJob
  * @desc transfer an expired job to the archive of jobs and purges swift.
  * @param jobId id of the job to be transferred to the archive.
+ * @return {Promise} Resolve to the job if the delete Job is successful
  */
 MongoHelper.prototype.archiveJob = function(jobId){
     let _this = this;
