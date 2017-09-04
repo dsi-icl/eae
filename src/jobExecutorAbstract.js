@@ -140,7 +140,7 @@ JobExecutorAbstract.prototype._exec = function(command, args, options) {
                     end_fn(Constants.EAE_JOB_STATUS_DONE, code, 'Exit success');
                 }
                 else if (signal === 'SIGTERM') {
-                    end_fn(Constants.EAE_JOB_STATUS_DONE, 1, 'Interrupt success');
+                    end_fn(Constants.EAE_JOB_STATUS_CANCELLED, 1, 'Interrupt success');
                 }
                 else {
                     end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, 'Exit error');
