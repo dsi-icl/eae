@@ -99,7 +99,7 @@ module.exports = {
     STATUS_COLLECTION_NAME: 'eae_global_status',
     JOBS_COLLECTION_NAME: 'eae_global_jobs',
     JOBS_ARCHIVE_COLLECTION_NAME: 'eae_jobs_archive',
-    statusDefaultUpdateInterval: 60 * 1000, // 60 * 1000 ms = 1 minute
+    STATUS_DEFAULT_UPDATE_INTERVAL: 60 * 1000, // 60 * 1000 ms = 1 minute
 
     STATUS_MODEL: statusModel,
     JOB_MODEL: jobModel,

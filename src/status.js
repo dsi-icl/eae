@@ -142,7 +142,7 @@ StatusHelper.prototype._sync = function() {
  * @desc Start an automatic update and synchronisation of the status
  * @param delay The intervals (in milliseconds) on how often to update the status
  */
-StatusHelper.prototype.startPeriodicUpdate = function(delay = defines.statusDefaultUpdateInterval) {
+StatusHelper.prototype.startPeriodicUpdate = function(delay = defines.STATUS_DEFAULT_UPDATE_INTERVAL) {
     let _this = this;
 
     //Stop previous interval if any
