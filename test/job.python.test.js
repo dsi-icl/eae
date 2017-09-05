@@ -268,7 +268,7 @@ test('Cancel running job', function(done) {
             uri: '/cancel',
             json: true,
             body: {
-                job_id: job_model._id.toHexString()
+                job_id: g_job._id.toHexString()
             }
         },
         function(error, response, body) {
@@ -284,7 +284,6 @@ test('Cancel running job', function(done) {
             }
 
             expect(response.statusCode).toEqual(200);
-            throw JSON.stringify(body);
             expect(body).toBeDefined();
             expect(body.status).toEqual(eaeutils.Constants.EAE_JOB_STATUS_CANCELLED);
             done();
