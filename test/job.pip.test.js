@@ -1,10 +1,13 @@
 const request = require('request');
 const eaeutils = require('eae-utils');
-let config = require('../config/eae.compute.test.config.js');
+let config = require('../config/eae.compute.config.js');
 let TestServer = require('./testserver.js');
 
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000; // 20 seconds
+
+
 let ts = new TestServer();
-let job = null;
+let g_job = null;
 
 beforeAll(function() {
     return new Promise(function (resolve, reject) {
@@ -22,7 +25,9 @@ test('Create pip install pymongo job & start running', function(done) {
         '', ['install', 'pymongo'], [ ]).then(function(job_model) {
         expect(job_model).toBeDefined();
         expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_PIP);
-        job = job_model;
+        job_model.input = [];
+        job_model.output = [];
+        g_job = job_model;
         request(
             {
                 method: 'POST',
@@ -50,9 +55,9 @@ test('Create pip install pymongo job & start running', function(done) {
     });
 });
 
-test('Wait for compute to go idle or dead', function(done) {
-    expect.assertions(1);
-    let t = setInterval(function() {
+test('Wait for compute to go idle', function(done) {
+    expect.assertions(3);
+    setTimeout(function() {
         request(
             {
                 method: 'GET',
@@ -62,20 +67,26 @@ test('Wait for compute to go idle or dead', function(done) {
             },
             function(error, response, body) {
                 if (error) {
-                    clearInterval(t);
                     done.fail(error.toString());
                 }
-                if (body && body.status &&
-                    (
-                        body.status === eaeutils.Constants.EAE_SERVICE_STATUS_IDLE ||
-                        body.status === eaeutils.Constants.EAE_SERVICE_STATUS_DEAD)) {
-                    expect(response.statusCode).toEqual(200);
-                    clearInterval(t);
-                    done();
-                }
+                expect(response).toBeDefined();
+                expect(response.statusCode).toEqual(200);
+                expect(body.status).toEqual(eaeutils.Constants.EAE_SERVICE_STATUS_IDLE);
+                done();
             }
         );
-    }, 300); // Every 300 ms
+    }, 10000); // 10 seconds
+});
+
+test('Delete pip install job', function(done) {
+    expect.assertions(1);
+    ts.deleteJob(g_job).then(function(result) {
+        expect(result).toBeTruthy();
+        g_job = null;
+        done();
+    }, function(error) {
+        done.fail(error.toString());
+    });
 });
 
 test('Create pymongo job & start running', function(done) {
@@ -84,7 +95,7 @@ test('Create pymongo job & start running', function(done) {
         './input/pymongo.py', [], [ './test/jobs/pymongo/pymongo.py' ]).then(function(job_model) {
         expect(job_model).toBeDefined();
         expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2);
-        job = job_model;
+        g_job = job_model;
         request(
             {
                 method: 'POST',
@@ -112,9 +123,9 @@ test('Create pymongo job & start running', function(done) {
     });
 });
 
-test('Wait for compute to go idle or dead', function(done) {
-    expect.assertions(1);
-    var t = setInterval(function() {
+test('Wait for compute to go idle', function(done) {
+    expect.assertions(3);
+    setTimeout(function() {
         request(
             {
                 method: 'GET',
@@ -124,25 +135,20 @@ test('Wait for compute to go idle or dead', function(done) {
             },
             function(error, response, body) {
                 if (error) {
-                    clearInterval(t);
                     done.fail(error.toString());
                 }
-                if (body && body.status &&
-                    (
-                        body.status === eaeutils.Constants.EAE_SERVICE_STATUS_IDLE ||
-                        body.status === eaeutils.Constants.EAE_SERVICE_STATUS_DEAD)) {
-                    expect(response.statusCode).toEqual(200);
-                    clearInterval(t);
-                    done();
-                }
+                expect(response).toBeDefined();
+                expect(response.statusCode).toEqual(200);
+                expect(body.status).toEqual(eaeutils.Constants.EAE_SERVICE_STATUS_IDLE);
+                done();
             }
         );
-    }, 300); // Every 300 ms
+    }, 5000); // 5 seconds
 });
 
 test('Delete pymongo job', function(done) {
     expect.assertions(1);
-    ts.deleteJob(job).then(function(result) {
+    ts.deleteJob(g_job).then(function(result) {
         expect(result).toBeTruthy();
         done();
     }, function(error) {

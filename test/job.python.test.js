@@ -3,6 +3,8 @@ const eaeutils = require('eae-utils');
 let config = require('../config/eae.compute.config.js');
 let TestServer = require('./testserver.js');
 
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000; // 20 seconds
+
 let ts = new TestServer();
 let g_job = null;
 
@@ -51,9 +53,9 @@ test('Create dummy job & start running', function(done) {
     });
 });
 
-test('Wait for compute to go idle or dead', function(done) {
-    expect.assertions(1);
-    let t = setInterval(function() {
+test('Wait for compute to go idle', function(done) {
+    expect.assertions(3);
+    setTimeout(function() {
         request(
             {
                 method: 'GET',
@@ -63,20 +65,16 @@ test('Wait for compute to go idle or dead', function(done) {
             },
             function(error, response, body) {
                 if (error) {
-                    clearInterval(t);
                     done.fail(error.toString());
+                    return;
                 }
-                if (body && body.status &&
-                    (
-                        body.status === eaeutils.Constants.EAE_SERVICE_STATUS_IDLE ||
-                        body.status === eaeutils.Constants.EAE_SERVICE_STATUS_DEAD)) {
-                    expect(response.statusCode).toEqual(200);
-                    clearInterval(t);
-                    done();
-                }
+                expect(response).toBeDefined();
+                expect(response.statusCode).toEqual(200);
+                expect(body.status).toEqual(eaeutils.Constants.EAE_SERVICE_STATUS_IDLE);
+                done();
             }
         );
-    }, 300); // Every 300 ms
+    }, 2000); // 2 seconds
 });
 
 test('Check dummy output result and delete job', function(done) {
@@ -147,10 +145,9 @@ test('Check timer job is running', function(done) {
     );
 });
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000; // 20 seconds
-test('Wait for compute to go idle or dead', function(done) {
-    expect.assertions(1);
-    let t = setInterval(function() {
+test('Wait for compute to go idle', function(done) {
+    expect.assertions(3);
+    setTimeout(function() {
         request(
             {
                 method: 'GET',
@@ -160,20 +157,15 @@ test('Wait for compute to go idle or dead', function(done) {
             },
             function(error, response, body) {
                 if (error) {
-                    clearInterval(t);
                     done.fail(error.toString());
                 }
-                if (body && body.status &&
-                    (
-                        body.status === eaeutils.Constants.EAE_SERVICE_STATUS_IDLE ||
-                        body.status === eaeutils.Constants.EAE_SERVICE_STATUS_DEAD)) {
-                    expect(response.statusCode).toEqual(200);
-                    clearInterval(t);
-                    done();
-                }
+                expect(response).toBeDefined();
+                expect(response.statusCode).toEqual(200);
+                expect(body.status).toEqual(eaeutils.Constants.EAE_SERVICE_STATUS_IDLE);
+                done();
             }
         );
-    }, 300); // Every 300 ms
+    }, 12000); // 12 seconds
 });
 
 test('Delete timer job', function(done) {
@@ -185,6 +177,28 @@ test('Delete timer job', function(done) {
     }, function(error) {
         done.fail(error.toString());
     });
+});
+
+test('Cancel job on idle compute, check error', function(done) {
+    expect.assertions(4);
+    request(
+        {
+            method: 'POST',
+            baseUrl: 'http://127.0.0.1:' + config.port,
+            uri: '/cancel',
+            json: true
+        },
+        function(error, response, body) {
+            if (error) {
+                done.fail(error.toString());
+            }
+            expect(response).toBeDefined();
+            expect(response.statusCode).toEqual(400);
+            expect(body).toBeDefined();
+            expect(body.error).toBeDefined();
+            done();
+        }
+    );
 });
 
 test('Create cancel job & start running', function(done) {
@@ -208,7 +222,6 @@ test('Create cancel job & start running', function(done) {
             function(error, response, body) {
                 if (error) {
                     done.fail(error.toString());
-                    return;
                 }
                 expect(response).toBeDefined();
                 expect(response.statusCode).toEqual(200);
@@ -222,26 +235,28 @@ test('Create cancel job & start running', function(done) {
     });
 });
 
-test('Check cancel job is running', function(done) {
+test('Check cancel job is running after 1 sec', function(done) {
     expect.assertions(4);
-    request(
-        {
-            method: 'GET',
-            baseUrl: 'http://localhost:' + config.port,
-            uri: '/status',
-            json: true
-        },
-        function(error, response, body) {
-            if (error) {
-                done.fail(error.toString());
+    setTimeout(function() {
+        request(
+            {
+                method: 'GET',
+                baseUrl: 'http://127.0.0.1:' + config.port,
+                uri: '/status',
+                json: true
+            },
+            function (error, response, body) {
+                if (error) {
+                    done.fail(error.toString());
+                }
+                expect(response).toBeDefined();
+                expect(response.statusCode).toEqual(200);
+                expect(body).toBeDefined();
+                expect(body.status).toEqual(eaeutils.Constants.EAE_SERVICE_STATUS_BUSY);
+                done();
             }
-            expect(response).toBeDefined();
-            expect(response.statusCode).toEqual(200);
-            expect(body).toBeDefined();
-            expect(body.status).toEqual(eaeutils.Constants.EAE_SERVICE_STATUS_BUSY);
-            done();
-        }
-    );
+        );
+    }, 1000); // 1 sec
 });
 
 test('Cancel running job', function(done) {
@@ -249,9 +264,12 @@ test('Cancel running job', function(done) {
     request(
         {
             method: 'POST',
-            baseUrl: 'http://localhost:' + config.port,
+            baseUrl: 'http://127.0.0.1:' + config.port,
             uri: '/cancel',
-            json: true
+            json: true,
+            body: {
+                job_id: job_model._id.toHexString()
+            }
         },
         function(error, response, body) {
             if (error) {
@@ -260,10 +278,13 @@ test('Cancel running job', function(done) {
             }
             expect(response).toBeDefined();
 
-            if (response.statusCode !== 200)
+            if (response.statusCode !== 200) {
                 done.fail(JSON.stringify(response));
+                return;
+            }
 
             expect(response.statusCode).toEqual(200);
+            throw JSON.stringify(body);
             expect(body).toBeDefined();
             expect(body.status).toEqual(eaeutils.Constants.EAE_JOB_STATUS_CANCELLED);
             done();
@@ -271,10 +292,9 @@ test('Cancel running job', function(done) {
     );
 });
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000; // 20 seconds
-test('Wait for compute to go idle or dead', function(done) {
-    expect.assertions(1);
-    let t = setInterval(function() {
+test('Check compute is idle after 1 sec', function(done) {
+    expect.assertions(3);
+    setTimeout(function () {
         request(
             {
                 method: 'GET',
@@ -282,25 +302,20 @@ test('Wait for compute to go idle or dead', function(done) {
                 uri: '/status',
                 json: true
             },
-            function(error, response, body) {
+            function (error, response, body) {
                 if (error) {
-                    clearInterval(t);
                     done.fail(error.toString());
                 }
-                if (body && body.status &&
-                    (
-                        body.status === eaeutils.Constants.EAE_SERVICE_STATUS_IDLE ||
-                        body.status === eaeutils.Constants.EAE_SERVICE_STATUS_DEAD)) {
-                    expect(response.statusCode).toEqual(200);
-                    clearInterval(t);
-                    done();
-                }
+                expect(response).toBeDefined();
+                expect(response.statusCode).toEqual(200);
+                expect(body.status).toEqual(eaeutils.Constants.EAE_SERVICE_STATUS_IDLE);
+                done();
             }
         );
-    }, 300); // Every 300 ms
+    }, 1000); // 1 Sec
 });
 
-test('Delete cancelable job', function(done) {
+test('Delete cancel job', function(done) {
     expect.assertions(1);
     ts.deleteJob(g_job).then(function(result) {
         expect(result).toBeTruthy();

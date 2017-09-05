@@ -26,6 +26,7 @@ function JobExecutorFactory() {
 JobExecutorFactory.prototype.createFromId = function(jobID, jobCollection) {
     return new Promise(function(resolve, reject) {
         jobCollection.findOne({ _id: new ObjectID(jobID) }).then(function(jobModel) {
+            jobModel = Object.assign({type: 'unknown_id'}, jobModel);
             switch (jobModel.type) {
                 case Constants.EAE_JOB_TYPE_PYTHON2:
                     resolve(new JobExecutorPython(jobID, jobCollection, jobModel));
