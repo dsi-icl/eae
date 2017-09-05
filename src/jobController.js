@@ -63,7 +63,7 @@ JobController.prototype.runJob = function(req, res) {
 /**
  * @fn cancelJob
  * @desc Interrupts the current job
- * @param _unused__req Express.js request object
+ * @param __unused__req Express.js request object
  * @param res Express.js response object
  */
 JobController.prototype.cancelJob = function(__unused__req, res) {
