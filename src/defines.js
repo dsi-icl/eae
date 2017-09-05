@@ -70,7 +70,10 @@ const jobModel = {
     stdout: null,
     stderr: null,
     output: [],
-    message: null
+    message: null,
+    statusLock: false,
+    executorIP: '127.0.0.1',
+    executorPort: '9000'
 };
 
 module.exports = {
