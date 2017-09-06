@@ -86,11 +86,10 @@ MongoHelper.prototype.retrieveJobs = function(filter, projection = {}){
 /**
  * @fn retrieveNodesWithStatus
  * @desc Retrieves the list of Nodes for the list of specified filter and projection.
- * @param filter MongoDB filter for the query
- * @param fields Fields in the document to be updated
+ * @param node Node to be updated
  * @return {Promise} Resolve to true if update operation has been successful
  */
-MongoHelper.prototype.updateNodeStatus = function(filter, fields){
+MongoHelper.prototype.updateNodeStatus = function(node){
     let _this = this;
 
     return new Promise(function(resolve, reject) {
@@ -99,8 +98,13 @@ MongoHelper.prototype.updateNodeStatus = function(filter, fields){
             return;
         }
 
+        let filter = { //Filter is based on ip/port combination
+            ip: node.ip,
+            port: node.port
+        };
+
         _this._statusCollection.findOneAndUpdate(filter,
-                                        { $set : fields},
+                                        { $set : node},
                                         { returnOriginal: true, w: 'majority', j: false })
             .then(function(res) {
                 resolve(res);
@@ -114,11 +118,10 @@ MongoHelper.prototype.updateNodeStatus = function(filter, fields){
 /**
  * @fn updateJob
  * @desc Update the job for the specified filter and projection.
- * @param filter MongoDB filter for the query
- * @param fields Fields in the document to be updated
+ * @param  job New json job to be inserted back to mongo.
  * @return {Promise} Resolve to the result of the update if update operation has been successful
  */
-MongoHelper.prototype.updateJob = function(filter, fields){
+MongoHelper.prototype.updateJob = function(job){
     let _this = this;
 
     return new Promise(function(resolve, reject) {
@@ -127,8 +130,12 @@ MongoHelper.prototype.updateJob = function(filter, fields){
             return;
         }
 
+        let filter = {
+            _id: job._id
+        };
+
         _this._jobsCollection.updateOne(filter,
-            { $set : fields},
+            { $set : job},
             { w: 'majority', j: false })
             .then(function(success) {
                     resolve(success.result);
