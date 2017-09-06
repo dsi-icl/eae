@@ -33,12 +33,12 @@
         "babel-preset-es2015": "6.24.1",
         "babel-preset-stage-0": "6.24.1",
         "eslint": "4.2.0",
-        "jest": "20.0.4",
+        "jest": "21.0.1",
         "request": "2.81.0"
     },
     "dependencies": {
         "body-parser": "1.17.2",
-        "eae-utils": "https://github.com/dsi-icl/eae-utils.git",
+        "eae-utils": "git+https://github.com/dsi-icl/eae-utils.git",
         "express": "4.15.3",
         "fs-extra": "4.0.0",
         "mongodb": "2.2.30"

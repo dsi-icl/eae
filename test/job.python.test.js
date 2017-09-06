@@ -285,7 +285,7 @@ test('Cancel running job', function(done) {
 
             expect(response.statusCode).toEqual(200);
             expect(body).toBeDefined();
-            expect(body.status).toEqual(eaeutils.Constants.EAE_JOB_STATUS_CANCELLED);
+            expect(body.status[0]).toEqual(eaeutils.Constants.EAE_JOB_STATUS_CANCELLED);
             done();
         }
     );
