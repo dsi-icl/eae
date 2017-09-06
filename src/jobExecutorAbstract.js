@@ -92,14 +92,14 @@ JobExecutorAbstract.prototype._exec = function(command, args, options) {
         _this._model.message = message;
         _this._model.endDate = new Date();
         _this._postExecution().then(function() {
-            _this._model.status = status;
+            _this._model.status.unshift(status);
             _this._model.exitCode = code;
             if (_this._child_process !== undefined) {
                 delete _this._child_process;
             }
             save_fn();
         }, function (error) {
-            _this._model.status = Constants.EAE_JOB_STATUS_ERROR;
+            _this._model.status.unshift(Constants.EAE_JOB_STATUS_ERROR);
             _this._model.exitCode = 1;
             _this._model.message = 'Post-exec - ' + error.toString();
             if (_this._child_process !== undefined) {
@@ -112,7 +112,7 @@ JobExecutorAbstract.prototype._exec = function(command, args, options) {
     //Clean model for execution
     _this._model.stdout = '';
     _this._model.stderr = '';
-    _this._model.status = Constants.EAE_JOB_STATUS_RUNNING;
+    _this._model.status.unshift(Constants.EAE_JOB_STATUS_RUNNING);
     _this._model.startDate = new Date();
     _this.pushModel().then(function() {
         _this._preExecution().then(function() {
@@ -140,7 +140,7 @@ JobExecutorAbstract.prototype._exec = function(command, args, options) {
                     end_fn(Constants.EAE_JOB_STATUS_DONE, code, 'Exit success');
                 }
                 else if (signal === 'SIGTERM') {
-                    end_fn(Constants.EAE_JOB_STATUS_DONE, 1, 'Interrupt success');
+                    end_fn(Constants.EAE_JOB_STATUS_CANCELLED, 1, 'Interrupt success');
                 }
                 else {
                     end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, 'Exit error');

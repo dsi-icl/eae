@@ -1,8 +1,7 @@
 let express = require('express');
 let EaeCompute = require('../src/eaeCompute.js');
-let config = require('../config/eae.compute.test.config.js');
+let config = require('../config/eae.compute.config.js');
 let ObjectID = require('mongodb').ObjectID;
-const request = require('request');
 const fs = require('fs');
 const path = require('path');
 const eaeutils = require('eae-utils');
@@ -78,6 +77,7 @@ TestServer.prototype.createJob = function(type, mainScript, params, inputFiles =
     return new Promise(function(resolve, reject) {
         let job_id = new ObjectID();
         let input_container = job_id.toHexString() + '_input';
+        let output_container = job_id.toHexString() + '_output';
         let job_model = Object.assign({},
             eaeutils.DataModels.EAE_JOB_MODEL,
             {
@@ -106,6 +106,9 @@ TestServer.prototype.createJob = function(type, mainScript, params, inputFiles =
                     let up = _this._swift.createFile(input_container, path.basename(file), rs);
                     upload_promises.push(up);
                 });
+                //Adds in output container creation
+                upload_promises.push(_this._swift.createContainer(output_container));
+
                 Promise.all(upload_promises).then(function() {
                     resolve(job_model);
                 }, function(error) {
