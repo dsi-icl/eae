@@ -60,7 +60,7 @@ const statusModel = {
 
 const jobModel = {
     type : 'eae-job-type',
-    status: 'eae_job_done',
+    status: ['eae_job_done'],
     startDate: new Date(0),
     main: 'main.py',
     params: [],
