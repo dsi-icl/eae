@@ -20,12 +20,117 @@ function JobsScheduler(mongoHelper) {
     this._queuedJobs = JobsScheduler.prototype._queuedJobs.bind(this);
     this._errorJobs = JobsScheduler.prototype._errorJobs.bind(this);
     this._canceledOrDoneJobs = JobsScheduler.prototype._canceledOrDoneJobs.bind(this);
+    this._reportFailedJob = JobsScheduler.prototype._reportFailedJob.bind(this);
+    this._freeComputeRessources = JobsScheduler.prototype._freeComputeRessources.bind(this);
 }
+
+JobsScheduler.prototype._freeComputeRessources = function(job){
+
+};
+
+JobsScheduler.prototype._reportFailedJob = function(job){
+    let _this = this;
+
+    // We archive the failed job and check if the executor for the exceeds the threshold for failed jobs
+    _this._mongoHelper.archiveFailedJob(job).then(function () {
+            var currentTime = new Date();
+
+            let filter = {
+                executorPort : job.executorPort,
+                executorIP : job.executorIP,
+                startDate: {
+                    '$ge': new Date(currentTime.setHours(currentTime.getDay() - 7))
+                }
+            };
+            _this._mongoHelper.retrieveFailedJobs(filter).then(function(failedJobs){
+                if(failedJobs.length > 3){
+                    let node = {
+                        ip : job.executorIP,
+                        port : job.executorPort,
+                        status : Constants.EAE_SERVICE_STATUS_DEAD,
+                        statusLock : true
+                    };
+                    // lock the node and set status to dead
+                    _this._mongoHelper.updateNodeStatus(node).then(
+                        function(success){
+                        if(success.nModified === 1){
+                            console.log('The node' + node.ip + ':' + node.port + 'has been set to DEAD successfully ' +
+                                'following excessive job failures');
+                        }else{
+                            ErrorHelper('Something went horribly wrong when locking the node and setting to DEAD. Node: '
+                                + node.ip + ' ' + node.port);
+                        }},function(error){
+                            ErrorHelper('Failed to lock the node and set its status to DEAD. Node: '
+                                + node.ip + ' ' + node.port, error);
+                        });
+                }
+            },function(error){
+                ErrorHelper('Failed to retrieve failed jobs for executor:' + filter.toString(), error);
+            });
+        },function (error){
+            ErrorHelper('Failed to archive failed Job. Job:' + job._id, error);
+        }
+
+    );
+};
+
 
 JobsScheduler.prototype._queuedJobs = function () {
 };
 
+/**
+ * @fn _errorJobs
+ * @desc Periodic processing of the Jobs in error. We report the failed job & executor, free all resources and
+ * queue again the job.
+ * @returns {Promise}
+ * @private
+ */
 JobsScheduler.prototype._errorJobs = function () {
+    let _this = this;
+    return new Promise(function(resolve, reject) {
+        let statuses = [Constants.EAE_JOB_STATUS_ERROR];
+
+        let filter = {
+            "status.0": {$in: statuses},
+            statusLock: false,
+        };
+
+        _this._mongoHelper.retrieveJobs(filter).then(function (jobs) {
+            jobs.forEach(function (job) {
+                // We set the lock
+                job.statusLock = true;
+                // lock the Job
+                _this._mongoHelper.updateJob(job).then(
+                    function (res) {
+                        if (res.nModified === 1) {
+                            // |We report the failed executor and archive the failed job
+                            _this._reportFailedJob(job);
+                            _this._freeComputeRessources(job);
+                            job.statusLock = false;
+                            job.status.unshift(Constants.EAE_JOB_STATUS_QUEUED);
+                            _this._mongoHelper.updateJob(job).then(function(success_res){
+                                if(success_res.nModified === 1){
+                                    resolve('The job in error has been successfully Queued and executor reported');
+                                }else{
+                                    reject(ErrorHelper('Something went terribly wrong when unlocking and Queueing job.' +
+                                        ' JobId: ' + job._id));
+                                }
+                            },function(error){
+                                reject(ErrorHelper('Failed to unlock the job ' + job._id + ' and set it back to Queued',
+                                    error));
+                            });
+                        }else{
+                            resolve('The Job in error ' + job._id.toString() + ' has already been processed.');
+                        }
+                    },
+                    function (error) {
+                        reject(ErrorHelper('Failed to lock the job. Filter:' + job._id, error));
+                    });
+            });
+        },function (error) {
+            reject(ErrorHelper('Failed to retrieve Jobs. Filter:' + filter.toString(), error));
+        });
+    });
 };
 
 JobsScheduler.prototype._canceledOrDoneJobs = function () {

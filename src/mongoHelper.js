@@ -10,6 +10,7 @@ function MongoHelper(){
     this._statusCollection = null;
     this._jobsCollection = null;
     this._jobsArchiveCollection = null;
+    this._failedJobsArchiveCollection = null;
 
     //Bind member functions
     this.setCollections = MongoHelper.prototype.setCollections.bind(this);
@@ -18,6 +19,8 @@ function MongoHelper(){
     this.updateNodeStatus = MongoHelper.prototype.updateNodeStatus.bind(this);
     this.updateJob = MongoHelper.prototype.updateJob.bind(this);
     this.archiveJob = MongoHelper.prototype.archiveJob.bind(this);
+    this.retrieveFailedJobs = MongoHelper.prototype.retrieveFailedJobs.bind(this);
+    this.archiveFailedJob = MongoHelper.prototype.archiveFailedJob.bind(this);
 }
 
 /**
@@ -27,10 +30,11 @@ function MongoHelper(){
  * @param jobsCollection Initialized mongodb collection to work against for jobs processing
  * @param jobsArchiveCollection  Initialized mongodb collection to work against for archiving jobs
  */
-MongoHelper.prototype.setCollections = function(statusCollection, jobsCollection, jobsArchiveCollection) {
+MongoHelper.prototype.setCollections = function(statusCollection, jobsCollection, jobsArchiveCollection, failedJobsArchiveCollection) {
     this._statusCollection = statusCollection;
     this._jobsCollection = jobsCollection;
     this._jobsArchiveCollection = jobsArchiveCollection;
+    this._failedJobsArchiveCollection = failedJobsArchiveCollection;
 };
 
 /**
@@ -87,7 +91,7 @@ MongoHelper.prototype.retrieveJobs = function(filter, projection = {}){
  * @fn retrieveNodesWithStatus
  * @desc Retrieves the list of Nodes for the list of specified filter and projection.
  * @param node Node to be updated
- * @return {Promise} Resolve to true if update operation has been successful
+ * @return {Promise} Resolve to mongo res if update operation has been successful
  */
 MongoHelper.prototype.updateNodeStatus = function(node){
     let _this = this;
@@ -150,7 +154,7 @@ MongoHelper.prototype.updateJob = function(job){
  * @fn archiveJob
  * @desc transfer an expired job to the archive of jobs and purges swift.
  * @param jobId id of the job to be transferred to the archive.
- * @return {Promise} Resolve to the job if the delete Job is successful
+ * @return {Promise} Resolve to the old job if the delete Job is successful
  */
 MongoHelper.prototype.archiveJob = function(jobId){
     let _this = this;
@@ -188,6 +192,60 @@ MongoHelper.prototype.archiveJob = function(jobId){
                 reject(ErrorHelper('The job couldn\'t be found JobID:' + jobId, error));
             }
         );
+    });
+};
+
+/**
+ * @fn retrieveFailedJobs
+ * @desc Retrieves the list of failed Jobs
+ * @param filter MongoDB filter for the query
+ * @param projection MongoDB projection
+ * @return {Promise} returns an array with all the jobs matching the desired status
+ */
+MongoHelper.prototype.retrieveFailedJobs = function(filter, projection = {}){
+    let _this = this;
+
+    return new Promise(function(resolve, reject) {
+        if (_this._failedJobsArchiveCollection === null || _this._failedJobsArchiveCollection === undefined) {
+            reject(ErrorHelper('No MongoDB collection to retrieve the failed jobs against'));
+            return;
+        }
+
+        _this._failedJobsArchiveCollection.find(filter, projection).toArray().then(function(docs) {
+                resolve(docs);
+            },function(error) {
+                reject(ErrorHelper('Retrieve failed Jobs has failed', error));
+            }
+        );
+    });
+};
+
+/**
+ * @fn archiveFailedJob
+ * @desc transfer an expired job to the archive of jobs and purges swift.
+ * @param job Failed job to be saved to the archive.
+ * @return {Promise} Resolve to true if the archiving of the Job is successful
+ */
+MongoHelper.prototype.archiveFailedJob = function(job){
+    let _this = this;
+
+    return new Promise(function(resolve, reject) {
+        if (_this._failedJobsArchiveCollection === null || _this._failedJobsArchiveCollection === undefined) {
+            reject(ErrorHelper('No MongoDB collection to retrieve the failed jobs against'));
+            return;
+        }
+
+        delete job._id;
+        _this._failedJobsArchiveCollection.insert(job).then(function(success) {
+            if (success.insertedCount === 1) {
+                console.log('The failed job: ' + job._id + ' has been archived properly.');
+                resolve(true);
+            }else{
+                reject(ErrorHelper('The job couldn\'t be inserted properly. The insert count != 1. ' +
+                    'Job:' + job.toString()));
+            }},function(error){
+            reject(ErrorHelper('The job couldn\'t be inserted properly. Job:' + job.toString(), error));
+        });
     });
 };
 

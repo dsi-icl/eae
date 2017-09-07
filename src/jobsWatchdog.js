@@ -176,7 +176,7 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
                                     });
                             }
                         }else{
-                         resolve('The Job' + job._id.toString() + ' has already been timed out.');
+                         resolve('The Job ' + job._id.toString() + ' has already been timed out.');
                         }
                     },function(error){
                         reject(ErrorHelper('Failed to lock the job. Filter:' + job._id, error));

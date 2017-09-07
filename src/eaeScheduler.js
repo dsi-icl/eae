@@ -165,7 +165,8 @@ EaeScheduler.prototype._setupMongoHelper = function () {
     let _this = this;
     _this.mongo_helper.setCollections(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
                                       _this.db.collection(Constants.EAE_COLLECTION_JOBS),
-                                      _this.db.collection(Constants.EAE_COLLECTION_JOBS_ARCHIVE));
+                                      _this.db.collection(Constants.EAE_COLLECTION_JOBS_ARCHIVE),
+                                      _this.db.collection(Constants.EAE_COLLECTION_FAILED_JOBS_ARCHIVE));
 };
 
 /**
