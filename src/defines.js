@@ -89,6 +89,8 @@ module.exports = {
 
     JOB_TYPE_PYTHON2: 'python2',
     JOB_TYPE_PIP: 'pip',
+    JOB_TYPE_SPARK: 'spark',
+    JOB_TYPE_R: 'r',
 
     JOB_STATUS_QUEUED: 'eae_job_queued',
     JOB_STATUS_SCHEDULED: 'eae_job_scheduled',

@@ -25,6 +25,8 @@ module.exports = {
 
         EAE_JOB_TYPE_PYTHON2: defines.JOB_TYPE_PYTHON2,
         EAE_JOB_TYPE_PIP: defines.JOB_TYPE_PIP,
+        EAE_JOB_TYPE_SPARK: defines.JOB_TYPE_SPARK,
+        EAE_JOB_TYPE_R: defines.JOB_TYPE_R,
 
         EAE_JOB_STATUS_QUEUED: defines.JOB_STATUS_QUEUED,
         EAE_JOB_STATUS_SCHEDULED: defines.JOB_STATUS_SCHEDULED,

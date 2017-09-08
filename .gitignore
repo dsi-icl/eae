@@ -67,3 +67,4 @@ typings/
 .settings/
 
 dev.config.js
+package-lock.json
