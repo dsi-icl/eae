@@ -22,6 +22,7 @@ function StatusHelper(config = {}) {
     //Bind member functions
     this.getDataModel = StatusHelper.prototype.getDataModel.bind(this);
     this.getStatus = StatusHelper.prototype.getStatus.bind(this);
+    this.setComputeType = StatusHelper.prototype.setComputeType.bind(this);
     this.setStatus = StatusHelper.prototype.setStatus.bind(this);
     this.startPeriodicUpdate = StatusHelper.prototype.startPeriodicUpdate.bind(this);
     this.stopPeriodicUpdate = StatusHelper.prototype.stopPeriodicUpdate.bind(this);
@@ -58,6 +59,19 @@ StatusHelper.prototype.setStatus = function(status) {
         this._data.status = status;
     }
     return this._data.status;
+};
+
+/**
+ * @fn setComputeType
+ * @desc Setter on node computeType
+ * @param {Array} computeType The compute types of the node
+ * @return {Array} Current compute types of the node
+ */
+StatusHelper.prototype.setComputeType = function(computeType) {
+    if (this._data.statusLock === false) {
+        this._data.computeType = computeType;
+    }
+    return this._data.computeType;
 };
 
 /**
