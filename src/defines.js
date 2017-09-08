@@ -34,7 +34,7 @@ function ErrorStack(error_obj, error_stack) {
 
 const statusModel = {
     type: 'eae-service',
-    computeType:[],
+    computeType: [],
     status: 'eae_service_idle',
     statusLock: false,
     version: null,
