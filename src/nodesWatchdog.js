@@ -94,7 +94,7 @@ NodesWatchdog.prototype._purgeExpired = function() {
                 });
         });
     },function (error){
-        console.log('Failed to retrieve nodes status. Filter:' + filter.toString(), error);
+        ErrorHelper('Failed to retrieve nodes status. Filter:' + filter.toString(), error);
     });
 };
 
