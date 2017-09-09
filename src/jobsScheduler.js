@@ -17,11 +17,12 @@ function JobsScheduler(mongoHelper) {
     this.stopPeriodicUpdate = JobsScheduler.prototype.stopPeriodicUpdate.bind(this);
 
     // Action Methods
+    this._freeComputeResources = JobsScheduler.prototype._freeComputeResources.bind(this);
+    this._reportFailedJob = JobsScheduler.prototype._reportFailedJob.bind(this);
+    this._analyzeJobHistory = JobsScheduler.prototype._analyzeJobHistory.bind(this);
     this._queuedJobs = JobsScheduler.prototype._queuedJobs.bind(this);
     this._errorJobs = JobsScheduler.prototype._errorJobs.bind(this);
     this._canceledOrDoneJobs = JobsScheduler.prototype._canceledOrDoneJobs.bind(this);
-    this._reportFailedJob = JobsScheduler.prototype._reportFailedJob.bind(this);
-    this._freeComputeResources= JobsScheduler.prototype._freeComputeResources.bind(this);
 }
 
 /**
@@ -110,8 +111,82 @@ JobsScheduler.prototype._reportFailedJob = function(job){
     );
 };
 
+/**
+ * @fn _analyzeJobHistory
+ * @desc Analyzes the history of the job, if the job exceeds we set it to DEAD otherwise nothing.
+ * @param job Job to process
+ * @returns {Promise} It resolves to true if the job exceeds the policy and false otherwise.
+ * @private
+ */
 
+JobsScheduler.prototype._analyzeJobHistory = function (job) {
+    let _this = this;
+    return new Promise(function(resolve, reject) {
+        let errorHistory = job.status.filter(function(it) {return it === Constants.EAE_JOB_STATUS_ERROR;})
+        // This shouldn't happen!
+        if(errorHistory.length > 3){
+            reject(ErrorHelper('The number of errors in the job history exceeds 3!'))
+        }
+        // We set the job to DEAD if it finished in error three times
+        if(errorHistory.length === 3){
+            job.status.unshift(Constants.EAE_JOB_STATUS_DEAD);
+            job.status.unshift(Constants.EAE_JOB_STATUS_COMPLETED);
+            _this._mongoHelper.updateJob(job).then(function(_unused_res){
+                resolve(true);
+            },function(error){
+              reject(ErrorHelper('Failed to set the job to DEAD', error))
+            })
+        }else{
+            resolve(false);
+        }
+    });
+};
+
+/**
+ * @fn _queuedJobs
+ * @desc Periodic processing of the Queued jobs. We first check if the jobs exceeds the number of reschedules authorized,
+ * then we reserve all required resources for the job and finally the job is run.
+ * @returns {Promise}
+ * @private
+ */
 JobsScheduler.prototype._queuedJobs = function () {
+    let _this = this;
+    return new Promise(function(resolve, reject) {
+        let statuses = [Constants.EAE_JOB_STATUS_QUEUED];
+
+        let filter = {
+            "status.0": {$in: statuses},
+            statusLock: false,
+        };
+
+        _this._mongoHelper.retrieveJobs(filter).then(function (jobs) {
+            jobs.forEach(function (job) {
+                // We set the lock
+                job.statusLock = true;
+                // lock the Job
+                _this._mongoHelper.updateJob(job).then(
+                    function (res) {
+                        if (res.nModified === 1) {
+                            _this._analyzeJobHistory(job).then(function(exceedsPolicy){
+                                if(!exceedsPolicy){
+                                    // Now we can start to schedule the job
+                                    // #TODO implement scheduling of the job
+                                    resolve();
+                                }else{
+                                    resolve('The job ' + job._id + ' is now DEAD.' )
+                                }
+                            },function(error){
+                                reject(ErrorHelper('Could not analyze the job history. Error: ', error));
+                            })
+                        }
+                    },function (error) {
+                        reject(ErrorHelper('Failed to lock the job. Filter:' + job._id, error));
+                    });
+            });
+        },function (error) {
+            reject(ErrorHelper('Failed to retrieve Jobs. Filter:' + filter.toString(), error));
+        });
+    });
 };
 
 /**
