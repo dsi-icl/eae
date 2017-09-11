@@ -170,10 +170,56 @@ JobsScheduler.prototype._queuedJobs = function () {
                             _this._analyzeJobHistory(job).then(function(exceedsPolicy){
                                 if(!exceedsPolicy){
                                     // Now we can start to schedule the job
-                                    // #TODO implement scheduling of the job
-                                    resolve();
+                                    let filter = {
+                                        status: Constants.EAE_SERVICE_STATUS_IDLE,
+                                        computeType: job.type, // #TODO TO BE VERIFIED!!!!!
+                                        statusLock: false
+                                    };
+                                    _this._mongoHelper.findAndReserveAvailableWorker(filter).then(
+                                        function(candidateWorker){
+                                            if(candidateWorker.length > 0){
+                                            switch (job.type) {
+                                                case Constants.EAE_JOB_TYPE_SPARK:
+                                                    // We lock the cluster and set the candidate as the executor for the job
+                                                    // #TODO !
+                                                    break;
+                                                default:
+                                                    // Nothing to do
+                                                    break;
+                                            }
+                                            // Everything is set, we send the request to the worker
+                                            request({
+                                                    method: 'POST',
+                                                    baseUrl: 'http://' + candidateWorker.ip + ':' + candidateWorker.port,
+                                                    uri:'/run'
+                                                },
+                                                function (error, response, body) {
+                                                    if (error !== null) {
+                                                        reject(ErrorHelper('The run request has failed:', error));
+                                                    }
+                                                    console.log('The run request sent to host ' + candidateWorker.ip
+                                                        + ':' + candidateWorker.port + ' and the response was ', response, body);
+                                                    // We set the candidate as the executor for the job, set it to
+                                                    // scheduled and unlock it.
+                                                    job.executorIP = candidateWorker.ip;
+                                                    job.executorPort = candidateWorker.port;
+                                                    job.statusLock = false;
+                                                    job.status  = Constants.EAE_JOB_STATUS_SCHEDULED;
+                                                    _this._mongoHelper.updateJob(job);
+                                                });
+                                            resolve(true);
+                                        }else{
+                                                console.log('No currently available resource for job : ' + job._id
+                                                    + ' of type ' + job.type)
+                                            }
+                                        },
+                                        function (error) {
+                                            ErrorHelper('Failed to find and reserve a worker', error);
+                                        }
+                                    );
                                 }else{
-                                    resolve('The job ' + job._id + ' is now DEAD.' )
+                                    console.log('The job ' + job._id + ' is now DEAD.');
+                                    resolve(true)
                                 }
                             },function(error){
                                 reject(ErrorHelper('Could not analyze the job history. Error: ', error));
