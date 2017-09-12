@@ -1,4 +1,4 @@
-const { ErrorHelper } =  require('eae-utils');
+const { ErrorHelper, Constants } =  require('eae-utils');
 
 /**
  * @class MongoHelper
@@ -29,6 +29,7 @@ function MongoHelper(){
  * @param statusCollection Initialized mongodb collection to work against for nodes' status
  * @param jobsCollection Initialized mongodb collection to work against for jobs processing
  * @param jobsArchiveCollection  Initialized mongodb collection to work against for archiving jobs
+ * @param failedJobsArchiveCollection Initialized mongodb collection to work against for failed jobs
  */
 MongoHelper.prototype.setCollections = function(statusCollection, jobsCollection, jobsArchiveCollection, failedJobsArchiveCollection) {
     this._statusCollection = statusCollection;
@@ -48,7 +49,7 @@ MongoHelper.prototype.retrieveNodesStatus = function(filter, projection = {}){
     let _this = this;
 
     return new Promise(function(resolve, reject) {
-        if (_this._statusCollection === null || _this._statusCollection === undefined) {
+        if (null === _this._statusCollection || undefined === _this._statusCollection) {
             reject(ErrorHelper('No MongoDB collection to retrieve the nodes statuses against'));
             return;
         }
@@ -73,7 +74,7 @@ MongoHelper.prototype.retrieveJobs = function(filter, projection = {}){
     let _this = this;
 
     return new Promise(function(resolve, reject) {
-        if (_this._jobsCollection === null || _this._jobsCollection === undefined) {
+        if (null === _this._jobsCollection || undefined === _this._jobsCollection) {
             reject(ErrorHelper('No MongoDB collection to retrieve the jobs against'));
             return;
         }
@@ -97,7 +98,7 @@ MongoHelper.prototype.updateNodeStatus = function(node){
     let _this = this;
 
     return new Promise(function(resolve, reject) {
-        if (_this._statusCollection === null || _this._statusCollection === undefined) {
+        if (null === _this._statusCollection || undefined === _this._statusCollection) {
             reject(ErrorHelper('No MongoDB collection to retrieve the nodes statuses against'));
             return;
         }
@@ -129,7 +130,7 @@ MongoHelper.prototype.updateJob = function(job){
     let _this = this;
 
     return new Promise(function(resolve, reject) {
-        if (_this._jobsCollection === null || _this._jobsCollection === undefined) {
+        if (null === _this._jobsCollection || undefined === _this._jobsCollection) {
             reject(ErrorHelper('No MongoDB collection to retrieve the jobs against'));
             return;
         }
@@ -160,8 +161,8 @@ MongoHelper.prototype.archiveJob = function(jobId){
     let _this = this;
 
     return new Promise(function(resolve, reject) {
-        if (_this._jobsCollection === null || _this._jobsCollection === undefined ||
-                _this._jobsArchiveCollection === null || _this._jobsArchiveCollection === undefined) {
+        if (null === _this._jobsCollection || undefined === _this._jobsCollection ||
+            null === _this._jobsArchiveCollection || undefined === _this._jobsArchiveCollection) {
             reject(ErrorHelper('Jobs and/or Archive collections in MongoDB is/are not accessible'));
             return;
         }
@@ -206,7 +207,7 @@ MongoHelper.prototype.retrieveFailedJobs = function(filter, projection = {}){
     let _this = this;
 
     return new Promise(function(resolve, reject) {
-        if (_this._failedJobsArchiveCollection === null || _this._failedJobsArchiveCollection === undefined) {
+        if (null === _this._failedJobsArchiveCollection || undefined === _this._failedJobsArchiveCollection) {
             reject(ErrorHelper('No MongoDB collection to retrieve the failed jobs against'));
             return;
         }
@@ -222,7 +223,7 @@ MongoHelper.prototype.retrieveFailedJobs = function(filter, projection = {}){
 
 /**
  * @fn archiveFailedJob
- * @desc transfer an expired job to the archive of jobs and purges swift.
+ * @desc Transfer an expired job to the archive of jobs and purges swift.
  * @param job Failed job to be saved to the archive.
  * @return {Promise} Resolve to true if the archiving of the Job is successful
  */
@@ -230,7 +231,7 @@ MongoHelper.prototype.archiveFailedJob = function(job){
     let _this = this;
 
     return new Promise(function(resolve, reject) {
-        if (_this._failedJobsArchiveCollection === null || _this._failedJobsArchiveCollection === undefined) {
+        if (null === _this._failedJobsArchiveCollection || undefined === _this._failedJobsArchiveCollection) {
             reject(ErrorHelper('No MongoDB collection to retrieve the failed jobs against'));
             return;
         }
@@ -246,6 +247,42 @@ MongoHelper.prototype.archiveFailedJob = function(job){
             }},function(error){
             reject(ErrorHelper('The job couldn\'t be inserted properly. Job:' + job.toString(), error));
         });
+    });
+};
+
+/**
+ * @fn findAndReserveAvailableWorker
+ * @desc Find an idle worker for the specific job type, then we set its status to reserved.
+ * @param filter MongoDB filter for the query
+ * @return {Promise} returns the candidate worker if there is any available, false otherwise.
+ */
+MongoHelper.prototype.findAndReserveAvailableWorker = function (filter) {
+    let _this = this;
+
+    return new Promise(function(resolve, reject) {
+        if (null === _this._statusCollection || _this._statusCollection === undefined) {
+            reject(ErrorHelper('No MongoDB collection to retrieve the nodes statuses against'));
+            return;
+        }
+        let update ={
+            status: Constants.EAE_SERVICE_STATUS_LOCKED,
+            statusLock: true
+        };
+
+        _this.findOneAndUpdate(filter,
+            { $set : update},
+            { returnOriginal: true }).then( function(success){
+                if(success.res.nModified === 1){
+                    resolve(success.value);
+                }else if (success.res.nModified === 0 ){
+                    resolve(false);
+                }else{
+                    reject(ErrorHelper('Something went horribly wrong when looking for an available resource'));
+                }
+            },function(error){
+                reject(ErrorHelper('Failed to update node status. Node: ' + filter.toString(), error));
+            }
+        );
     });
 };
 

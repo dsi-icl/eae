@@ -122,7 +122,7 @@ JobsScheduler.prototype._reportFailedJob = function(job){
 JobsScheduler.prototype._analyzeJobHistory = function (job) {
     let _this = this;
     return new Promise(function(resolve, reject) {
-        let errorHistory = job.status.filter(function(it) {return it === Constants.EAE_JOB_STATUS_ERROR;})
+        let errorHistory = job.status.filter(function(it) {return it === Constants.EAE_JOB_STATUS_ERROR;});
         // This shouldn't happen!
         if(errorHistory.length > 3){
             reject(ErrorHelper('The number of errors in the job history exceeds 3!'))
@@ -177,11 +177,12 @@ JobsScheduler.prototype._queuedJobs = function () {
                                     };
                                     _this._mongoHelper.findAndReserveAvailableWorker(filter).then(
                                         function(candidateWorker){
-                                            if(candidateWorker.length > 0){
+                                            if(candidateWorker !== false){
                                             switch (job.type) {
                                                 case Constants.EAE_JOB_TYPE_SPARK:
                                                     // We lock the cluster and set the candidate as the executor for the job
                                                     // #TODO !
+                                                    
                                                     break;
                                                 default:
                                                     // Nothing to do
@@ -210,11 +211,12 @@ JobsScheduler.prototype._queuedJobs = function () {
                                             resolve(true);
                                         }else{
                                                 console.log('No currently available resource for job : ' + job._id
-                                                    + ' of type ' + job.type)
+                                                    + ' of type ' + job.type);
+                                                resolve(false);
                                             }
                                         },
                                         function (error) {
-                                            ErrorHelper('Failed to find and reserve a worker', error);
+                                            reject(ErrorHelper('Failed to find and reserve a worker', error));
                                         }
                                     );
                                 }else{
