@@ -208,6 +208,19 @@ JobsScheduler.prototype._queuedJobs = function () {
                                                                 })
                                                         })
                                                     }else{
+                                                        // We free the reserved resources
+                                                        reserved.forEach(function(reservedWorker){
+                                                            reservedWorker.status = Constants.EAE_SERVICE_STATUS_IDLE;
+                                                            _this._mongoHelper.updateNodeStatus(reservedWorker).then(function(_unsued_success){
+                                                                },
+                                                                function(error){
+                                                                    reject(ErrorHelper('Error when setting node to busy ' +
+                                                                        'in cluster. Node ' + reservedWorker.toString(),error));
+                                                                })
+                                                        });
+                                                        // we unlock the job
+                                                        job.statusLock = false;
+                                                        _this._mongoHelper.updateJob(job);
                                                         console.log('No currently available resource for job : ' + job._id
                                                             + ' of type ' + job.type + '.\nAt least one resource in the ' +
                                                             'cluster is not available');
@@ -240,6 +253,9 @@ JobsScheduler.prototype._queuedJobs = function () {
                                                 });
                                             resolve(true);
                                         }else{
+                                                // we unlock the job
+                                                job.statusLock = false;
+                                                _this._mongoHelper.updateJob(job);
                                                 console.log('No currently available resource for job : ' + job._id
                                                     + ' of type ' + job.type);
                                                 resolve(false);
