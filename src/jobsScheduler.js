@@ -146,7 +146,8 @@ JobsScheduler.prototype._analyzeJobHistory = function (job) {
  * @fn _queuedJobs
  * @desc Periodic processing of the Queued jobs. We first check if the jobs exceeds the number of reschedules authorized,
  * then we reserve all required resources for the job and finally the job is run.
- * @returns {Promise}
+ * @returns {Promise} Resolves to true if the job has been scheduled properly. False if no resource is available or
+ * one worker in the cluster is not available.
  * @private
  */
 JobsScheduler.prototype._queuedJobs = function () {
@@ -181,8 +182,37 @@ JobsScheduler.prototype._queuedJobs = function () {
                                             switch (job.type) {
                                                 case Constants.EAE_JOB_TYPE_SPARK:
                                                     // We lock the cluster and set the candidate as the executor for the job
-                                                    // #TODO !
-                                                    
+                                                    let reserved = [];
+                                                    candidateWorker.cluster.forEach(function(workerNode){
+                                                        workerNode.statusLock = true;
+                                                        _this._mongoHelper.updateNodeStatus(workerNode).then(function(success){
+                                                                if(success.nModified === 1) {
+                                                                    reserved.push(workerNode);
+                                                                }else if(success.nModified === 0){
+                                                                    break;
+                                                                }
+                                                            },
+                                                            function(error){
+                                                                reject(ErrorHelper('Error when locking node in cluster. ' +
+                                                                    'Node ' + candidateWorker.toString(),error));
+                                                            })
+                                                    });
+                                                    if(reserved.length === candidateWorker.cluster.length){
+                                                        candidateWorker.cluster.forEach(function(workerNode) {
+                                                            workerNode.status = Constants.EAE_SERVICE_STATUS_BUSY;
+                                                            _this._mongoHelper.updateNodeStatus(workerNode).then(function(_unsued_success){
+                                                                },
+                                                                function(error){
+                                                                    reject(ErrorHelper('Error when setting node to busy ' +
+                                                                        'in cluster. Node ' + candidateWorker.toString(),error));
+                                                                })
+                                                        })
+                                                    }else{
+                                                        console.log('No currently available resource for job : ' + job._id
+                                                            + ' of type ' + job.type + '.\nAt least one resource in the ' +
+                                                            'cluster is not available');
+                                                        resolve(false);
+                                                    }
                                                     break;
                                                 default:
                                                     // Nothing to do
