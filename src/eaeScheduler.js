@@ -37,7 +37,7 @@ function EaeScheduler(config) {
     this._setupMongoHelper = EaeScheduler.prototype._setupMongoHelper.bind(this);
     this._setupSwiftHelper = EaeScheduler.prototype._setupSwiftHelper.bind(this);
     this._setupNodesWatchdog = EaeScheduler.prototype._setupNodesWatchdog.bind(this);
-    this._jobsScheduler = EaeScheduler.prototype._setupJobsScheduler.bind(this);
+    this._setupJobsScheduler = EaeScheduler.prototype._setupJobsScheduler.bind(this);
 
     //Remove unwanted express headers
     this.app.set('x-powered-by', false);
@@ -91,7 +91,7 @@ EaeScheduler.prototype.start = function() {
             // Start the monitoring of the nodes' status
             _this.jobs_watchdog.startPeriodicUpdate(3000 * 1000); // Update status every 30 minutes
 
-            // Start the scheduling of the queued jobs 
+            // Start the scheduling of the queued jobs
             _this.jobs_scheduler.startPeriodicUpdate(1000); // Scheduling triggered every 1 second
 
             resolve(_this.app); // All good, returns application
