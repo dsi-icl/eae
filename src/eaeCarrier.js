@@ -1,15 +1,15 @@
 //External node module imports
 const express = require('express');
 const body_parser = require('body-parser');
-const { ErrorHelper, StatusHelper, SwiftHelper, Constants } = require('eae-utils');
+const { ErrorHelper, StatusHelper, Constants } = require('eae-utils');
 
 const package_json = require('../package.json');
 const StatusController = require('./statusController.js');
-
+const FileCarrier = require('./fileCarrier.js');
 
 /**
  * @class EaeCarrier
- * @desc Core class of the carrier microservice
+ * @desc Core class of the carrier micro service
  * @param config Configurations for the scheduler
  * @constructor
  */
@@ -26,6 +26,7 @@ function EaeCarrier(config) {
     // Bind private member functions
     this._connectDb = EaeCarrier.prototype._connectDb.bind(this);
     this._setupStatusController = EaeCarrier.prototype._setupStatusController.bind(this);
+    this._setupFileCarrier = EaeCarrier.prototype._setupFileCarrier.bind(this);
 
     //Remove unwanted express headers
     this.app.set('x-powered-by', false);
@@ -125,6 +126,12 @@ EaeCarrier.prototype._setupStatusController = function () {
     _this.statusController = new StatusController(_this.status_helper);
     _this.app.get('/status', _this.statusController.getStatus); // GET status
     _this.app.get('/specs', _this.statusController.getFullStatus); // GET Full status
+};
+
+
+EaeCarrier.prototype._setupFileCarrier = function(){
+    let _this = this;
+    _this.file_carrier = new FileCarrier();
 };
 
 
