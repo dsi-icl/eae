@@ -8,7 +8,7 @@ const MongoHelper = require('./mongoHelper');
 
 const package_json = require('../package.json');
 const StatusController = require('./statusController.js');
-// const JobsScheduler = require('./jobsScheduler');
+const JobsScheduler = require('./jobsScheduler');
 const JobsWatchdog = require('./jobsWatchdog');
 const NodesWatchdog = require('./nodesWatchdog');
 
@@ -37,7 +37,7 @@ function EaeScheduler(config) {
     this._setupMongoHelper = EaeScheduler.prototype._setupMongoHelper.bind(this);
     this._setupSwiftHelper = EaeScheduler.prototype._setupSwiftHelper.bind(this);
     this._setupNodesWatchdog = EaeScheduler.prototype._setupNodesWatchdog.bind(this);
-    //this.jobsoller = EaeScheduler.prototype.jobsProcessingController.bind(this);
+    this._jobsScheduler = EaeScheduler.prototype._setupJobsScheduler.bind(this);
 
     //Remove unwanted express headers
     this.app.set('x-powered-by', false);
@@ -79,6 +79,9 @@ EaeScheduler.prototype.start = function() {
             // Setup the monitoring of jobs - Archive completed jobs, Invalidate timing out jobs
             _this._setupJobsWatchdog();
 
+            // Setup the periodic scheduling of the jobs.
+            _this._setupJobsScheduler();
+
             // Start status periodic update
             _this.status_helper.startPeriodicUpdate(5 * 1000); // Update status every 5 seconds
 
@@ -87,6 +90,9 @@ EaeScheduler.prototype.start = function() {
 
             // Start the monitoring of the nodes' status
             _this.jobs_watchdog.startPeriodicUpdate(3000 * 1000); // Update status every 30 minutes
+
+            // Start the scheduling of the queued jobs 
+            _this.jobs_scheduler.startPeriodicUpdate(1000); // Scheduling triggered every 1 second
 
             resolve(_this.app); // All good, returns application
         }, function (error) {
@@ -201,6 +207,16 @@ EaeScheduler.prototype._setupNodesWatchdog = function () {
 EaeScheduler.prototype._setupJobsWatchdog = function () {
     let _this = this;
     _this.jobs_watchdog = new JobsWatchdog(_this.mongo_helper, _this.swift_helper);
+};
+
+/**
+ * @fn _setupJobsScheduler
+ * @desc Initialize the periodic scheduling of the Jobs
+ * @private
+ */
+EaeScheduler.prototype._setupJobsScheduler = function () {
+    let _this = this;
+    _this.jobs_scheduler = new JobsScheduler(_this.mongo_helper);
 };
 
 
