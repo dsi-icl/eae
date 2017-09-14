@@ -40,7 +40,7 @@ JobsWatchdog.prototype._deleteSwiftFilesAndContainer = function(container, files
         let filesToBeDeleted = [];
         filesArray.forEach(function (file) {
             let d = _this._swiftHelper.deleteFile(container, file).then(
-                function (_unused_deleteStatus) {
+                function (_unused__deleteStatus) {
                     console.log('File : ' + file + ' has been successfully deleted from container : ' + container);
                 },
                 function (error) {
@@ -51,7 +51,7 @@ JobsWatchdog.prototype._deleteSwiftFilesAndContainer = function(container, files
             filesToBeDeleted.push(d);
         });
 
-        Promise.all(filesToBeDeleted).then(function (_unused_array) {
+        Promise.all(filesToBeDeleted).then(function (_unused__array) {
             _this._swiftHelper.deleteContainer(container);
         }, function (error) {
             ErrorHelper('Failed to delete conatiner:' + container, error);
@@ -73,7 +73,7 @@ JobsWatchdog.prototype._archiveJobs = function(){
         var currentTime = new Date();
 
         let filter = {
-            status: {$in: statuses},
+            "status.0": {$in: statuses},
             statusLock: false,
             endDate: {
                 '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.jobsExpiredStatusTime))
@@ -82,14 +82,11 @@ JobsWatchdog.prototype._archiveJobs = function(){
 
         _this._mongoHelper.retrieveJobs(filter).then(function (jobs) {
             jobs.forEach(function (job) {
-                let lockFilter = {
-                    _id: job._id
-                };
-                let lockField = {
-                    statusLock: true
-                };
+                // We set the lock
+                job.statusLock = true;
+
                 // lock the Job
-                _this._mongoHelper.updateJob(lockFilter, lockField).then(
+                _this._mongoHelper.updateJob(job).then(
                     function (res) {
                         if(res.nModified === 1){
                             // We save the job id before archiving the job
@@ -110,7 +107,7 @@ JobsWatchdog.prototype._archiveJobs = function(){
                             resolve('The job has already been archived');
                         }},
                     function (error) {
-                        reject(ErrorHelper('Failed to lock the job. Filter:' + lockFilter.toString(), error));
+                        reject(ErrorHelper('Failed to lock the job. Job:' + job._id, error));
                     });
             });
         },function (error){
@@ -132,7 +129,7 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
         var currentTime = new Date();
 
         let filter = {
-            status: {$in: statuses},
+            "status.0": {$in: statuses},
             statusLock: false,
             startDate: {
                 '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.jobsTimingoutTime))
@@ -141,18 +138,15 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
 
         _this._mongoHelper.retrieveJobs(filter).then(function(jobs){
             jobs.forEach(function (job) {
-                let lockFilter = {
-                    _id: job._id
-                };
-                let lockField = {
-                    statusLock: true
-                };
+                // We set the lock
+                job.statusLock = true;
+
                 // lock the Job
-                _this._mongoHelper.updateJob(lockFilter, lockField).then(
+                _this._mongoHelper.updateJob(job).then(
                     function (res) {
                         if(res.nModified === 1){
                             // We send a cancel command the compute node if the job was running
-                            if(job.status === Constants.EAE_JOB_STATUS_RUNNING){
+                            if(job.status[0] === Constants.EAE_JOB_STATUS_RUNNING){
                                 request({
                                         method: 'POST',
                                         baseUrl: 'http://' + job.executorIP + ':' + job.executorPort,
@@ -163,28 +157,29 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
                                             reject(ErrorHelper('The cancel request has failed:', error));
                                         }
                                         console.log('The cancel request sent to host ' + job.executorIP + ':' + job.executorIP + ' and the response was ', response, body);
-                            });}
-                            // We change the job status back to Queued and unlock the job for scheduling
-                            let rescheduleFields = {
-                                status: Constants.EAE_JOB_STATUS_QUEUED,
-                                statusLock: true
-                            };
-                            _this._mongoHelper.updateJob(rescheduleFields, lockField).then(
-                                function(success_res){
-                                    if(success_res.nModified === 1){
-                                        resolve('The timed out job has been successfully invalidated and Queued');
-                                    }else{
-                                        reject(ErrorHelper('Something went terribly wrong when unlocking and Queueing job. JobId: ' + job._id));
-                                    }
-                                },function(error){
-                                    reject(ErrorHelper('Failed to unlock the job ' + job._id + ' and set it back to Queued', error));
-                                }
-                            );
+
+                                        // We change the job status back to Queued and unlock the job for scheduling
+                                        job.status.unshift(Constants.EAE_JOB_STATUS_QUEUED) ;
+                                        job.statusLock = false;
+
+                                        _this._mongoHelper.updateJob(job).then(
+                                            function(success_res){
+                                                if(success_res.nModified === 1){
+                                                    resolve('The timed out job has been successfully invalidated and Queued');
+                                                }else{
+                                                    reject(ErrorHelper('Something went terribly wrong when unlocking and Queueing job. JobId: ' + job._id));
+                                                }
+                                            },function(error){
+                                                reject(ErrorHelper('Failed to unlock the job ' + job._id + ' and set it back to Queued', error));
+                                            }
+                                        );
+                                    });
+                            }
                         }else{
-                         resolve('The Job' + job._id.toString() + ' has already been timed out.');
+                         resolve('The Job ' + job._id.toString() + ' has already been timed out.');
                         }
                     },function(error){
-                        reject(ErrorHelper('Failed to lock the job. Filter:' + lockFilter.toString(), error));
+                        reject(ErrorHelper('Failed to lock the job. Filter:' + job._id, error));
                     });
             });
         },function (error){

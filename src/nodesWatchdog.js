@@ -45,19 +45,12 @@ NodesWatchdog.prototype._excludeNodes = function(deadNodes){
 
     return new Promise(function(resolve, reject) {
         deadNodes.forEach(function (node) {
-            let filter = { //Filter is based on ip/port combination
-                ip: node.ip,
-                port: node.port
-            };
-
-            let fields = {
-                statusLock: true
-            };
-            _this._mongoHelper.updateNodeStatus(filter, fields).then(function (success) {
+            node.statusLock = true;
+            _this._mongoHelper.updateNodeStatus(node).then(function (success) {
                 _this._notifyAdmin(node);
                 resolve(success);
             }, function (error) {
-                reject(ErrorHelper('Failed to update the nodes status to dead. Filter:' + filter.toString(), error));
+                reject(ErrorHelper('Failed to update the nodes status to dead. Node: ' + node.ip + ' ' + node.port, error));
             });
         });
     });
@@ -84,16 +77,12 @@ NodesWatchdog.prototype._purgeExpired = function() {
 
     _this._mongoHelper.retrieveNodesStatus(filter).then(function (nodes) {
         nodes.forEach(function (node) {
-            let filter = { //Filter is based on ip/port combination
-                ip: node.ip,
-                port: node.port
-            };
-            let fields = {
-                status: Constants.EAE_SERVICE_STATUS_DEAD,
-                statusLock: true
-            };
+
+            node.status = Constants.EAE_SERVICE_STATUS_DEAD;
+            node.statusLock = true;
+
             // lock the node
-            _this._mongoHelper.updateNodeStatus(filter, fields).then(
+            _this._mongoHelper.updateNodeStatus(node).then(
                 function (success) {
                     if(success.nModified === 1){
                         console.log('The expired node' + node.ip + ':' + node.port + 'has been set to DEAD successfully');
@@ -101,11 +90,11 @@ NodesWatchdog.prototype._purgeExpired = function() {
                         console.log('The node has already been updated ' + node.ip + ':' + node.port);
                     }},
                 function (error) {
-                    ErrorHelper('Failed to lock the node and set its status to DEAD. Filter:' + filter.toString(), error);
+                    ErrorHelper('Failed to lock the node and set its status to DEAD. Node: ' + node.ip + ' ' + node.port, error);
                 });
         });
     },function (error){
-        console.log('Failed to retrieve nodes status. Filter:' + filter.toString(), error);
+        ErrorHelper('Failed to retrieve nodes status. Filter:' + filter.toString(), error);
     });
 };
 
