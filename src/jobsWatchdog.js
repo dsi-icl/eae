@@ -40,7 +40,7 @@ JobsWatchdog.prototype._deleteSwiftFilesAndContainer = function(container, files
         let filesToBeDeleted = [];
         filesArray.forEach(function (file) {
             let d = _this._swiftHelper.deleteFile(container, file).then(
-                function (_unused_deleteStatus) {
+                function (_unused__deleteStatus) {
                     console.log('File : ' + file + ' has been successfully deleted from container : ' + container);
                 },
                 function (error) {
@@ -51,7 +51,7 @@ JobsWatchdog.prototype._deleteSwiftFilesAndContainer = function(container, files
             filesToBeDeleted.push(d);
         });
 
-        Promise.all(filesToBeDeleted).then(function (_unused_array) {
+        Promise.all(filesToBeDeleted).then(function (_unused__array) {
             _this._swiftHelper.deleteContainer(container);
         }, function (error) {
             ErrorHelper('Failed to delete conatiner:' + container, error);

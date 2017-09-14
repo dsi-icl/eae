@@ -131,7 +131,7 @@ JobsScheduler.prototype._analyzeJobHistory = function (job) {
         if(errorHistory.length === 3){
             job.status.unshift(Constants.EAE_JOB_STATUS_DEAD);
             job.status.unshift(Constants.EAE_JOB_STATUS_COMPLETED);
-            _this._mongoHelper.updateJob(job).then(function(_unused_res){
+            _this._mongoHelper.updateJob(job).then(function(_unused__res){
                 resolve(true);
             },function(error){
               reject(ErrorHelper('Failed to set the job to DEAD', error))
