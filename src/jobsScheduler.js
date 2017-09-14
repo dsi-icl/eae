@@ -42,7 +42,7 @@ JobsScheduler.prototype._freeComputeResources= function(job){
             };
             _this._mongoHelper.retrieveNodesStatus(filter).then(
                 function(node){
-                    let sparkCluster = node[0].cluster;
+                    let sparkCluster = node[0].clusters.spark;
                     sparkCluster.forEach(function(node){
                         node.status = Constants.EAE_SERVICE_STATUS_IDLE;
                         node.statusLock = false;
@@ -183,7 +183,7 @@ JobsScheduler.prototype._queuedJobs = function () {
                                                 case Constants.EAE_JOB_TYPE_SPARK:
                                                     // We lock the cluster and set the candidate as the executor for the job
                                                     let reserved = [];
-                                                    candidateWorker.cluster.forEach(function(workerNode){
+                                                    candidateWorker.clusters.spark.forEach(function(workerNode){
                                                         workerNode.statusLock = true;
                                                         _this._mongoHelper.updateNodeStatus(workerNode).then(function(success){
                                                                 if(success.nModified === 1) {
@@ -197,8 +197,8 @@ JobsScheduler.prototype._queuedJobs = function () {
                                                                     'Node ' + candidateWorker.toString(),error));
                                                             })
                                                     });
-                                                    if(reserved.length === candidateWorker.cluster.length){
-                                                        candidateWorker.cluster.forEach(function(workerNode) {
+                                                    if(reserved.length === candidateWorker.clusters.spark.length){
+                                                        candidateWorker.clusters.spark.forEach(function(workerNode) {
                                                             workerNode.status = Constants.EAE_SERVICE_STATUS_BUSY;
                                                             _this._mongoHelper.updateNodeStatus(workerNode).then(function(_unsued_success){
                                                                 },
