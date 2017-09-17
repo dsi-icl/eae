@@ -235,7 +235,11 @@ JobsScheduler.prototype._queuedJobs = function () {
                                             request({
                                                     method: 'POST',
                                                     baseUrl: 'http://' + candidateWorker.ip + ':' + candidateWorker.port,
-                                                    uri:'/run'
+                                                    uri:'/run',
+                                                    json: true,
+                                                    body: {
+                                                    job_id: job._id.toHexString()
+                                                    }
                                                 },
                                                 function (error, response, body) {
                                                     if (error !== null) {
