@@ -2,7 +2,7 @@ let express = require('express');
 let os = require('os');
 let app = express();
 
-let config = require('../config/eae.scheduler.config.js');
+let config = require('../config/eae.carrier.config.js');
 let EaeCarrier = require('./eaeCarrier.js');
 
 //Remove unwanted express headers

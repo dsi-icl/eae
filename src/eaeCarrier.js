@@ -58,6 +58,9 @@ EaeCarrier.prototype.start = function() {
             // Setup route using controllers
             _this._setupStatusController();
 
+            // Setup the file carrier
+            _this._setupFileCarrier();
+
             // Start status periodic update
             _this.status_helper.startPeriodicUpdate(5 * 1000); // Update status every 5 seconds
 
