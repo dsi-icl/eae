@@ -114,9 +114,10 @@ EaeCompute.prototype._setupStatusController = function () {
     let _this = this;
 
     let statusOpts = {
-        version: package_json.version
+        version: package_json.version,
+        clusters: global.eae_compute_config.clusters
     };
-    _this.status_helper = new StatusHelper(Constants.EAE_SERVICE_TYPE_COMPUTE, global.eae_compute_config.port, global.eae_compute_config.clusters, statusOpts);
+    _this.status_helper = new StatusHelper(Constants.EAE_SERVICE_TYPE_COMPUTE, global.eae_compute_config.port, null, statusOpts);
     _this.status_helper.setCollection(_this.db.collection(Constants.EAE_COLLECTION_STATUS));
     _this.status_helper.setComputeType(global.eae_compute_config.computeType);
 
