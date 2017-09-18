@@ -69,7 +69,7 @@ EaeScheduler.prototype.start = function() {
             // Setup route using controllers
             _this._setupStatusController();
 
-            //Setup the Helpers
+            // Setup the Helpers
             _this._setupMongoHelper();
             _this._setupSwiftHelper();
 
@@ -177,7 +177,7 @@ EaeScheduler.prototype._setupMongoHelper = function () {
 
 /**
  * @fn _setupSwiftHelper
- * @desc Initialize the helper class to intereact with Swift
+ * @desc Initialize the helper class to interact with Swift
  * @private
  */
 EaeScheduler.prototype._setupSwiftHelper = function () {
