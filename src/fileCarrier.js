@@ -7,31 +7,14 @@ const { ErrorHelper } =  require('eae-utils');
  * @param swiftHelper Helper class to interact with Swift
  * @constructor
  */
-function FileCarrier(swiftHelper) {
+function FileCarrier(swiftStorage) {
     //Init member vars
-    this._swiftHelper = swiftHelper;
+    this._swiftStorage = swiftStorage;
 
     //Bind member functions
     this.pipeStreamToSwift = FileCarrier.prototype.pipeStreamToSwift.bind(this);
 
 }
-
-FileCarrier.prototype.pipeStreamToSwift = function(containerName, fileName, readableStream){
-    let _this = this;
-
-    return new Promise(function(resolve, reject) {
-        const writer = _this._swiftHelper.getFileWriteStream(containerName, fileName);
-        const reader = readableStream;
-
-        if(reader === undefined || reader === null || writer === undefined || writer === null){
-            reject(ErrorHelper('The writer or the reader is null or undefined.\nReader: ' + reader.toString() +
-                '\nWriter: ' + writer.toString()));
-        }
-
-        resolve(reader.pipe(writer));
-    });
-};
-
 
 
 /**
@@ -43,7 +26,7 @@ FileCarrier.prototype.pipeStreamToSwift = function(containerName, fileName, read
 FileCarrier.prototype.setOutput = function(data) {
     let _this = this;
     return new Promise(function(resolve, reject) {
-        _this._storage.createObject(data).then(function(storage_id) {
+        _this._swiftStorage.createObject(data).then(function(storage_id) {
             // Update model to remember where we stored the data
             let data_model = Object.assign({}, Models.BL_MODEL_DATA,
                 {

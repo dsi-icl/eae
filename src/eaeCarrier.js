@@ -142,7 +142,7 @@ EaeCarrier.prototype._setupStatusController = function () {
  */
 EaeCarrier.prototype._setupSwiftHelper = function () {
     let _this = this;
-    _this.swift_helper = new SwiftHelper({
+    _this.swift_storage = new ObjectStorage({
         url: _this.config.swiftURL,
         username: _this.config.swiftUsername,
         password: _this.config.swiftPassword
@@ -151,22 +151,12 @@ EaeCarrier.prototype._setupSwiftHelper = function () {
 
 /**
  * @fn _setupFileCarrier
- * @desc Initialize the file carrier that while pipe the streams into swift
+ * @desc Initialize the file carrier that while put the files into swift
  * @private
  */
 EaeCarrier.prototype._setupFileCarrier = function(){
     let _this = this;
-    _this.file_carrier = new FileCarrier(_this.swift_helper);
-};
-
-/**
- * @fn _setupFile
- * @desc Initialize the file carrier that while pipe the streams into swift
- * @private
- */
-EaeCarrier.prototype._setupFileCarrier = function(){
-    let _this = this;
-    _this.file_carrier = new FileCarrier(_this.swift_helper);
+    _this.file_carrier = new FileCarrier(_this.swift_storage);
 };
 
 module.exports = EaeCarrier;
