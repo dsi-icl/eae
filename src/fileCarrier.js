@@ -11,11 +11,40 @@ function FileCarrier(swiftStorage) {
     this._swiftStorage = swiftStorage;
 
     //Bind member functions
+    this.initialize = FileCarrier.prototype.initialize.bind(this);
     this.setOutput = FileCarrier.prototype.setOutput.bind(this);
+
+    // Bind private member functions
     this._receiveFile = FileCarrier.prototype._receiveFile.bind(this);
 
 }
 
+/**
+ * @fn initialize
+ * @desc Prepares the execution of this query
+ * @param request The Express.js HTTP request that triggered the execution
+ * @return Promise
+ */
+QueryAbstract.prototype.initialize = function (request) {
+    let _this = this;
+    return new Promise(function (resolve, reject) {
+        if (request !== null && request !== undefined) {
+            if (request.hasOwnProperty('file')) {
+                _this._receiveFile(request.file).then(function () {
+                    resolve(true);
+                }, function (file_error) {
+                    reject(ErrorHelper('File upload error', file_error));
+                });
+            }
+            else {
+                reject(ErrorHelper('Missing file in the multipart form data'));
+            }
+        }
+        else {
+            reject(ErrorHelper('File query needs the multipart request'));
+        }
+    });
+};
 
 /**
  * @fn setOutput

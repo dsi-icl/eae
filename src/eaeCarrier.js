@@ -1,10 +1,12 @@
 //External node module imports
 const express = require('express');
 const body_parser = require('body-parser');
-const { ErrorHelper, StatusHelper, SwiftHelper, Constants } = require('eae-utils');
+const multer = require('multer');
+const { ErrorHelper, StatusHelper, Constants } = require('eae-utils');
 
 const package_json = require('../package.json');
 const StatusController = require('./statusController.js');
+const CarrierController = require('./carrierController');
 const FileCarrier = require('./fileCarrier.js');
 
 /**
@@ -131,8 +133,11 @@ EaeCarrier.prototype._setupStatusController = function () {
     _this.status_helper.setCollection(_this.db.collection(Constants.EAE_COLLECTION_STATUS));
 
     _this.statusController = new StatusController(_this.status_helper);
+    _this.carrierController = new CarrierController();
     _this.app.get('/status', _this.statusController.getStatus); // GET status
     _this.app.get('/specs', _this.statusController.getFullStatus); // GET Full status
+    _this.app.route('/file' + '/:query_id/execute')
+        .post(multer().single('file'), _this.carrierController.executeUpload);
 };
 
 /**
