@@ -138,6 +138,10 @@ EaeCarrier.prototype._setupStatusController = function () {
     _this.app.get('/specs', _this.statusController.getFullStatus); // GET Full status
     _this.app.route('/file' + '/:query_id/execute')
         .post(multer().single('file'), _this.carrierController.executeUpload);
+    _this.app.all('/*', function (__unused__req, res) {
+        res.status(400);
+        res.json(ErrorHelper('Bad request'));
+    });
 };
 
 /**
