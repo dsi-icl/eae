@@ -1,7 +1,7 @@
 //External node module imports
 const express = require('express');
 const body_parser = require('body-parser');
-const { ErrorHelper, StatusHelper, Constants } = require('eae-utils');
+const { ErrorHelper, StatusHelper, SwiftHelper, Constants } = require('eae-utils');
 
 const package_json = require('../package.json');
 const StatusController = require('./statusController.js');
@@ -27,6 +27,7 @@ function EaeCarrier(config) {
     this._connectDb = EaeCarrier.prototype._connectDb.bind(this);
     this._setupStatusController = EaeCarrier.prototype._setupStatusController.bind(this);
     this._setupFileCarrier = EaeCarrier.prototype._setupFileCarrier.bind(this);
+    this._setupSwiftHelper = EaeCarrier.prototype._setupSwiftHelper.bind(this);
 
     //Remove unwanted express headers
     this.app.set('x-powered-by', false);
@@ -57,6 +58,9 @@ EaeCarrier.prototype.start = function() {
         _this._connectDb().then(function () {
             // Setup route using controllers
             _this._setupStatusController();
+
+            // Setup the helper
+            _this._setupSwiftHelper();
 
             // Setup the file carrier
             _this._setupFileCarrier();
@@ -131,11 +135,38 @@ EaeCarrier.prototype._setupStatusController = function () {
     _this.app.get('/specs', _this.statusController.getFullStatus); // GET Full status
 };
 
-
-EaeCarrier.prototype._setupFileCarrier = function(){
+/**
+ * @fn _setupSwiftHelper
+ * @desc Initialize the helper class to interact with Swift
+ * @private
+ */
+EaeCarrier.prototype._setupSwiftHelper = function () {
     let _this = this;
-    _this.file_carrier = new FileCarrier();
+    _this.swift_helper = new SwiftHelper({
+        url: _this.config.swiftURL,
+        username: _this.config.swiftUsername,
+        password: _this.config.swiftPassword
+    });
 };
 
+/**
+ * @fn _setupFileCarrier
+ * @desc Initialize the file carrier that while pipe the streams into swift
+ * @private
+ */
+EaeCarrier.prototype._setupFileCarrier = function(){
+    let _this = this;
+    _this.file_carrier = new FileCarrier(_this.swift_helper);
+};
+
+/**
+ * @fn _setupFile
+ * @desc Initialize the file carrier that while pipe the streams into swift
+ * @private
+ */
+EaeCarrier.prototype._setupFileCarrier = function(){
+    let _this = this;
+    _this.file_carrier = new FileCarrier(_this.swift_helper);
+};
 
 module.exports = EaeCarrier;
