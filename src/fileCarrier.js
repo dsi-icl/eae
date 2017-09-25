@@ -1,6 +1,5 @@
 const { ErrorHelper } =  require('eae-utils');
 
-
 /**
  * @class FileCarrier
  * @desc Manages the transfer of files between the client application and Swift to be then used by the computes units.
@@ -22,7 +21,7 @@ function FileCarrier(swiftStorage) {
  * @fn setOutput
  * @desc Update this query Output data by storing the data in the cache, and updating the model
  * @param data Raw data to store
- * @return {Promise} Resolve to the data model on success or reject an error
+ * @return {Promise} Resolve to true if insertion is ok, rejects an ErrorHelper otherwise
  */
 FileCarrier.prototype.setOutput = function(data) {
     let _this = this;
