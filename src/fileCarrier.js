@@ -12,7 +12,8 @@ function FileCarrier(swiftStorage) {
     this._swiftStorage = swiftStorage;
 
     //Bind member functions
-    this.pipeStreamToSwift = FileCarrier.prototype.pipeStreamToSwift.bind(this);
+    this.setOutput = FileCarrier.prototype.setOutput.bind(this);
+    this._receiveFile = FileCarrier.prototype._receiveFile.bind(this);
 
 }
 
@@ -26,21 +27,8 @@ function FileCarrier(swiftStorage) {
 FileCarrier.prototype.setOutput = function(data) {
     let _this = this;
     return new Promise(function(resolve, reject) {
-        _this._swiftStorage.createObject(data).then(function(storage_id) {
-            // Update model to remember where we stored the data
-            let data_model = Object.assign({}, Models.BL_MODEL_DATA,
-                {
-                    cache: {
-                        dataSize: data.length,
-                        storageId: storage_id
-                    }
-                });
-            _this.setOutputModel(data_model); // Overrides previous cache
-            _this._pushModel().then(function() {
-                resolve(data_model);
-            }, function(push_error) {
-                reject(ErrorHelper('Saving output query model failed', push_error));
-            });
+        _this._swiftStorage.createObject(data).then(function(__unused_storage_id) {
+            resolve(true);
         }, function(storage_error) {
             reject(ErrorHelper('Caching output in storage failed', storage_error));
         });
@@ -57,7 +45,7 @@ FileCarrier.prototype.setOutput = function(data) {
 FileCarrier.prototype._receiveFile = function(file) {
     let _this = this;
     return new Promise(function(resolve, reject) {
-        _this.setOutput(file.buffer).then(function(__unused__data_model) {
+        _this.setOutput(file.buffer).then(function(__unused__answer) {
             resolve(true);
         }, function(output_error) {
             reject(ErrorHelper('Upload file failed', output_error));
