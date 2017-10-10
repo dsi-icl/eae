@@ -12,7 +12,7 @@ const FileCarrier = require('./fileCarrier.js');
 /**
  * @class EaeCarrier
  * @desc Core class of the carrier micro service
- * @param config Configurations for the scheduler
+ * @param config Configurations for the carrier
  * @constructor
  */
 function EaeCarrier(config) {
