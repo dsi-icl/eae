@@ -28,6 +28,7 @@ function EaeCarrier(config) {
     // Bind private member functions
     this._connectDb = EaeCarrier.prototype._connectDb.bind(this);
     this._setupStatusController = EaeCarrier.prototype._setupStatusController.bind(this);
+    this._setupCarrierController = EaeCarrier.prototype._setupCarrierController.bind(this);
     this._setupFileCarrier = EaeCarrier.prototype._setupFileCarrier.bind(this);
     this._setupSwiftHelper = EaeCarrier.prototype._setupSwiftHelper.bind(this);
 
@@ -65,6 +66,7 @@ EaeCarrier.prototype.start = function() {
             _this._setupSwiftHelper();
 
             // Setup the file carrier
+            _this._setupCarrierController();
             _this._setupFileCarrier();
 
             // Start status periodic update
@@ -133,15 +135,8 @@ EaeCarrier.prototype._setupStatusController = function () {
     _this.status_helper.setCollection(_this.db.collection(Constants.EAE_COLLECTION_STATUS));
 
     _this.statusController = new StatusController(_this.status_helper);
-    _this.carrierController = new CarrierController();
     _this.app.get('/status', _this.statusController.getStatus); // GET status
     _this.app.get('/specs', _this.statusController.getFullStatus); // GET Full status
-    _this.app.route('/file' + '/:query_id/execute')
-        .post(multer().single('file'), _this.carrierController.executeUpload);
-    _this.app.all('/*', function (__unused__req, res) {
-        res.status(400);
-        res.json(ErrorHelper('Bad request'));
-    });
 };
 
 /**
@@ -159,13 +154,37 @@ EaeCarrier.prototype._setupSwiftHelper = function () {
 };
 
 /**
+ * @fn _setupCarrierController
+ * @desc Initialize the file carrier controller
+ * @private
+ */
+EaeCarrier.prototype._setupCarrierController = function(){
+    let _this = this;
+    _this.carrierController = new CarrierController();
+    _this.carrierController.setCollection(_this.db.collection(Constants.EAE_COLLECTION_CARRIER));
+};
+
+/**
  * @fn _setupFileCarrier
  * @desc Initialize the file carrier that while put the files into swift
  * @private
  */
 EaeCarrier.prototype._setupFileCarrier = function(){
     let _this = this;
-    _this.file_carrier = new FileCarrier(_this.swift_storage);
+    _this.fileCarrier = new FileCarrier(_this.swift_storage);
+    _this.carrierController.setFileCarrier(_this.fileCarrier);
+
+    // We set up the routes for the file upload
+    _this.app.route('/file' + '/:input_id')
+        .post(multer().single('file'), _this.carrierController.executeUpload);
+
+    // We take care of all remaining routes
+    _this.app.all('/*', function (__unused__req, res) {
+        res.status(400);
+        res.json(ErrorHelper('Bad request'));
+    });
 };
+
+
 
 module.exports = EaeCarrier;

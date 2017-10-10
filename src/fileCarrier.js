@@ -21,11 +21,11 @@ function FileCarrier(swiftStorage) {
 
 /**
  * @fn initialize
- * @desc Prepares the execution of this query
+ * @desc Prepares the execution of this transfer
  * @param request The Express.js HTTP request that triggered the execution
  * @return Promise
  */
-QueryAbstract.prototype.initialize = function (request) {
+FileCarrier.prototype.initialize = function (request) {
     let _this = this;
     return new Promise(function (resolve, reject) {
         if (request !== null && request !== undefined) {
