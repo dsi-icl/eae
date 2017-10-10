@@ -113,6 +113,7 @@ module.exports = {
     JOBS_ARCHIVE_COLLECTION_NAME: 'eae_jobs_archive',
     FAILED_JOBS_COLLECTION_NAME: 'eae_failed_jobs_archive',
     STATUS_DEFAULT_UPDATE_INTERVAL: 60 * 1000, // 60 * 1000 ms = 1 minute
+    CARRIER_COLLECTION_NAME: 'eae_carrier',
 
     STATUS_MODEL: statusModel,
     JOB_MODEL: jobModel,
