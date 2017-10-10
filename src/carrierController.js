@@ -49,6 +49,9 @@ CarrierController.prototype.executeUpload = function (req, res) {
             { upsert: true, returnOriginal: false, w: 'majority', j: false })
             .then(function(__unused_success) {
                 this._fileCarrier.initialize(req).then(function(__unused_success){
+                    _this._carrierCollection.findOneAndUpdate({inputId: inputId, fileName: fileName},
+                        { $set : {status: 'Completed'}},
+                        {returnOriginal: false, w: 'majority', j: false});
                     res.status(200);
                     res.json(true);
                 }, function (error) {
