@@ -47,11 +47,16 @@ CarrierController.prototype.executeUpload = function (req, res) {
         _this._carrierCollection.findOneAndReplace({inputId: inputId, fileName: fileName},
             replacementData,
             { upsert: true, returnOriginal: false, w: 'majority', j: false })
-            .then(function(success) {
+            .then(function(__unused_success) {
+                this._fileCarrier.initialize(req).then(function(__unused_success){
+                    res.status(200);
+                    res.json(true);
+                }, function (error) {
+                    res.status(500);
+                    res.json(true);
+                    reject(ErrorHelper('Failed to upload file to Swift', error));
+                });
 
-                this._fileCarrier.initialize(req);
-                res.status(200);
-                res.json(true);
             }, function(error) {
                 reject(ErrorHelper('Failed to record uploading of file for input: ' + input_id, error));
             });
