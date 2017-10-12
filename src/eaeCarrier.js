@@ -179,6 +179,12 @@ EaeCarrier.prototype._setupFileCarrier = function(){
     _this.app.route('/file' + '/:input_id')
         .post(multer().single('file'), _this.carrierController.executeUpload);
 
+    // :)
+    _this.app.all('/whoareyou', function (__unused__req, res) {
+        res.status(418);
+        res.json(ErrorHelper('I\'m a teapot'));
+    });
+
     // We take care of all remaining routes
     _this.app.all('/*', function (__unused__req, res) {
         res.status(400);
