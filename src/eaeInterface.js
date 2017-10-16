@@ -25,7 +25,7 @@ function EaeInterface(config) {
     // Bind private member functions
     this._connectDb = EaeInterface.prototype._connectDb.bind(this);
     this._setupStatusController = EaeInterface.prototype._setupStatusController.bind(this);
-
+    this._setupInterfaceController = EaeInterface.prototype._setupInterfaceController.bind(this);
 
     //Remove unwanted express headers
     this.app.set('x-powered-by', false);
@@ -56,6 +56,9 @@ EaeInterface.prototype.start = function() {
         _this._connectDb().then(function () {
             // Setup route using controllers
             _this._setupStatusController();
+
+            // Setup interface controller
+            _this._setupInterfaceController();
 
             // Start status periodic update
             _this.status_helper.startPeriodicUpdate(5 * 1000); // Update status every 5 seconds
@@ -127,6 +130,42 @@ EaeInterface.prototype._setupStatusController = function () {
     _this.app.get('/specs', _this.statusController.getFullStatus); // GET Full status
 };
 
+
+/**
+ * @fn _setupInterfaceController
+ * @desc Initialize the interface service routes and controller
+ * @private
+ */
+EaeInterface.prototype._setupInterfaceController = function() {
+    let _this = this;
+
+    // Create a job request
+    _this.app.post('/job', _this.interfaceController.postNewJob);
+
+    // Retrieve a specific job - Check that user requesting is owner of the job
+    _this.app.get('/job/:job_id', _this.interfaceController.getJob);
+
+    // Retrieve all current jobs - Admin only
+    _this.app.get('/allJobs', _this.interfaceController.getAllJobs);
+
+    // Status of the services in the eAE - Admin only
+    _this.app.get('/servicesStatus', _this.clusterController.getServicesStatus);
+
+    // Sends back a list of available carriers for data transfer
+    _this.app.get('', _this.carrierController.getCarriers);
+
+    // :)
+    _this.app.all('/whoareyou', function (__unused__req, res) {
+        res.status(418);
+        res.json(ErrorHelper('I\'m a teapot'));
+    });
+
+    // We take care of all remaining routes
+    _this.app.all('/*', function (__unused__req, res) {
+        res.status(400);
+        res.json(ErrorHelper('Bad request'));
+    });
+};
 
 
 module.exports = EaeInterface;
