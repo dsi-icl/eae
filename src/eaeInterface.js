@@ -152,7 +152,15 @@ EaeInterface.prototype._setupInterfaceController = function() {
     _this.app.get('/servicesStatus', _this.clusterController.getServicesStatus);
 
     // Sends back a list of available carriers for data transfer
-    _this.app.get('', _this.carrierController.getCarriers);
+    // _this.app.get('/carriers', _this.carrierController.getCarriers);
+
+    // Retrieve the results for a specific job
+    _this.app.get('/job/:job_id/results', _this.interfaceController.getJobResults);
+
+    // Manage the users who have access to the platform - Admin only
+    _this.app.get('/user/:user_id', _this.interfaceController.getUser)
+        .post('/user/create', _this.interfaceController.createUser)
+        .delete('/user/:user_id', _this.interfaceController.deleteUser);
 
     // :)
     _this.app.all('/whoareyou', function (__unused__req, res) {
