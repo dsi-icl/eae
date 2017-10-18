@@ -152,7 +152,7 @@ EaeInterface.prototype._setupInterfaceControllers = function() {
     // Create a job request
     _this.app.post('/job', _this.jobsController.postNewJob);
 
-    // Retrieve a specific job - Check that user requesting is owner of the job
+    // Retrieve a specific job - Check that user requesting is owner of the job or Admin
     _this.app.get('/job/:job_id', _this.jobsController.getJob);
 
     // Retrieve all current jobs - Admin only

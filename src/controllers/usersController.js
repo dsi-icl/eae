@@ -21,4 +21,34 @@ UsersController.prototype.setCollection = function(jobsCollection) {
     _this._jobsCollection = jobsCollection;
 };
 
+/**
+ * @fn getUser
+ * @desc Sends back the profile of the requested user
+ * @param req
+ * @param res
+ */
+UsersController.prototype.getUser = function(req, res){
+
+};
+
+/**
+ * @fn createUser
+ * @desc Create a new user to get access to the platform
+ * @param req
+ * @param res
+ */
+UsersController.prototype.createUser = function(req, res){
+
+};
+
+/**
+ * @fn deleteUser
+ * @desc Delete an existing user to remove access to the platform
+ * @param req
+ * @param res
+ */
+UsersController.prototype.deleteUser = function(req, res){
+
+};
+
 module.exports = UsersController;

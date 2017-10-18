@@ -21,4 +21,14 @@ ClusterController.prototype.setCollection = function(statusCollection) {
     _this._statusCollection = statusCollection;
 };
 
+/**
+ * @fn getServicesStatus
+ * @desc Checks that the request is coming from an Admin and sends back the statuses of all the services in the cluster.
+ * @param req
+ * @param res
+ */
+ClusterController.prototype.getServicesStatus = function(req, res){
+
+};
+
 module.exports = ClusterController;
