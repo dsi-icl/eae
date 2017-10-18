@@ -5,7 +5,10 @@ const multer = require('multer');
 const { ErrorHelper, StatusHelper, Constants } = require('eae-utils');
 
 const package_json = require('../package.json');
-const StatusController = require('./statusController.js');
+const StatusController = require('./controllers/statusController.js');
+const JobsController = require('./controllers/jobsController.js');
+const UsersController = require('./controllers/usersController.js');
+const ClusterController = require('./controllers/clusterController.js');
 
 /**
  * @class EaeInterface
@@ -25,7 +28,7 @@ function EaeInterface(config) {
     // Bind private member functions
     this._connectDb = EaeInterface.prototype._connectDb.bind(this);
     this._setupStatusController = EaeInterface.prototype._setupStatusController.bind(this);
-    this._setupInterfaceController = EaeInterface.prototype._setupInterfaceController.bind(this);
+    this._setupInterfaceControllers = EaeInterface.prototype._setupInterfaceControllers.bind(this);
 
     //Remove unwanted express headers
     this.app.set('x-powered-by', false);
@@ -136,17 +139,24 @@ EaeInterface.prototype._setupStatusController = function () {
  * @desc Initialize the interface service routes and controller
  * @private
  */
-EaeInterface.prototype._setupInterfaceController = function() {
+EaeInterface.prototype._setupInterfaceControllers = function() {
     let _this = this;
 
+    _this.jobsController = new JobsController();
+    _this.jobsController.setCollection(_this.db.collection(Constants.EAE_COLLECTION_JOBS));
+    _this.usersController = new UsersController();
+    _this.usersController.setCollection(_this.db.collection(Constants.EAE_COLLECTION_USERS));
+    _this.clusterController = new ClusterController();
+    _this.clusterController.setCollection(_this.db.collection(Constants.EAE_COLLECTION_STATUS));
+
     // Create a job request
-    _this.app.post('/job', _this.interfaceController.postNewJob);
+    _this.app.post('/job', _this.jobsController.postNewJob);
 
     // Retrieve a specific job - Check that user requesting is owner of the job
-    _this.app.get('/job/:job_id', _this.interfaceController.getJob);
+    _this.app.get('/job/:job_id', _this.jobsController.getJob);
 
     // Retrieve all current jobs - Admin only
-    _this.app.get('/allJobs', _this.interfaceController.getAllJobs);
+    _this.app.get('/allJobs', _this.jobsController.getAllJobs);
 
     // Status of the services in the eAE - Admin only
     _this.app.get('/servicesStatus', _this.clusterController.getServicesStatus);
@@ -155,12 +165,12 @@ EaeInterface.prototype._setupInterfaceController = function() {
     // _this.app.get('/carriers', _this.carrierController.getCarriers);
 
     // Retrieve the results for a specific job
-    _this.app.get('/job/:job_id/results', _this.interfaceController.getJobResults);
+    _this.app.get('/job/:job_id/results', _this.jobsController.getJobResults);
 
     // Manage the users who have access to the platform - Admin only
-    _this.app.get('/user/:user_id', _this.interfaceController.getUser)
-        .post('/user/create', _this.interfaceController.createUser)
-        .delete('/user/:user_id', _this.interfaceController.deleteUser);
+    _this.app.get('/user/:user_id', _this.usersController.getUser)
+        .post('/user/create', _this.usersController.createUser)
+        .delete('/user/:user_id', _this.usersController.deleteUser);
 
     // :)
     _this.app.all('/whoareyou', function (__unused__req, res) {
