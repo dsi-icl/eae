@@ -1,4 +1,5 @@
-const { Constants, ErrorHelper } = require('../core/models.js');
+const { interface_constants } = require('../core/models.js');
+const { ErrorHelper } = require('eae-utils');
 const Cluster = require('../core/cluster.js');
 
 /**
@@ -32,7 +33,7 @@ ClusterController.prototype.getServicesStatus = function(req, res){
     }
     try {
         _this._statusCollection.findOne(filter).then(function (user) {
-                if(user.type === Constants.USER_TYPE.admin){
+                if(user.type === interface_constants.USER_TYPE.admin){
                     let cluster = new Cluster(_this._statusCollection);
                     let clusterStatus = cluster.getStatuses();
                     res.status(200);

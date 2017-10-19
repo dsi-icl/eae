@@ -2,7 +2,7 @@
 
 const userTypes = {
     admin: 'ADMIN',
-    standard: 'STRANDARD'
+    standard: 'STANDARD'
 };
 
 const userModel = {
@@ -21,11 +21,11 @@ const unauthorizedAccess = {
 };
 
 module.exports = {
-    models:{
+    interface_models:{
         USER_MODEL: userModel,
         UNAUTHORIZED_ACCESS_MODEL: unauthorizedAccess
     },
-    Constants: {
+    interface_constants: {
         USER_TYPE: userTypes
     }
 };
