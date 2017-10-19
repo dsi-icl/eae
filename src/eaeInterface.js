@@ -1,11 +1,15 @@
 //External node module imports
 const express = require('express');
 const body_parser = require('body-parser');
-const multer = require('multer');
+const mongodb = require('mongodb').MongoClient;
 const { ErrorHelper, StatusHelper, Constants } = require('eae-utils');
 
 const package_json = require('../package.json');
-const StatusController = require('./statusController.js');
+const StatusController = require('./controllers/statusController.js');
+const JobsControllerModule= require('./controllers/jobsController.js');
+const UsersControllerModule = require('./controllers/usersController.js');
+const ClusterControllerModule = require('./controllers/clusterController.js');
+const AccessLogger = require('./core/accessLogger.js');
 
 /**
  * @class EaeInterface
@@ -25,7 +29,7 @@ function EaeInterface(config) {
     // Bind private member functions
     this._connectDb = EaeInterface.prototype._connectDb.bind(this);
     this._setupStatusController = EaeInterface.prototype._setupStatusController.bind(this);
-
+    this._setupInterfaceControllers = EaeInterface.prototype._setupInterfaceControllers.bind(this);
 
     //Remove unwanted express headers
     this.app.set('x-powered-by', false);
@@ -56,6 +60,9 @@ EaeInterface.prototype.start = function() {
         _this._connectDb().then(function () {
             // Setup route using controllers
             _this._setupStatusController();
+
+            // Setup interface controller
+            _this._setupInterfaceControllers();
 
             // Start status periodic update
             _this.status_helper.startPeriodicUpdate(5 * 1000); // Update status every 5 seconds
@@ -127,6 +134,59 @@ EaeInterface.prototype._setupStatusController = function () {
     _this.app.get('/specs', _this.statusController.getFullStatus); // GET Full status
 };
 
+
+/**
+ * @fn _setupInterfaceController
+ * @desc Initialize the interface service routes and controller
+ * @private
+ */
+EaeInterface.prototype._setupInterfaceControllers = function() {
+    let _this = this;
+
+    _this.accessLogger = new AccessLogger(this.db.collection(Constants.EAE_COLLECTION_ACCESS_LOG));
+    _this.jobsController = new JobsControllerModule(_this.db.collection(Constants.EAE_COLLECTION_JOBS),
+                                                    _this.accessLogger );
+    _this.usersController = new UsersControllerModule(_this.db.collection(Constants.EAE_COLLECTION_USERS),
+                                                      _this.accessLogger );
+    _this.clusterController = new ClusterControllerModule(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
+                                                          _this.db.collection(Constants.EAE_COLLECTION_USERS),
+                                                          _this.accessLogger );
+
+    // Create a job request
+    _this.app.post('/job', _this.jobsController.postNewJob);
+
+    // Retrieve a specific job - Check that user requesting is owner of the job or Admin
+    _this.app.get('/job/:job_id', _this.jobsController.getJob);
+
+    // Retrieve all current jobs - Admin only
+    _this.app.get('/allJobs', _this.jobsController.getAllJobs);
+
+    // Status of the services in the eAE - Admin only
+    _this.app.get('/servicesStatus', _this.clusterController.getServicesStatus);
+
+    // Sends back a list of available carriers for data transfer
+    // _this.app.get('/carriers', _this.carrierController.getCarriers);
+
+    // Retrieve the results for a specific job
+    _this.app.get('/job/:job_id/results', _this.jobsController.getJobResults);
+
+    // Manage the users who have access to the platform - Admin only
+    _this.app.get('/user/:user_id', _this.usersController.getUser)
+        .post('/user/create', _this.usersController.createUser)
+        .delete('/user/:user_id', _this.usersController.deleteUser);
+
+    // :)
+    _this.app.all('/whoareyou', function (__unused__req, res) {
+        res.status(418);
+        res.json(ErrorHelper('I\'m a teapot'));
+    });
+
+    // We take care of all remaining routes
+    _this.app.all('/*', function (__unused__req, res) {
+        res.status(400);
+        res.json(ErrorHelper('Bad request'));
+    });
+};
 
 
 module.exports = EaeInterface;
