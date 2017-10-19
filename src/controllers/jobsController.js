@@ -1,25 +1,30 @@
 /**
  * @fn JobsController
  * @desc Controller to manage the jobs service
+ * @param jobsCollection
  * @constructor
  */
-function JobsController() {
-    let _this = this;
-    _this._jobsCollection = null;
-
-    // Bind member functions
-    _this.setCollection = _this.prototype.setCollection.bind(this);
-}
-
-/**
- * @fn setCollection
- * @desc Setup the mongoDB collection to work against
- * @param jobsCollection Initialized mongodb collection to work against
- */
-JobsController.prototype.setCollection = function(jobsCollection) {
+function JobsController(jobsCollection) {
     let _this = this;
     _this._jobsCollection = jobsCollection;
-};
+
+    // Bind member functions
+    // _this.setCollection = _this.prototype.setCollection.bind(this);
+    _this.postNewJob = _this.prototype.postNewJob.bind(this);
+    _this.getJob = _this.prototype.getJob.bind(this);
+    _this.getAllJobs = _this.prototype.getAllJobs.bind(this);
+    _this.getJobResults = _this.prototype.getJobResults.bind(this);
+}
+
+// /**
+//  * @fn setCollection
+//  * @desc Setup the mongoDB collection to work against
+//  * @param jobsCollection Initialized mongodb collection to work against
+//  */
+// JobsController.prototype.setCollection = function(jobsCollection) {
+//     let _this = this;
+//     _this._jobsCollection = jobsCollection;
+// };
 
 /**
  * @fn postNewJob
@@ -28,7 +33,7 @@ JobsController.prototype.setCollection = function(jobsCollection) {
  * @param res
  */
 JobsController.prototype.postNewJob = function(req, res){
-
+    let _this = this;
 };
 
 /**
@@ -38,7 +43,7 @@ JobsController.prototype.postNewJob = function(req, res){
  * @param res
  */
 JobsController.prototype.getJob = function(req, res){
-
+    let _this = this;
 };
 
 /**
@@ -48,7 +53,7 @@ JobsController.prototype.getJob = function(req, res){
  * @param res
  */
 JobsController.prototype.getAllJobs = function(req, res){
-
+    let _this = this;
 };
 
 /**
@@ -59,7 +64,7 @@ JobsController.prototype.getAllJobs = function(req, res){
  * @param res
  */
 JobsController.prototype.getJobResults = function(req, res){
-
+    let _this = this;
 };
 
 module.exports = JobsController;

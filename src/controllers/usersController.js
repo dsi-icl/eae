@@ -9,6 +9,9 @@ function UsersController() {
 
     // Bind member functions
     _this.setCollection = _this.prototype.setCollection.bind(this);
+    _this.getUser = _this.prototype.getUser.bind(this);
+    _this.createUser = _this.prototype.createUser.bind(this);
+    _this.deleteUser = _this.prototype.deleteUser.bind(this);
 }
 
 /**
