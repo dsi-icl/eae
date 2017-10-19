@@ -9,6 +9,7 @@ const StatusController = require('./controllers/statusController.js');
 const JobsControllerModule= require('./controllers/jobsController.js');
 const UsersControllerModule = require('./controllers/usersController.js');
 const ClusterControllerModule = require('./controllers/clusterController.js');
+const AccessLogger = require('./core/accessLogger.js');
 
 /**
  * @class EaeInterface
@@ -142,10 +143,14 @@ EaeInterface.prototype._setupStatusController = function () {
 EaeInterface.prototype._setupInterfaceControllers = function() {
     let _this = this;
 
-    _this.jobsController = new JobsControllerModule(_this.db.collection(Constants.EAE_COLLECTION_JOBS));
-    _this.usersController = new UsersControllerModule(_this.db.collection(Constants.EAE_COLLECTION_USERS));
+    _this.accessLogger = new AccessLogger(this.db.collection(Constants.EAE_COLLECTION_ACCESS_LOG));
+    _this.jobsController = new JobsControllerModule(_this.db.collection(Constants.EAE_COLLECTION_JOBS),
+                                                    _this.accessLogger );
+    _this.usersController = new UsersControllerModule(_this.db.collection(Constants.EAE_COLLECTION_USERS),
+                                                      _this.accessLogger );
     _this.clusterController = new ClusterControllerModule(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
-                                        _this.db.collection(Constants.EAE_COLLECTION_USERS));
+                                                          _this.db.collection(Constants.EAE_COLLECTION_USERS),
+                                                          _this.accessLogger );
 
     // Create a job request
     _this.app.post('/job', _this.jobsController.postNewJob);

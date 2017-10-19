@@ -15,7 +15,7 @@ const userModel = {
 const unauthorizedAccess = {
     username : null,
     token: '',
-    ip : null,
+    headers : null,
     accessTimestamp: new Date(0)
 
 };
