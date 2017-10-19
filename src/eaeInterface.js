@@ -144,7 +144,8 @@ EaeInterface.prototype._setupInterfaceControllers = function() {
 
     _this.jobsController = new JobsControllerModule(_this.db.collection(Constants.EAE_COLLECTION_JOBS));
     _this.usersController = new UsersControllerModule(_this.db.collection(Constants.EAE_COLLECTION_USERS));
-    _this.clusterController = new ClusterControllerModule(_this.db.collection(Constants.EAE_COLLECTION_STATUS));
+    _this.clusterController = new ClusterControllerModule(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
+                                        _this.db.collection(Constants.EAE_COLLECTION_USERS));
 
     // Create a job request
     _this.app.post('/job', _this.jobsController.postNewJob);
