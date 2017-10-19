@@ -28,7 +28,7 @@ function UsersController(usersCollection, accessLogger) {
  */
 UsersController.prototype.getUser = function(req, res){
     let _this = this;
-    let requestedUsername = req.params.username;
+    let requestedUsername = req.body.username;
     let eaeUsername = req.body.eaeUsername;
     let userToken = req.body.eaeUserToken;
 
@@ -87,7 +87,7 @@ UsersController.prototype.getUser = function(req, res){
  */
 UsersController.prototype.createUser = function(req, res){
     let _this = this;
-    let userTobeCreated = req.params.username;
+    let userTobeCreated = req.body.username;
     let eaeUsername = req.body.eaeUsername;
     let userToken = req.body.eaeUserToken;
     let newUser = JSON.parse(req.body.newUser);
@@ -151,7 +151,7 @@ UsersController.prototype.createUser = function(req, res){
  */
 UsersController.prototype.deleteUser = function(req, res){
     let _this = this;
-    let userToBeDeleted = req.params.username;
+    let userToBeDeleted = req.body.username;
     let eaeUsername = req.body.eaeUsername;
     let userToken = req.body.eaeUserToken;
 

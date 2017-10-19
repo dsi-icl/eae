@@ -153,13 +153,16 @@ EaeInterface.prototype._setupInterfaceControllers = function() {
                                                           _this.accessLogger );
 
     // Create a job request
-    _this.app.post('/job', _this.jobsController.postNewJob);
+    _this.app.post('/createjob', _this.jobsController.createNewJob);
 
     // Retrieve a specific job - Check that user requesting is owner of the job or Admin
-    _this.app.post('/job/:job_id', _this.jobsController.getJob);
+    _this.app.post('/getjob', _this.jobsController.getJob);
 
     // Retrieve all current jobs - Admin only
-    _this.app.post('/allJobs', _this.jobsController.getAllJobs);
+    _this.app.post('/getAllJobs', _this.jobsController.getAllJobs);
+
+    // Retrieve the results for a specific job
+    _this.app.post('/job/results', _this.jobsController.getJobResults);
 
     // Status of the services in the eAE - Admin only
     _this.app.post('/servicesStatus', _this.clusterController.getServicesStatus);
@@ -168,12 +171,12 @@ EaeInterface.prototype._setupInterfaceControllers = function() {
     // _this.app.get('/carriers', _this.carrierController.getCarriers);
 
     // Retrieve the results for a specific job
-    _this.app.post('/job/:job_id/results', _this.jobsController.getJobResults);
+    _this.app.post('/job/results', _this.jobsController.getJobResults);
 
     // Manage the users who have access to the platform - Admin only
-    _this.app.post('/user/:username', _this.usersController.getUser)
-        .post('/user/:username/create', _this.usersController.createUser)
-        .delete('/user/:username/delete', _this.usersController.deleteUser);
+    _this.app.post('/user/', _this.usersController.getUser)
+        .post('/user/create', _this.usersController.createUser)
+        .delete('/user/delete', _this.usersController.deleteUser);
 
     // :)
     _this.app.all('/whoareyou', function (__unused__req, res) {
