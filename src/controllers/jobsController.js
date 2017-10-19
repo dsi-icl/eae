@@ -68,8 +68,8 @@ JobsController.prototype.postNewJob = function(req, res){
 /**
  * @fn getJob
  * @desc Retrieve a specific job - Check that user requesting is owner of the job or Admin
- * @param req
- * @param res
+ * @param req Incoming message
+ * @param res Server Response
  */
 JobsController.prototype.getJob = function(req, res){
     let _this = this;
@@ -78,8 +78,8 @@ JobsController.prototype.getJob = function(req, res){
 /**
  * @fn getAllJobs
  * @desc Retrieve all current jobs (e.g. all jobs which have not been archived) - Admin only
- * @param req
- * @param res
+ * @param req Incoming message
+ * @param res Server Response
  */
 JobsController.prototype.getAllJobs = function(req, res){
     let _this = this;
@@ -89,8 +89,8 @@ JobsController.prototype.getAllJobs = function(req, res){
  * @fn getJobResults
  * @desc Retrieve the results for a specific job by sending back the carriers where they are available.
  * Check that user requesting is owner of the job or Admin
- * @param req
- * @param res
+ * @param req Incoming message
+ * @param res Server Response
  */
 JobsController.prototype.getJobResults = function(req, res){
     let _this = this;

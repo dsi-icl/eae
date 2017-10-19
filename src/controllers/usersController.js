@@ -90,8 +90,7 @@ UsersController.prototype.createUser = function(req, res){
     let userTobeCreated = req.params.username;
     let eaeUsername = req.body.eaeUsername;
     let userToken = req.body.eaeUserToken;
-    let toto = req.body.newUser;
-    let newUser = JSON.parse(toto);
+    let newUser = JSON.parse(req.body.newUser);
 
     if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
@@ -151,7 +150,60 @@ UsersController.prototype.createUser = function(req, res){
  * @param res Server Response
  */
 UsersController.prototype.deleteUser = function(req, res){
+    let _this = this;
+    let userToBeDeleted = req.params.username;
+    let eaeUsername = req.body.eaeUsername;
+    let userToken = req.body.eaeUserToken;
 
+    if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
+        res.status(401);
+        res.json(ErrorHelper('Missing user_id or token'));
+        return;
+    }
+    try {
+        let filter = {
+            username: eaeUsername,
+            token: userToken
+        };
+        _this._usersCollection.findOne(filter).then(function (user) {
+            if (user === null) {
+                res.status(401);
+                res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
+                // Log unauthorized access
+                _this._accessLogger.logAccess(req);
+                return
+            }
+            if (user.type === interface_constants.USER_TYPE.admin) {
+                //check that user doesn't already exists
+                _this._usersCollection.findOne({username: userToBeDeleted}).then( function (user) {
+                    if(user !== null){
+                        _this._usersCollection.deleteOne({username: userToBeDeleted}).then(function(__unused_deleted){
+                                res.status(200);
+                                res.json('The user ' + userToBeDeleted + ' has been successfully deleted');
+                            },
+                            function(error){
+                                res.status(500);
+                                res.json(ErrorHelper('Internal Mongo Error', error))
+                            });
+                    }else{
+                        res.status(409);
+                        res.json('The user ' + userToBeDeleted + ' doesn\'t exists.');
+                    }
+                },function(error){
+
+                });
+            }else{
+                res.status(401);
+                res.json(ErrorHelper('The user is not authorized to access this command'));
+                // Log unauthorized access
+                _this._accessLogger.logAccess(req);
+            }
+        });
+    }
+    catch (error) { // ObjectID creation might throw
+        res.status(500);
+        res.json(ErrorHelper('Error occurred', error));
+    }
 };
 
 module.exports = UsersController;
