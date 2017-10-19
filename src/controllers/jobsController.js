@@ -9,22 +9,11 @@ function JobsController(jobsCollection) {
     _this._jobsCollection = jobsCollection;
 
     // Bind member functions
-    // _this.setCollection = _this.prototype.setCollection.bind(this);
-    _this.postNewJob = _this.prototype.postNewJob.bind(this);
-    _this.getJob = _this.prototype.getJob.bind(this);
-    _this.getAllJobs = _this.prototype.getAllJobs.bind(this);
-    _this.getJobResults = _this.prototype.getJobResults.bind(this);
+    _this.postNewJob = JobsController.prototype.postNewJob.bind(this);
+    _this.getJob = JobsController.prototype.getJob.bind(this);
+    _this.getAllJobs = JobsController.prototype.getAllJobs.bind(this);
+    _this.getJobResults = JobsController.prototype.getJobResults.bind(this);
 }
-
-// /**
-//  * @fn setCollection
-//  * @desc Setup the mongoDB collection to work against
-//  * @param jobsCollection Initialized mongodb collection to work against
-//  */
-// JobsController.prototype.setCollection = function(jobsCollection) {
-//     let _this = this;
-//     _this._jobsCollection = jobsCollection;
-// };
 
 /**
  * @fn postNewJob

@@ -12,19 +12,8 @@ function ClusterController(statusCollection) {
     _this._statusCollection = statusCollection;
 
     // Bind member functions
-    // _this.setCollection = _this.prototype.setCollection.bind(this);
-    _this.getServicesStatus = _this.prototype.getServicesStatus.bind(this);
+    _this.getServicesStatus = ClusterController.prototype.getServicesStatus.bind(this);
 }
-
-// /**
-//  * @fn setCollection
-//  * @desc Setup the mongoDB collection to work against
-//  * @param statusCollection Initialized mongodb collection to work against
-//  */
-// ClusterController.prototype.setCollection = function(statusCollection) {
-//     let _this = this;
-//     _this._statusCollection = statusCollection;
-// };
 
 /**
  * @fn getServicesStatus
