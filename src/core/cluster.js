@@ -25,10 +25,10 @@ Cluster.prototype.getStatuses = function(){
         _this._statusCollection.find({}).toArray().then(function (statuses) {
                 resolve(statuses);
             }, function (error) {
-                reject(ErrorHelper("Couldn't retrieve statuses.", error));
+                reject(ErrorHelper('Couldn\'t retrieve statuses.', error));
             }
         );
-    })
+    });
 };
 
 module.exports = Cluster;

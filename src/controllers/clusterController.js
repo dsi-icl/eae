@@ -47,7 +47,7 @@ ClusterController.prototype.getServicesStatus = function(req, res){
                     res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
                     // Log unauthorized access
                     _this._accessLogger.logAccess(req);
-                    return
+                    return;
                 }
                 if(user.type === interface_constants.USER_TYPE.admin){
                     let cluster = new Cluster(_this._statusCollection);
@@ -56,7 +56,7 @@ ClusterController.prototype.getServicesStatus = function(req, res){
                         res.json(clusterStatuses);
                     },function(error){
                         res.status(500);
-                        res.json(ErrorHelper('Internal Mongo Error', error))
+                        res.json(ErrorHelper('Internal Mongo Error', error));
                     });
                 }else{
                     res.status(401);
@@ -64,7 +64,7 @@ ClusterController.prototype.getServicesStatus = function(req, res){
                     // Log unauthorized access
                     _this._accessLogger.logAccess(req);
                 }
-            }, function (__unused_error) {
+            }, function (__unused_error) { // eslint-disable-line no-unused-vars
                 res.status(401);
                 res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
             }

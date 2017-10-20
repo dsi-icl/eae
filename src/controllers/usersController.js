@@ -1,4 +1,4 @@
-const { interface_constants } = require('../core/models.js');
+const { interface_models, interface_constants } = require('../core/models.js');
 const { ErrorHelper } = require('eae-utils');
 
 /**
@@ -48,13 +48,13 @@ UsersController.prototype.getUser = function(req, res){
                 res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
                 // Log unauthorized access
                 _this._accessLogger.logAccess(req);
-                return
+                return;
             }
             if (user.type === interface_constants.USER_TYPE.admin) {
                 _this._usersCollection.findOne({username: requestedUsername}).then(function(user){
                         if (user === null) {
                             res.status(200);
-                            res.json("User " + requestedUsername + " doesn't exist.");
+                            res.json('User ' + requestedUsername + ' doesn\'t exist.');
                         }else {
                             delete user._id;
                             res.status(200);
@@ -63,7 +63,7 @@ UsersController.prototype.getUser = function(req, res){
                     },
                     function(error){
                         res.status(500);
-                        res.json(ErrorHelper('Internal Mongo Error', error))
+                        res.json(ErrorHelper('Internal Mongo Error', error));
                     });
             }else{
                 res.status(401);
@@ -73,7 +73,7 @@ UsersController.prototype.getUser = function(req, res){
             }
         });
     }
-    catch (error) { // ObjectID creation might throw
+    catch (error) {
         res.status(500);
         res.json(ErrorHelper('Error occurred', error));
     }
@@ -87,10 +87,9 @@ UsersController.prototype.getUser = function(req, res){
  */
 UsersController.prototype.createUser = function(req, res){
     let _this = this;
-    let userTobeCreated = req.body.username;
     let eaeUsername = req.body.eaeUsername;
     let userToken = req.body.eaeUserToken;
-    let newUser = JSON.parse(req.body.newUser);
+    let newUser = Object.assign(interface_models.USER_MODEL, JSON.parse(req.body.newUser));
 
     if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
@@ -108,26 +107,27 @@ UsersController.prototype.createUser = function(req, res){
                 res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
                 // Log unauthorized access
                 _this._accessLogger.logAccess(req);
-                return
+                return;
             }
             if (user.type === interface_constants.USER_TYPE.admin) {
                 //check that user doesn't already exists
-                _this._usersCollection.findOne({username: userTobeCreated}).then( function (user) {
+                _this._usersCollection.findOne({username: newUser.username}).then(function (user) {
                     if(user === null){
-                        _this._usersCollection.insertOne(newUser).then(function(__unused_inserted){
+                        _this._usersCollection.insertOne(newUser).then(function(_unused__inserted){
                                 res.status(200);
-                                res.json('The user ' + userTobeCreated + ' has been successfully created');
+                                res.json('The user ' + newUser.username + ' has been successfully created');
                             },
                             function(error){
                                 res.status(500);
-                                res.json(ErrorHelper('Internal Mongo Error', error))
+                                res.json(ErrorHelper('Internal Mongo Error', error));
                             });
                     }else{
                         res.status(409);
-                        res.json('The user ' + userTobeCreated + ' already exists.');
+                        res.json('The user ' + newUser.username + ' already exists.');
                     }
                 },function(error){
-
+                    res.status(500);
+                    res.json(ErrorHelper('Internal Mongo Error', error));
                 });
             }else{
                 res.status(401);
@@ -137,7 +137,7 @@ UsersController.prototype.createUser = function(req, res){
             }
         });
     }
-    catch (error) { // ObjectID creation might throw
+    catch (error) {
         res.status(500);
         res.json(ErrorHelper('Error occurred', error));
     }
@@ -171,26 +171,27 @@ UsersController.prototype.deleteUser = function(req, res){
                 res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
                 // Log unauthorized access
                 _this._accessLogger.logAccess(req);
-                return
+                return;
             }
             if (user.type === interface_constants.USER_TYPE.admin) {
                 //check that user doesn't already exists
-                _this._usersCollection.findOne({username: userToBeDeleted}).then( function (user) {
+                _this._usersCollection.findOne({username: userToBeDeleted}).then(function (user) {
                     if(user !== null){
-                        _this._usersCollection.deleteOne({username: userToBeDeleted}).then(function(__unused_deleted){
+                        _this._usersCollection.deleteOne({username: userToBeDeleted}).then(function(_unused__deleted){
                                 res.status(200);
                                 res.json('The user ' + userToBeDeleted + ' has been successfully deleted');
                             },
                             function(error){
                                 res.status(500);
-                                res.json(ErrorHelper('Internal Mongo Error', error))
+                                res.json(ErrorHelper('Internal Mongo Error', error));
                             });
                     }else{
                         res.status(409);
                         res.json('The user ' + userToBeDeleted + ' doesn\'t exists.');
                     }
                 },function(error){
-
+                    res.status(500);
+                    res.json(ErrorHelper('Internal Mongo Error', error));
                 });
             }else{
                 res.status(401);
@@ -200,7 +201,7 @@ UsersController.prototype.deleteUser = function(req, res){
             }
         });
     }
-    catch (error) { // ObjectID creation might throw
+    catch (error) {
         res.status(500);
         res.json(ErrorHelper('Error occurred', error));
     }
