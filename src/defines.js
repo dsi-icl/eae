@@ -63,6 +63,7 @@ const jobModel = {
     type : 'eae-job-type',
     status: [],
     startDate: new Date(0),
+    requester: 'Raijin',
     main: 'main.py',
     params: [],
     input: [],
