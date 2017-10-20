@@ -1,4 +1,4 @@
-const { ErrorHelper, DataModels } = require('eae-utils');
+const { ErrorHelper, Constants , DataModels } = require('eae-utils');
 const { interface_constants } = require('../core/models.js');
 const ObjectID = require('mongodb').ObjectID;
 /**
@@ -33,12 +33,22 @@ JobsController.prototype.createNewJob = function(req, res){
 
     if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
-        res.json(ErrorHelper('Missing user_id or token'));
+        res.json(ErrorHelper('Missing username or token'));
         return;
     }
     try {
-        let job = Object.assign(DataModels.EAE_JOB_MODEL, req.body.job);
+        // Check the validity of the JOB
+        let jobRequest = req.body.job;
+        let requiredJobFields = ['type', 'main', 'params', 'input'];
+        requiredJobFields.forEach(function(key){
+            if(jobRequest[key] === null || jobRequest[key] === undefined){
+                res.status(401);
+                res.json(ErrorHelper('Job request is not well formed. Missing ' + jobRequest[key]));
+                return;
+            }
+        });
 
+        let newJob = Object.assign(DataModels.EAE_JOB_MODEL, jobRequest);
         let filter = {
             username: eaeUsername,
             token: userToken
@@ -52,7 +62,16 @@ JobsController.prototype.createNewJob = function(req, res){
                 _this._accessLogger.logAccess(req);
                 return;
             }
-
+            _this._jobsCollection.insertOne(newJob).then(function (inserted) {
+                res.status(200);
+                res.json(inserted);
+            },function(error) {
+                res.status(500);
+                res.json(ErrorHelper('Internal Mongo Error', error));
+            });
+        },function(error){
+            res.status(500);
+            res.json(ErrorHelper('Internal Mongo Error', error));
         });
     }
     catch (error) {
@@ -161,7 +180,7 @@ JobsController.prototype.getAllJobs = function(req, res){
                     res.json(allJobs);
                 },function(error){
                     res.status(500);
-                    res.json(ErrorHelper('Internal Mongo Error', error))
+                    res.json(ErrorHelper('Internal Mongo Error', error));
                 });
             }else{
                 res.status(401);

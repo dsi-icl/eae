@@ -90,6 +90,7 @@ UsersController.prototype.createUser = function(req, res){
     let eaeUsername = req.body.eaeUsername;
     let userToken = req.body.eaeUserToken;
     let newUser = Object.assign(interface_models.USER_MODEL, JSON.parse(req.body.newUser));
+    newUser.token = new guid();
 
     if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
@@ -115,7 +116,7 @@ UsersController.prototype.createUser = function(req, res){
                     if(user === null){
                         _this._usersCollection.insertOne(newUser).then(function(_unused__inserted){
                                 res.status(200);
-                                res.json('The user ' + newUser.username + ' has been successfully created');
+                                res.json(newUser);
                             },
                             function(error){
                                 res.status(500);
