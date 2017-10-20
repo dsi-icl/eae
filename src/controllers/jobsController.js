@@ -1,6 +1,8 @@
-const { ErrorHelper, Constants , DataModels } = require('eae-utils');
+const { ErrorHelper, DataModels } = require('eae-utils');
 const { interface_constants } = require('../core/models.js');
 const ObjectID = require('mongodb').ObjectID;
+const JobsManagement = require('../core/jobsManagement.js');
+
 /**
  * @fn JobsController
  * @desc Controller to manage the jobs service
@@ -63,8 +65,18 @@ JobsController.prototype.createNewJob = function(req, res){
                 return;
             }
             _this._jobsCollection.insertOne(newJob).then(function (inserted) {
-                res.status(200);
-                res.json(inserted);
+                let jobsManagement = new JobsManagement();
+                // This will monitor the data transfer status
+                jobsManagement.startJobMonitoring(inserted._id);
+
+                // We create a manifest for the carriers to work against
+                jobsManagement.createJobManifestForCarriers(newJob.input).then(function(){
+                    res.status(200);
+                    res.json(inserted);
+                },function(error){
+                    res.status(500);
+                    res.json(ErrorHelper('Couldn\'t create the manifest for the carriers to transfer the files', error));
+                });
             },function(error) {
                 res.status(500);
                 res.json(ErrorHelper('Internal Mongo Error', error));
