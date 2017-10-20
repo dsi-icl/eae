@@ -61,7 +61,7 @@ const statusModel = {
 
 const jobModel = {
     type : 'eae-job-type',
-    status: [],
+    status: ['eae_job_created'],
     startDate: new Date(0),
     requester: 'Raijin',
     main: 'main.py',
@@ -99,6 +99,8 @@ module.exports = {
     COMPUTE_TYPE_SPARK: 'spark',
     COMPUTE_TYPE_TENSORFLOW: 'tensorflow',
 
+    JOB_STATUS_CREATED: 'eae_job_created',
+    JOB_STATUS_TRANSFERRING_DATA: 'eae_job_transferring_data',
     JOB_STATUS_QUEUED: 'eae_job_queued',
     JOB_STATUS_SCHEDULED: 'eae_job_scheduled',
     JOB_STATUS_RUN: 'eae_job_running',
