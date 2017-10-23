@@ -7,15 +7,17 @@ const JobsManagement = require('../core/jobsManagement.js');
  * @fn JobsController
  * @desc Controller to manage the jobs service
  * @param jobsCollection
- * @param accessLogger
+ * @param carrierCollection
  * @param usersCollection
+ * @param accessLogger
  * @constructor
  */
-function JobsController(jobsCollection, usersCollection, accessLogger) {
+function JobsController(jobsCollection, usersCollection, carrierCollection, accessLogger) {
     let _this = this;
     _this._jobsCollection = jobsCollection;
     _this._usersCollection = usersCollection;
-    _this.accessLogger = accessLogger;
+    _this._carrierCollection = carrierCollection;
+    _this._accessLogger = accessLogger;
 
     // Bind member functions
     _this.createNewJob = JobsController.prototype.createNewJob.bind(this);
@@ -67,12 +69,11 @@ JobsController.prototype.createNewJob = function(req, res){
                 return;
             }
             _this._jobsCollection.insertOne(newJob).then(function (inserted) {
-                let jobsManagement = new JobsManagement();
-                // This will monitor the data transfer status
-                jobsManagement.startJobMonitoring(inserted._id);
-
+                let jobsManagement = new JobsManagement(_this._carrierCollection, _this._jobsCollection);
                 // We create a manifest for the carriers to work against
                 jobsManagement.createJobManifestForCarriers(newJob.input).then(function(){
+                    // This will monitor the data transfer status
+                    jobsManagement.startJobMonitoring(inserted._id);
                     res.status(200);
                     res.json(inserted);
                 },function(error){
