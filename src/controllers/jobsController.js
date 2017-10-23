@@ -189,7 +189,7 @@ JobsController.prototype.getAllJobs = function(req, res){
                 _this._accessLogger.logAccess(req);
                 return;
             }
-            if(user.type === interface_constants.USER_TYPE.admin ){
+            if(user.type === interface_constants.USER_TYPE.admin){
                 _this._jobsCollection.find({}).toArray().then(function(allJobs) {
                     res.status(200);
                     res.json(allJobs);
