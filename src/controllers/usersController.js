@@ -1,6 +1,6 @@
 const { interface_models, interface_constants } = require('../core/models.js');
 const { ErrorHelper } = require('eae-utils');
-const { Utils } = require('../core/utils.js');
+const InterfaceUtils = require('../core/interfaceUtils.js');
 
 /**
  * @fn UsersController
@@ -13,6 +13,7 @@ function UsersController(usersCollection, accessLogger) {
     let _this = this;
     _this._usersCollection = usersCollection;
     _this._accessLogger = accessLogger;
+    _this.utils = new InterfaceUtils();
 
     // Bind member functions
     _this.getUser = UsersController.prototype.getUser.bind(this);
@@ -88,11 +89,10 @@ UsersController.prototype.getUser = function(req, res){
  */
 UsersController.prototype.createUser = function(req, res){
     let _this = this;
-    let utils = new Utils();
     let eaeUsername = req.body.eaeUsername;
     let userToken = req.body.eaeUserToken;
     let newUser = Object.assign(interface_models.USER_MODEL, JSON.parse(req.body.newUser));
-    newUser.token = new utils.generateUUID();
+    newUser.token = _this.utils.generateUUID();
 
     if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);

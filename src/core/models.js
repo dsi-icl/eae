@@ -9,7 +9,7 @@ const userModel = {
     type : userTypes.standard,
     username : '',
     token : null,
-    created: new Date(0)
+    created: new Date()
 };
 
 const unauthorizedAccess = {
