@@ -145,6 +145,7 @@ EaeInterface.prototype._setupInterfaceControllers = function() {
 
     _this.accessLogger = new AccessLogger(_this.db.collection(Constants.EAE_COLLECTION_ACCESS_LOG));
     _this.jobsController = new JobsControllerModule(_this.db.collection(Constants.EAE_COLLECTION_JOBS),
+                                                    _this.db.collection(Constants.EAE_COLLECTION_USERS),
                                                     _this.accessLogger);
     _this.usersController = new UsersControllerModule(_this.db.collection(Constants.EAE_COLLECTION_USERS),
                                                       _this.accessLogger);

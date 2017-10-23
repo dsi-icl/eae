@@ -30,7 +30,7 @@ function UsersController(usersCollection, accessLogger) {
  */
 UsersController.prototype.getUser = function(req, res){
     let _this = this;
-    let requestedUsername = req.body.username;
+    let requestedUsername = req.body.requestedUsername;
     let eaeUsername = req.body.eaeUsername;
     let userToken = req.body.eaeUserToken;
 

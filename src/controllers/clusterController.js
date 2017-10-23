@@ -13,7 +13,7 @@ const Cluster = require('../core/cluster.js');
 function ClusterController(statusCollection, usersCollection, accessLogger) {
     let _this = this;
     _this._statusCollection = statusCollection;
-    _this._usersCollections = usersCollection;
+    _this._usersCollection = usersCollection;
     _this._accessLogger = accessLogger;
 
     // Bind member functions
@@ -41,7 +41,7 @@ ClusterController.prototype.getServicesStatus = function(req, res){
             username: eaeUsername,
             token: userToken
         };
-        _this._usersCollections.findOne(filter).then(function (user) {
+        _this._usersCollection.findOne(filter).then(function (user) {
                 if(user === null){
                     res.status(401);
                     res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));

@@ -8,11 +8,13 @@ const JobsManagement = require('../core/jobsManagement.js');
  * @desc Controller to manage the jobs service
  * @param jobsCollection
  * @param accessLogger
+ * @param usersCollection
  * @constructor
  */
-function JobsController(jobsCollection, accessLogger) {
+function JobsController(jobsCollection, usersCollection, accessLogger) {
     let _this = this;
     _this._jobsCollection = jobsCollection;
+    _this._usersCollection = usersCollection;
     _this.accessLogger = accessLogger;
 
     // Bind member functions
@@ -56,7 +58,7 @@ JobsController.prototype.createNewJob = function(req, res){
             token: userToken
         };
 
-        _this._usersCollections.findOne(filter).then(function (user) {
+        _this._usersCollection.findOne(filter).then(function (user) {
             if (user === null) {
                 res.status(401);
                 res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
@@ -110,11 +112,6 @@ JobsController.prototype.getJob = function(req, res){
         return;
     }
     try {
-        let filter = {
-            username: eaeUsername,
-            token: userToken
-        };
-
         _this._jobsCollection.findOne({_id: ObjectID(jobID)}).then(function(job){
             if(job === null){
                 res.status(401);
@@ -123,7 +120,11 @@ JobsController.prototype.getJob = function(req, res){
                 _this._accessLogger.logAccess(req);
                 return;
             }else{
-                _this._usersCollections.findOne(filter).then(function (user) {
+                let filter = {
+                    username: eaeUsername,
+                    token: userToken
+                };
+                _this._usersCollection.findOne(filter).then(function (user) {
                     if (user === null) {
                         res.status(401);
                         res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
@@ -146,8 +147,10 @@ JobsController.prototype.getJob = function(req, res){
                     // Log unauthorized access
                     _this._accessLogger.logAccess(req);
                 });
-            }}
-        );
+            }}, function(error){
+            res.status(500);
+            res.json(ErrorHelper('Internal Mongo Error', error));
+        });
     }
     catch (error) {
         res.status(500);
@@ -178,7 +181,7 @@ JobsController.prototype.getAllJobs = function(req, res){
             token: userToken
         };
 
-        _this._usersCollections.findOne(filter).then(function (user) {
+        _this._usersCollection.findOne(filter).then(function (user) {
             if (user === null) {
                 res.status(401);
                 res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
