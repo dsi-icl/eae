@@ -1,4 +1,5 @@
 const timer = require('timers');
+const { interface_models } = require('../core/models.js');
 const { ErrorHelper, Constants } = require('eae-utils');
 const ObjectID = require('mongodb').ObjectID;
 
@@ -34,11 +35,11 @@ JobsManagement.prototype.startJobMonitoring =  function(jobID) {
         _this._timers[jobID] = timer.setInterval(function () {
             _this._carrierCollection.find({jobID : jobID}).then(function(carrierJob){
                 // We check if the file transfer is completed
-                if(carrierJob.transferedFiles === carrierJob.numberOfFilesToTransfer){
+                if(carrierJob.numberOfTransferredFiles === carrierJob.numberOfFilesToTransfer){
                     if (_this._timers[jobID] !== null && _this._timers[jobID] !== undefined) {
                         // We stop the timer
                         timer.clearInterval(_this._timers[jobID]);
-                        _this._timers[jobID]= null;
+                        _this._timers[jobID] = null;
                         // The job is ready for scheduling, we set the status of the job to QUEUED
                         _this._jobsCollection.findOneAndUpdate({_id: ObjectID(jobID)},
                                                                { $set : {status: Constants.EAE_JOB_STATUS_QUEUED}},
@@ -51,7 +52,7 @@ JobsManagement.prototype.startJobMonitoring =  function(jobID) {
                 // We check if the file transfer has timed out
                 let currentTime = new Date().getTime();
                 let timeElapsed = currentTime - carrierJob.startTime.getTime();
-                if( timeElapsed > _this._maximumTimeForFileTransfer ){
+                if(timeElapsed > _this._maximumTimeForFileTransfer){
                     if (_this._timers[jobID] !== null && _this._timers[jobID] !== undefined) {
                         // We stop the timer
                         timer.clearInterval(_this._timers[jobID]);
@@ -78,9 +79,20 @@ JobsManagement.prototype.startJobMonitoring =  function(jobID) {
  * @fn createJobManifestForCarriers
  * @desc Creates a manifest for the carriers to know which files to expect.
  * @param filesArray
+ * @param jobID
  */
-JobsManagement.prototype.createJobManifestForCarriers = function(filesArray){
+JobsManagement.prototype.createJobManifestForCarriers = function(filesArray, jobID){
+    let _this = this;
 
+    return new Promise(function(resolve, reject) {
+        let carrierJob = Object.assign(interface_models.CARRIER_JOB_MODEL, filesArray.concat(jobID));
+        carrierJob.numberOfFilesToTransfer = filesArray.length;
+        _this._carrierCollection.insertOne(carrierJob).then(function (result) {
+                resolve(result);
+        }, function (error) {
+            reject(ErrorHelper('Could not insert a new carrier job for the file transfer',error));
+        });
+    });
 };
 
 module.exports = JobsManagement;

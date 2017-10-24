@@ -68,14 +68,18 @@ JobsController.prototype.createNewJob = function(req, res){
                 _this._accessLogger.logAccess(req);
                 return;
             }
-            _this._jobsCollection.insertOne(newJob).then(function (inserted) {
+            _this._jobsCollection.insertOne(newJob).then(function (result) {
                 let jobsManagement = new JobsManagement(_this._carrierCollection, _this._jobsCollection);
                 // We create a manifest for the carriers to work against
-                jobsManagement.createJobManifestForCarriers(newJob.input).then(function(){
+                jobsManagement.createJobManifestForCarriers(newJob.input, result.insertedId).then(function() {
                     // This will monitor the data transfer status
-                    jobsManagement.startJobMonitoring(inserted._id);
-                    res.status(200);
-                    res.json(inserted);
+                    jobsManagement.startJobMonitoring(newJob).then(function (_unused__updated) {
+                        res.status(200);
+                        res.json({status: 'OK'});
+                    }, function (error) {
+                        res.status(500);
+                        res.json(ErrorHelper('Couldn\'t start the monitoring of the transfer', error));
+                    });
                 },function(error){
                     res.status(500);
                     res.json(ErrorHelper('Couldn\'t create the manifest for the carriers to transfer the files', error));
