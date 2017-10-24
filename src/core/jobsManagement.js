@@ -17,23 +17,56 @@ function JobsManagement(carrierCollection, jobsCollection, delay = Constants.STA
     _this._maximumTimeForFileTransfer = maximumTimeForFileTransfer;
 
     // Bind member functions
-    _this.startJobMonitoring = JobsManagement.prototype.startJobMonitoring.bind(this);
     _this.createJobManifestForCarriers = JobsManagement.prototype.createJobManifestForCarriers.bind(this);
+    _this.startJobMonitoring = JobsManagement.prototype.startJobMonitoring.bind(this);
+
 }
+
+/**
+ * @fn createJobManifestForCarriers
+ * @desc Creates a manifest for the carriers to know which files to expect.
+ * @param newJob eae job containing the username of the requester and the filesArray
+ * @param jobID id of the job
+ */
+JobsManagement.prototype.createJobManifestForCarriers = function(newJob, jobID){
+    let _this = this;
+
+    return new Promise(function(resolve, reject) {
+        // We build the carrier job
+        let carrierJob = Object.assign(interface_models.CARRIER_JOB_MODEL,
+            { files: newJob.input, requester: newJob.requester,
+                jobId: jobID ,numberOfFilesToTransfer:  newJob.input.length});
+        // We insert it for the carriers to work against
+        _this._carrierCollection.insertOne(carrierJob).then(function (_unused__result) {
+            newJob.status.unshift(Constants.EAE_JOB_STATUS_TRANSFERRING_DATA) ;
+            _this._jobsCollection.findOneAndUpdate({_id: ObjectID(jobID)},
+                                                   { $set: newJob},
+                                                   { returnOriginal: false, w: 'majority', j: false })
+                .then(function (res) {
+                    resolve(res);
+            }, function (error){
+                reject(ErrorHelper('Could not insert a new carrier job for the file transfer',error));
+            })
+        }, function (error) {
+            reject(ErrorHelper('Could not insert a new carrier job for the file transfer',error));
+        });
+    });
+};
 
 /**
  * @fn jobMonitoring
  * @desc Monitors the progress of the file transfer. When the file transfer is completed, it changes the status of the
  * job from data transfer to Queued.
+ * @param newJob
  * @param jobID
  */
-JobsManagement.prototype.startJobMonitoring =  function(jobID) {
+JobsManagement.prototype.startJobMonitoring =  function(newJob, jobID) {
     let _this = this;
 
     return new Promise(function(resolve, reject) {
         //Start a new interval update
         _this._timers[jobID] = timer.setInterval(function () {
-            _this._carrierCollection.find({jobID : jobID}).then(function(carrierJob){
+            _this._carrierCollection.findOne({jobId : jobID}).then(function(carrierJob){
                 // We check if the file transfer is completed
                 if(carrierJob.numberOfTransferredFiles === carrierJob.numberOfFilesToTransfer){
                     if (_this._timers[jobID] !== null && _this._timers[jobID] !== undefined) {
@@ -41,25 +74,27 @@ JobsManagement.prototype.startJobMonitoring =  function(jobID) {
                         timer.clearInterval(_this._timers[jobID]);
                         _this._timers[jobID] = null;
                         // The job is ready for scheduling, we set the status of the job to QUEUED
+                        newJob.status.unshift(Constants.EAE_JOB_STATUS_QUEUED) ;
                         _this._jobsCollection.findOneAndUpdate({_id: ObjectID(jobID)},
-                                                               { $set : {status: Constants.EAE_JOB_STATUS_QUEUED}},
-                                                               { returnOriginal: false, w: 'majority', j: false }).then(function (res) {
+                            { $set: newJob},
+                            { returnOriginal: false, w: 'majority', j: false }).then(function (res) {
                             resolve(res);
                         },function(error){
                             reject(ErrorHelper('Internal Mongo Error', error));
                         });
-                }}
+                    }}
                 // We check if the file transfer has timed out
                 let currentTime = new Date().getTime();
-                let timeElapsed = currentTime - carrierJob.startTime.getTime();
+                let timeElapsed = currentTime - carrierJob.created.getTime();
                 if(timeElapsed > _this._maximumTimeForFileTransfer){
                     if (_this._timers[jobID] !== null && _this._timers[jobID] !== undefined) {
                         // We stop the timer
                         timer.clearInterval(_this._timers[jobID]);
                         _this._timers[jobID] = null;
-                        // The job is ready for scheduling, we set the status of the job to QUEUED
+                        // The job has taken too long to transfer the files, we set the job to DEAD
+                        newJob.status.unshift(Constants.EAE_JOB_STATUS_DEAD) ;
                         _this._jobsCollection.findOneAndUpdate({_id: ObjectID(jobID)},
-                            {$set: {status: Constants.EAE_JOB_STATUS_}},
+                            {$set: newJob},
                             {returnOriginal: false, w: 'majority', j: false}).then(function (res) {
                             resolve(res);
                         }, function (error) {
@@ -75,24 +110,6 @@ JobsManagement.prototype.startJobMonitoring =  function(jobID) {
 };
 
 
-/**
- * @fn createJobManifestForCarriers
- * @desc Creates a manifest for the carriers to know which files to expect.
- * @param filesArray
- * @param jobID
- */
-JobsManagement.prototype.createJobManifestForCarriers = function(filesArray, jobID){
-    let _this = this;
 
-    return new Promise(function(resolve, reject) {
-        let carrierJob = Object.assign(interface_models.CARRIER_JOB_MODEL, filesArray.concat(jobID));
-        carrierJob.numberOfFilesToTransfer = filesArray.length;
-        _this._carrierCollection.insertOne(carrierJob).then(function (result) {
-                resolve(result);
-        }, function (error) {
-            reject(ErrorHelper('Could not insert a new carrier job for the file transfer',error));
-        });
-    });
-};
 
 module.exports = JobsManagement;

@@ -13,8 +13,9 @@ const userModel = {
 };
 
 const carrierJobModel = {
+    jobId: null,
     files:[],
-    requestor: '',
+    requester: '',
     numberOfTransferredFiles: 0,
     numberOfFilesToTransfer: 0,
     created: new Date()

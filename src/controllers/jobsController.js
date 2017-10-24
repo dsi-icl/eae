@@ -55,6 +55,7 @@ JobsController.prototype.createNewJob = function(req, res){
         });
 
         let newJob = Object.assign(DataModels.EAE_JOB_MODEL, jobRequest);
+        newJob.requester = eaeUsername;
         let filter = {
             username: eaeUsername,
             token: userToken
@@ -71,9 +72,9 @@ JobsController.prototype.createNewJob = function(req, res){
             _this._jobsCollection.insertOne(newJob).then(function (result) {
                 let jobsManagement = new JobsManagement(_this._carrierCollection, _this._jobsCollection);
                 // We create a manifest for the carriers to work against
-                jobsManagement.createJobManifestForCarriers(newJob.input, result.insertedId).then(function() {
+                jobsManagement.createJobManifestForCarriers(newJob, result.insertedId).then(function(_unused__result) {
                     // This will monitor the data transfer status
-                    jobsManagement.startJobMonitoring(newJob).then(function (_unused__updated) {
+                    jobsManagement.startJobMonitoring(newJob, result.insertedId).then(function (_unused__updated) {
                         res.status(200);
                         res.json({status: 'OK'});
                     }, function (error) {
