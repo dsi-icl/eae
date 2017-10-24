@@ -269,7 +269,7 @@ MongoHelper.prototype.findAndReserveAvailableWorker = function (filter) {
             statusLock: true
         };
 
-        _this.findOneAndUpdate(filter,
+        _this._statusCollection.findOneAndUpdate(filter,
             { $set : update},
             { returnOriginal: true }).then( function(success){
                 if(success.res.nModified === 1){
