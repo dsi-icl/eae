@@ -1,4 +1,4 @@
-const { ErrorHelper, Constants } = require('eae-utils');
+const { ErrorHelper } = require('eae-utils');
 const uuid = require('uuid');
 const os2 = require('os2');
 const MemoryStream = require('memorystream');
@@ -87,8 +87,8 @@ ObjectStorage.prototype._internalClosure = function (callback, ...args) {
         });
     };
 
-    return _auth_check().then(function (__unused___auth_ok) {
-        return _container_check().then(function (__unused__container_ok) {
+    return _auth_check().then(function (_unused___auth_ok) {
+        return _container_check().then(function (_unused__container_ok) {
             // Set global ready storage
             _this._storage_ready = true;
             return callback.apply(_this, args);
@@ -115,7 +115,7 @@ ObjectStorage.prototype.createObject = function (object_data) {
             let obj = new os2.StaticLargeObject(_this._container, objName);
             let data_stream = new MemoryStream();
 
-            obj.createFromStream(data_stream, _this._chunkSize).then(function (__unused__obj_ok) {
+            obj.createFromStream(data_stream, _this._chunkSize).then(function (_unused__obj_ok) {
                 resolve(objName);
             }, function (obj_error) {
                 reject(ErrorHelper('Creating new entry in object store failed', obj_error));
@@ -177,10 +177,10 @@ ObjectStorage.prototype.setObject = function (object_id, object_data) {
     return _this._internalClosure(function () {
         return new Promise(function (resolve, reject) {
             try {
-                _this.deleteObject(object_id).then(function (__unused__delete_ok) {
+                _this.deleteObject(object_id).then(function (_unused__delete_ok) {
                     let obj = new os2.StaticLargeObject(_this._container, object_id);
                     let data_stream = new MemoryStream();
-                    obj.createFromStream(data_stream, _this._chunkSize).then(function (__unused__obj_ok) {
+                    obj.createFromStream(data_stream, _this._chunkSize).then(function (_unused__obj_ok) {
                         resolve(object_id);
                     }, function (obj_error) {
                         reject(ErrorHelper('setObject Setting new content failed', obj_error));
@@ -211,7 +211,7 @@ ObjectStorage.prototype.deleteObject = function (object_id) {
                 // Create file in swift
                 let obj = new os2.StaticLargeObject(_this._container, object_id);
                 // Delete file in swift
-                obj.delete().then(function (__unused__ok_delete) {
+                obj.delete().then(function (_unused__ok_delete) {
                     resolve(object_id);
                 }, function (delete_error) {
                     reject(ErrorHelper('Delete from storage failed', delete_error));

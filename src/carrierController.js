@@ -1,3 +1,5 @@
+const { ErrorHelper } = require('eae-utils');
+
 /**
  * @fn CarrierController
  * @desc Controller to manage the file transfer between the outside and the swift in the eAE
@@ -47,8 +49,8 @@ CarrierController.prototype.executeUpload = function (req, res) {
         _this._carrierCollection.findOneAndReplace({inputId: inputId, fileName: fileName},
             replacementData,
             { upsert: true, returnOriginal: false, w: 'majority', j: false })
-            .then(function(__unused_success) {
-                this._fileCarrier.initialize(req).then(function(__unused_success){
+            .then(function(_unused__success) {
+                this._fileCarrier.initialize(req).then(function(_unused__success){
                     _this._carrierCollection.findOneAndUpdate({inputId: inputId, fileName: fileName},
                         { $set : {status: 'Completed'}},
                         {returnOriginal: false, w: 'majority', j: false});
@@ -56,12 +58,11 @@ CarrierController.prototype.executeUpload = function (req, res) {
                     res.json(true);
                 }, function (error) {
                     res.status(500);
-                    res.json(true);
-                    reject(ErrorHelper('Failed to upload file to Swift', error));
+                    res.json(ErrorHelper('Failed to upload file to Swift', error));
                 });
 
             }, function(error) {
-                reject(ErrorHelper('Failed to record uploading of file for input: ' + input_id, error));
+                res.json(ErrorHelper('Failed to record uploading of file for input: ' + inputId, error));
             });
     }
 };

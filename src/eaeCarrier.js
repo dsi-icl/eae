@@ -180,13 +180,13 @@ EaeCarrier.prototype._setupFileCarrier = function(){
         .post(multer().single('file'), _this.carrierController.executeUpload);
 
     // :)
-    _this.app.all('/whoareyou', function (__unused__req, res) {
+    _this.app.all('/whoareyou', function (_unused__req, res) {
         res.status(418);
         res.json(ErrorHelper('I\'m a teapot'));
     });
 
     // We take care of all remaining routes
-    _this.app.all('/*', function (__unused__req, res) {
+    _this.app.all('/*', function (_unused__req, res) {
         res.status(400);
         res.json(ErrorHelper('Bad request'));
     });
