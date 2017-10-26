@@ -21,10 +21,11 @@ function AccessLogger(accessLogCollection) {
  */
 AccessLogger.prototype.logAccess = function(request){
     let _this = this;
-    let unauthorizedAccess = interface_models.UNAUTHORIZED_ACCESS_MODEL;
-    unauthorizedAccess.username = request.query.userId;
-    unauthorizedAccess.token = request.query.userToken;
-    unauthorizedAccess.headers = request.headers;
+    let unauthorizedAccessModel = interface_models.UNAUTHORIZED_ACCESS_MODEL;
+    let unauthorizedAccess = Object.assign(unauthorizedAccessModel,
+                                            {username: request.query.eaeUsername,
+                                            token: request.query.eaeUserToken,
+                                            headers:  request.headers});
     _this._accessLogCollection.insertOne(unauthorizedAccess);
 };
 

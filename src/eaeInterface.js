@@ -6,7 +6,7 @@ const { ErrorHelper, StatusHelper, Constants } = require('eae-utils');
 
 const package_json = require('../package.json');
 const StatusController = require('./controllers/statusController.js');
-const JobsControllerModule= require('./controllers/jobsController.js');
+const JobsControllerModule = require('./controllers/jobsController.js');
 const UsersControllerModule = require('./controllers/usersController.js');
 const ClusterControllerModule = require('./controllers/clusterController.js');
 const AccessLogger = require('./core/accessLogger.js');
@@ -143,46 +143,48 @@ EaeInterface.prototype._setupStatusController = function () {
 EaeInterface.prototype._setupInterfaceControllers = function() {
     let _this = this;
 
-    _this.accessLogger = new AccessLogger(this.db.collection(Constants.EAE_COLLECTION_ACCESS_LOG));
+    _this.accessLogger = new AccessLogger(_this.db.collection(Constants.EAE_COLLECTION_ACCESS_LOG));
     _this.jobsController = new JobsControllerModule(_this.db.collection(Constants.EAE_COLLECTION_JOBS),
-                                                    _this.accessLogger );
+                                                    _this.db.collection(Constants.EAE_COLLECTION_USERS),
+                                                    _this.db.collection(Constants.EAE_COLLECTION_CARRIER),
+                                                    _this.accessLogger);
     _this.usersController = new UsersControllerModule(_this.db.collection(Constants.EAE_COLLECTION_USERS),
-                                                      _this.accessLogger );
+                                                      _this.accessLogger);
     _this.clusterController = new ClusterControllerModule(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
                                                           _this.db.collection(Constants.EAE_COLLECTION_USERS),
-                                                          _this.accessLogger );
+                                                          _this.accessLogger);
 
     // Create a job request
-    _this.app.post('/job', _this.jobsController.postNewJob);
+    _this.app.post('/createjob', _this.jobsController.createNewJob);
 
     // Retrieve a specific job - Check that user requesting is owner of the job or Admin
-    _this.app.get('/job/:job_id', _this.jobsController.getJob);
+    _this.app.post('/getjob', _this.jobsController.getJob);
 
     // Retrieve all current jobs - Admin only
-    _this.app.get('/allJobs', _this.jobsController.getAllJobs);
+    _this.app.post('/getAllJobs', _this.jobsController.getAllJobs);
+
+    // Retrieve the results for a specific job
+    _this.app.post('/job/results', _this.jobsController.getJobResults);
 
     // Status of the services in the eAE - Admin only
-    _this.app.get('/servicesStatus', _this.clusterController.getServicesStatus);
+    _this.app.post('/servicesStatus', _this.clusterController.getServicesStatus);
 
     // Sends back a list of available carriers for data transfer
     // _this.app.get('/carriers', _this.carrierController.getCarriers);
 
-    // Retrieve the results for a specific job
-    _this.app.get('/job/:job_id/results', _this.jobsController.getJobResults);
-
     // Manage the users who have access to the platform - Admin only
-    _this.app.get('/user/:user_id', _this.usersController.getUser)
+    _this.app.post('/user/', _this.usersController.getUser)
         .post('/user/create', _this.usersController.createUser)
-        .delete('/user/:user_id', _this.usersController.deleteUser);
+        .delete('/user/delete', _this.usersController.deleteUser);
 
     // :)
-    _this.app.all('/whoareyou', function (__unused__req, res) {
+    _this.app.all('/whoareyou', function (_unused__req, res) {
         res.status(418);
         res.json(ErrorHelper('I\'m a teapot'));
     });
 
     // We take care of all remaining routes
-    _this.app.all('/*', function (__unused__req, res) {
+    _this.app.all('/*', function (_unused__req, res) {
         res.status(400);
         res.json(ErrorHelper('Bad request'));
     });
