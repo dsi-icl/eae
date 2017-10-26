@@ -44,7 +44,7 @@ JobsController.prototype.createNewJob = function(req, res){
     }
     try {
         // Check the validity of the JOB
-        let jobRequest = req.body.job;
+        let jobRequest = JSON.parse(req.body.job);
         let requiredJobFields = ['type', 'main', 'params', 'input'];
         requiredJobFields.forEach(function(key){
             if(jobRequest[key] === null || jobRequest[key] === undefined){
@@ -53,8 +53,9 @@ JobsController.prototype.createNewJob = function(req, res){
                 return;
             }
         });
-
-        let newJob = Object.assign(DataModels.EAE_JOB_MODEL, jobRequest);
+        // Prevent the model from being updated
+        let eaeJobModel = JSON.parse(JSON.stringify(DataModels.EAE_JOB_MODEL));
+        let newJob = Object.assign({}, eaeJobModel, jobRequest, {_id: new ObjectID()});
         newJob.requester = eaeUsername;
         let filter = {
             username: eaeUsername,
@@ -69,17 +70,18 @@ JobsController.prototype.createNewJob = function(req, res){
                 _this._accessLogger.logAccess(req);
                 return;
             }
-            _this._jobsCollection.insertOne(newJob).then(function (result) {
-                let jobsManagement = new JobsManagement(_this._carrierCollection, _this._jobsCollection);
+
+            _this._jobsCollection.insertOne(newJob).then(function (_unused__result) {
+                let jobsManagement = new JobsManagement(_this._carrierCollection, _this._jobsCollection, 5000);
                 // We create a manifest for the carriers to work against
-                jobsManagement.createJobManifestForCarriers(newJob, result.insertedId).then(function(_unused__result) {
+                jobsManagement.createJobManifestForCarriers(newJob, newJob._id.toString()).then(function(_unused__result) {
+                    res.status(200);
+                    res.json({status: 'OK'});
                     // This will monitor the data transfer status
-                    jobsManagement.startJobMonitoring(newJob, result.insertedId).then(function (_unused__updated) {
-                        res.status(200);
-                        res.json({status: 'OK'});
+                    jobsManagement.startJobMonitoring(newJob,  newJob._id.toString()).then(function (_unused__updated) {
+                        // if(updated.updatedExisting)
                     }, function (error) {
-                        res.status(500);
-                        res.json(ErrorHelper('Couldn\'t start the monitoring of the transfer', error));
+                        ErrorHelper('Couldn\'t start the monitoring of the transfer', error);
                     });
                 },function(error){
                     res.status(500);

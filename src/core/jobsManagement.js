@@ -8,7 +8,7 @@ const ObjectID = require('mongodb').ObjectID;
  * @desc Manages the job from the Created status to the Queued status (from which the scheduler takes over)
  * @constructor
  */
-function JobsManagement(carrierCollection, jobsCollection, delay = Constants.STATUS_DEFAULT_UPDATE_INTERVAL, maximumTimeForFileTransfer = 1000 * 3600 *12 ) {
+function JobsManagement(carrierCollection, jobsCollection, delay = Constants.STATUS_DEFAULT_UPDATE_INTERVAL, maximumTimeForFileTransfer = 1000 * 3600 * 12) {
     let _this = this;
     _this._carrierCollection = carrierCollection;
     _this._jobsCollection = jobsCollection;
@@ -36,6 +36,7 @@ JobsManagement.prototype.createJobManifestForCarriers = function(newJob, jobID){
         let carrierJob = Object.assign(interface_models.CARRIER_JOB_MODEL,
             { files: newJob.input, requester: newJob.requester,
                 jobId: jobID ,numberOfFilesToTransfer:  newJob.input.length});
+        delete carrierJob._id;
         // We insert it for the carriers to work against
         _this._carrierCollection.insertOne(carrierJob).then(function (_unused__result) {
             newJob.status.unshift(Constants.EAE_JOB_STATUS_TRANSFERRING_DATA) ;
@@ -66,6 +67,7 @@ JobsManagement.prototype.startJobMonitoring =  function(newJob, jobID) {
     return new Promise(function(resolve, reject) {
         //Start a new interval update
         _this._timers[jobID] = timer.setInterval(function () {
+            // let currentJob = jobID;
             _this._carrierCollection.findOne({jobId : jobID}).then(function(carrierJob){
                 // We check if the file transfer is completed
                 if(carrierJob.numberOfTransferredFiles === carrierJob.numberOfFilesToTransfer){
@@ -78,6 +80,7 @@ JobsManagement.prototype.startJobMonitoring =  function(newJob, jobID) {
                         _this._jobsCollection.findOneAndUpdate({_id: ObjectID(jobID)},
                             { $set: newJob},
                             { returnOriginal: false, w: 'majority', j: false }).then(function (res) {
+                            _this._carrierCollection.deleteOne({jobId : jobID});
                             resolve(res);
                         },function(error){
                             reject(ErrorHelper('Internal Mongo Error', error));
@@ -108,8 +111,5 @@ JobsManagement.prototype.startJobMonitoring =  function(newJob, jobID) {
         }, _this._delay);
     });
 };
-
-
-
 
 module.exports = JobsManagement;

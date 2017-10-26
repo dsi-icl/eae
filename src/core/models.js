@@ -25,7 +25,7 @@ const unauthorizedAccess = {
     username: null,
     token: '',
     headers: null,
-    accessTimestamp: new Date(0)
+    accessTimestamp: new Date()
 
 };
 
