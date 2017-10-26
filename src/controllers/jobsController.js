@@ -1,4 +1,4 @@
-const { ErrorHelper, DataModels } = require('eae-utils');
+const { ErrorHelper, Constants, DataModels } = require('eae-utils');
 const { interface_constants } = require('../core/models.js');
 const ObjectID = require('mongodb').ObjectID;
 const JobsManagement = require('../core/jobsManagement.js');
@@ -234,6 +234,68 @@ JobsController.prototype.getAllJobs = function(req, res){
  */
 JobsController.prototype.getJobResults = function(req, res){
     let _this = this;
+    let eaeUsername = req.body.eaeUsername;
+    let userToken = req.body.eaeUserToken;
+    let jobID = req.body.jobID;
+
+    if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
+        res.status(401);
+        res.json(ErrorHelper('Missing user_id or token'));
+        return;
+    }
+    try{
+        _this._jobsCollection.findOne({_id: ObjectID(jobID)}).then(function(job){
+            if(job === null){
+                res.status(401);
+                res.json(ErrorHelper('The job request do not exit. The query has been logged.'));
+                // Log unauthorized access
+                _this._accessLogger.logAccess(req);
+                return;
+            }else{
+                if(job.status[0] === Constants.EAE_JOB_STATUS_COMPLETED){
+                    let filter = {
+                        username: eaeUsername,
+                        token: userToken
+                    };
+                    _this._usersCollection.findOne(filter).then(function (user) {
+                        if (user === null) {
+                            res.status(401);
+                            res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
+                            // Log unauthorized access
+                            _this._accessLogger.logAccess(req);
+                            return;
+                        }
+                        if(user.type === interface_constants.USER_TYPE.admin || job.requestor === user.username){
+                            // TODO: implement the sending back of the address of carriers to download from and prepare carriers for the download by the user - Create a manifest?
+                            res.status(200);
+                            res.json('toto');
+                        }else{
+                            res.status(401);
+                            res.json(ErrorHelper('The user is not authorized to access this job.'));
+                            // Log unauthorized access
+                            _this._accessLogger.logAccess(req);
+                        }
+                    }, function (_unused__error) {
+                        res.status(401);
+                        res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
+                        // Log unauthorized access
+                        _this._accessLogger.logAccess(req);
+                    });
+                }else{
+                    res.status(412);
+                    res.json(ErrorHelper('The job requested is not ready for collection. Current status: ' + job.status[0]));
+                }
+            }}
+                , function(error){
+                res.status(500);
+                res.json(ErrorHelper('Internal Mongo Error', error));
+            });
+
+    }
+    catch (error) {
+        res.status(500);
+        res.json(ErrorHelper('Error occurred', error));
+    }
 };
 
 module.exports = JobsController;
