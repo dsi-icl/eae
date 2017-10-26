@@ -1,16 +1,19 @@
 //External node module imports
+const mongodb = require('mongodb').MongoClient;
 const express = require('express');
 const body_parser = require('body-parser');
+const multer = require('multer');
 const { ErrorHelper, StatusHelper, SwiftHelper, Constants } = require('eae-utils');
 
 const package_json = require('../package.json');
 const StatusController = require('./statusController.js');
-
+const CarrierController = require('./carrierController');
+const FileCarrier = require('./fileCarrier.js');
 
 /**
  * @class EaeCarrier
- * @desc Core class of the carrier microservice
- * @param config Configurations for the scheduler
+ * @desc Core class of the carrier micro service
+ * @param config Configurations for the carrier
  * @constructor
  */
 function EaeCarrier(config) {
@@ -26,6 +29,9 @@ function EaeCarrier(config) {
     // Bind private member functions
     this._connectDb = EaeCarrier.prototype._connectDb.bind(this);
     this._setupStatusController = EaeCarrier.prototype._setupStatusController.bind(this);
+    this._setupCarrierController = EaeCarrier.prototype._setupCarrierController.bind(this);
+    this._setupFileCarrier = EaeCarrier.prototype._setupFileCarrier.bind(this);
+    this._setupSwiftHelper = EaeCarrier.prototype._setupSwiftHelper.bind(this);
 
     //Remove unwanted express headers
     this.app.set('x-powered-by', false);
@@ -56,6 +62,13 @@ EaeCarrier.prototype.start = function() {
         _this._connectDb().then(function () {
             // Setup route using controllers
             _this._setupStatusController();
+
+            // Setup the helper
+            _this._setupSwiftHelper();
+
+            // Setup the file carrier
+            _this._setupCarrierController();
+            _this._setupFileCarrier();
 
             // Start status periodic update
             _this.status_helper.startPeriodicUpdate(5 * 1000); // Update status every 5 seconds
@@ -126,6 +139,59 @@ EaeCarrier.prototype._setupStatusController = function () {
     _this.app.get('/status', _this.statusController.getStatus); // GET status
     _this.app.get('/specs', _this.statusController.getFullStatus); // GET Full status
 };
+
+/**
+ * @fn _setupSwiftHelper
+ * @desc Initialize the helper class to interact with Swift
+ * @private
+ */
+EaeCarrier.prototype._setupSwiftHelper = function () {
+    let _this = this;
+    _this.swift_storage = new SwiftHelper({
+        url: _this.config.swiftURL,
+        username: _this.config.swiftUsername,
+        password: _this.config.swiftPassword
+    });
+};
+
+/**
+ * @fn _setupCarrierController
+ * @desc Initialize the file carrier controller
+ * @private
+ */
+EaeCarrier.prototype._setupCarrierController = function(){
+    let _this = this;
+    _this.carrierController = new CarrierController();
+    _this.carrierController.setCollection(_this.db.collection(Constants.EAE_COLLECTION_CARRIER));
+};
+
+/**
+ * @fn _setupFileCarrier
+ * @desc Initialize the file carrier that while put the files into swift
+ * @private
+ */
+EaeCarrier.prototype._setupFileCarrier = function(){
+    let _this = this;
+    _this.fileCarrier = new FileCarrier(_this.swift_storage);
+    _this.carrierController.setFileCarrier(_this.fileCarrier);
+
+    // We set up the routes for the file upload
+    _this.app.route('/file' + '/:input_id')
+        .post(multer().single('file'), _this.carrierController.executeUpload);
+
+    // :)
+    _this.app.all('/whoareyou', function (_unused__req, res) {
+        res.status(418);
+        res.json(ErrorHelper('I\'m a teapot'));
+    });
+
+    // We take care of all remaining routes
+    _this.app.all('/*', function (_unused__req, res) {
+        res.status(400);
+        res.json(ErrorHelper('Bad request'));
+    });
+};
+
 
 
 module.exports = EaeCarrier;
