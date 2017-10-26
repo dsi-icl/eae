@@ -62,7 +62,7 @@ const statusModel = {
 const jobModel = {
     type : 'eae-job-type',
     status: ['eae_job_created'],
-    startDate: new Date(0),
+    startDate: new Date(),
     requester: 'Raijin',
     main: 'main.py',
     params: [],
