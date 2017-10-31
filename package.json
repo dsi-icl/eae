@@ -5,7 +5,8 @@
   "main": "./src/eaeInterface.js",
   "scripts": {
     "start": "node ./src/index.js",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "jest --runInBand --verbose --useStderr"
   },
   "keywords": [
     "eae",
