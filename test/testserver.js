@@ -69,7 +69,7 @@ TestServer.prototype.stop = function() {
 };
 
 TestServer.prototype.mongo = function() {
-    return this.eae_compute.db
+    return this.eae_compute.db;
 };
 
 TestServer.prototype.createJob = function(type, mainScript, params, inputFiles = []) {
@@ -86,7 +86,7 @@ TestServer.prototype.createJob = function(type, mainScript, params, inputFiles =
                 main: mainScript,
                 params: params,
                 input: inputFiles.map(function (file) {
-                    return path.basename(file)
+                    return path.basename(file);
                 })
             }
         );
