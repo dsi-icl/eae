@@ -3,7 +3,7 @@
 [![David](https://img.shields.io/david/dsi-icl/eae-compute.svg?style=flat-square)](https://david-dm.org/dsi-icl/eae-compute) 
 [![David](https://img.shields.io/david/dev/dsi-icl/eae-compute.svg?style=flat-square)](https://david-dm.org/dsi-icl/eae-compute?type=dev) 
 
-EAE - Compute micro-service
+eAE - Compute micro-service
 ---------------------------
 
 The eae-compute service provides execution capabilities to the eae eco-system. While managing jobs is expected to be handled by the eae-scheduler, running them is the role of eae-compute. 
