@@ -1,0 +1,389 @@
+swagger: '2.0'
+info:
+  version: 0.0.2
+  title: Eae-interface
+  license:
+    name: MIT
+    url: https://github.com/dsi-icl/eae-interface/blob/master/LICENSE
+  description:  eAE interface
+
+paths:
+  /status:
+    get:
+      description: Status report. Part of the standard API for all the eae components
+      responses:
+        200:
+          description: Status report is active, replies the current status
+          schema:
+            type: object
+            description: Status report
+            properties:
+              status:
+                type: string
+                description: MUST be oneof EAE_SERVICE_STATUS_XXX
+
+  /specs:
+    get:
+      description: Detailed status report. Part of the standard API for eae components
+      responses:
+        200:
+            description: desc
+            schema:
+                $ref: '#definitions/statusModel'
+
+  /createjob:
+    post:
+      description: Creates a new job to be computed on the eAE
+      responses:
+        200:
+            description: Sends back 'OK'
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  description: Contains 'OK'
+        401:
+            description: The request is not well formed
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+        500:
+            description: Internal mongo or server error.
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+
+  /getjob:
+    post:
+      description: Get a specific job
+      responses:
+        200:
+          description: Sends back the job
+          schema:
+            $ref: '#definitions/jobModel'
+        401:
+            description: The request is not well formed
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+        500:
+            description: Internal mongo or server error.
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+
+  /getAllJobs:
+    post:
+      description: Get all jobs not archieved. Admin only
+      responses:
+        200:
+          description: Sends back an array of jobs
+          schema:
+            type: array
+            items:
+              $ref: '#definitions/jobModel'
+        401:
+            description: The request is not well formed
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+        500:
+            description: Internal mongo or server error.
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+
+  /job/results:
+    post:
+      description: Retrieve the results for a specific job by sending back the carriers where they are available.
+      responses:
+        200:
+          description: Sends back an access to the carriers to download the results from
+          schema:
+            type: object
+            description: TODO
+        401:
+            description: The request is not well formed
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+        500:
+            description: Internal mongo or server error.
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+
+  /servicesStatus:
+    post:
+      description: Checks that the request is coming from an Admin and sends back the statuses of all the services in the cluster.
+      responses:
+        200:
+            description: desc
+            schema:
+              type: array
+              description: Each items represents a single service in the cluster
+              items:
+                $ref: '#definitions/statusModel'
+        401:
+            description: The request is not well formed
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+        500:
+            description: Internal mongo or server error.
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+
+  /user:
+    post:
+      description: Sends back the profile of the requested user. Admin only
+      responses:
+        200:
+            description: desc
+            schema:
+                $ref: '#definitions/userModel'
+        401:
+            description: The request is not well formed
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+        500:
+            description: Internal mongo or server error.
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+
+  /user/create:
+    post:
+      description: Create a new user to get access to the platform. Admin only
+      responses:
+        200:
+            description: desc
+            schema:
+                $ref: '#definitions/userModel'
+        401:
+            description: The request is not well formed
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+        500:
+            description: Internal mongo or server error.
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+
+  /user/delete:
+    post:
+      description: Delete an existing user to remove access to the platform
+      responses:
+        200:
+            description: desc
+            schema:
+              type: string
+              description: Acknowledges that the specified user has been deleted
+        401:
+            description: The request is not well formed
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+        500:
+            description: Internal mongo or server error.
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+
+  /whoareyou:
+    get:
+      description: Implementation of the Hyper Text Coffee Pot Control Protocol
+      responses:
+        418:
+            description: I am a teapot
+
+definitions:
+    statusModel:
+        description: Model to represent a service status
+        properties:
+            type:
+                type: string
+                description: Type of the eae service
+            status:
+                type: string
+                description: Current status of the service. Defaults to 'eae_service_idle'
+            statusLock:
+                type: boolean
+                description: Lock used to prevent the service status update
+            lastUpdate:
+                type: string
+                format: dateTime
+                description: Timestamp of the last update of this model
+            port:
+                type: integer
+                description: TCP Port the service is listening on
+            ip:
+                type: string
+                description: IPv4 address of the machine
+            hostname:
+                type: string
+                description: Domain name associated with this machine
+            system:
+                type: object
+                description: Hardware speciciafations
+                properties:
+                    arch:
+                        type: string
+                        description: System architecture label
+                    type:
+                        type: string
+                        description: System type label
+                    platform:
+                        type: string
+                        description: Operating system name
+                    version:
+                        type: string
+                        description: Operation system version number
+            cpu:
+                type: object
+                description: Information about the cpu
+                properties:
+                    cores:
+                        type: array
+                        items:
+                            type: object
+                            description: A single core properties list
+                    loadavg:
+                        type: array
+                        description: The load average for the last 1, 5 and 15 minutes
+                        items:
+                            type: number
+            memory:
+                type: object
+                description: Information about the memory
+                properties:
+                    total:
+                        type: string
+                        description: Total memory on the system. Unit is provided in the value
+                    free:
+                        type: string
+                        description: Available memory on the system. Unit is provided in the value
+
+    jobModel:
+        type: object
+        properties:
+            id:
+                type: string
+                description: Unique identifier
+            type:
+                type: string
+                description: Job type definition, MUST be oneof EAE_JOB_TYPE_XXX
+            status:
+                type: array
+                description: History of jobs states
+                items:
+                    type: string
+                    description: State of the job, MUST be one of EAE_JOB_STATUS_XXX
+            startDate:
+                type: string
+                format: dateTime
+                description: Timestamp tracking the creation of the job
+            main:
+                type: string
+                description: Main script file to execture
+            params:
+                type: array
+                description: Command line parameters for the script
+                items:
+                    type: string
+                    description: One parameter, can contain spaces
+            input:
+                type: array
+                description: List of file inputs for this job, including main script
+                items:
+                    type: string
+                    description: Name of one input file
+            endDate:
+                type: string
+                format: dateTime
+                description: Timestamp of when the job stops
+            exitCode:
+                type: integer
+                description: Exit code of the job processus
+            stdout:
+                type: string
+                description: Standard ouput TTY of the job processus
+            stderr:
+                type: string
+                description: Standard error TTY of the job processus
+            output:
+                type: array
+                description: List of files created in the local 'output' folder by the job process
+                items:
+                    type: string
+                    description: Name of the file
+            message:
+                type: string
+                description: Informative message on the last update operation
+
+    userModel:
+        type: object
+        properties:
+            type:
+                type: string
+                description: Type of User. One of the userTypes
+            username:
+                type: string
+                description: Name of the user
+            token:
+                type: string
+                description: Token used as password by the user to authenticate
+            created:
+                type: string
+                format: dateTime
+                description: Timestamp of the creation of the job
+
+    carrierJobModel:
+        type: object
+        properties:
+            jobId:
+                type: string
+                description: Id of the associated job located in the eAE job collection
+            files:
+                type: array
+                description: List of files to be transfer
+                items:
+                    type: string
+                    description: Name of the file
+            requester:
+                type: string
+                description: Username of the requester
+            numberOfTransferredFiles:
+                type: integer
+                description: Track the number of files transfered
+            numberOfFilesToTransfer:
+                type: integer
+                description: Number of files to transfer to the eAE through the carriers
+            created:
+                type: string
+                format: dateTime
+                description: Timestamp of the creation of the job
+
+    unauthorizedAccess:
+        type: object
+        properties:
+            username:
+                type: string
+                description: Name of the user whom made the request
+            token:
+                type: string
+                description: Token used as password by the user to authenticate
+            headers:
+                type: array
+                description: Contains the headers of the HTTP request
+                items:
+                  type: string
+                  description: Header field and it's value
+            accessTimestamp:
+                type: string
+                format: dateTime
+                description: Timestamp of the log of the unauthorized access

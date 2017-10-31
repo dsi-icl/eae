@@ -1,6 +1,6 @@
 {
   "name": "eae-interface",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "eAE - Interface micro-service",
   "main": "./src/eaeInterface.js",
   "scripts": {
