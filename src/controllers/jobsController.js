@@ -140,7 +140,7 @@ JobsController.prototype.getJob = function(req, res){
                         _this._accessLogger.logAccess(req);
                         return;
                     }
-                    if(user.type === interface_constants.USER_TYPE.admin || job.requestor === user.username){
+                    if(user.type === interface_constants.USER_TYPE.admin || job.requester === user.username){
                         res.status(200);
                         res.json(job);
                     }else{
@@ -265,7 +265,7 @@ JobsController.prototype.getJobResults = function(req, res){
                             _this._accessLogger.logAccess(req);
                             return;
                         }
-                        if(user.type === interface_constants.USER_TYPE.admin || job.requestor === user.username){
+                        if(user.type === interface_constants.USER_TYPE.admin || job.requester === user.username){
                             // TODO: implement the sending back of the address of carriers to download from and prepare carriers for the download by the user - Create a manifest?
                             res.status(200);
                             res.json('toto');
