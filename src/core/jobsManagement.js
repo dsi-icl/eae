@@ -47,7 +47,7 @@ JobsManagement.prototype.createJobManifestForCarriers = function(newJob, jobID){
                     resolve(res);
             }, function (error){
                 reject(ErrorHelper('Could not insert a new carrier job for the file transfer',error));
-            })
+            });
         }, function (error) {
             reject(ErrorHelper('Could not insert a new carrier job for the file transfer',error));
         });

@@ -5,7 +5,8 @@
   "main": "./src/eaeInterface.js",
   "scripts": {
     "start": "node ./src/index.js",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "test": "jest --runInBand --verbose --useStderr"
   },
   "keywords": [
     "eae",
@@ -31,6 +32,7 @@
     "babel-preset-es2015": "6.24.1",
     "babel-preset-stage-0": "6.24.1",
     "eslint": "4.9.0",
+    "jest": "21.0.1",
     "request": "2.83.0"
   },
   "dependencies": {

@@ -126,7 +126,7 @@ EaeInterface.prototype._setupStatusController = function () {
     let statusOpts = {
         version: package_json.version
     };
-    _this.status_helper = new StatusHelper(Constants.EAE_SERVICE_TYPE_CARRIER, global.eae_carrier_config, null, statusOpts);
+    _this.status_helper = new StatusHelper(Constants.EAE_SERVICE_TYPE_API, global.eae_carrier_config, null, statusOpts);
     _this.status_helper.setCollection(_this.db.collection(Constants.EAE_COLLECTION_STATUS));
 
     _this.statusController = new StatusController(_this.status_helper);
