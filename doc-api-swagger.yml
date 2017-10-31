@@ -5,7 +5,7 @@ info:
   license:
     name: MIT
     url: https://github.com/dsi-icl/eae-compute/blob/master/LICENSE
-  description:  Eae compute
+  description:  eAE Compute
 
 paths:
   /status:
