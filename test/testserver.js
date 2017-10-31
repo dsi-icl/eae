@@ -43,7 +43,7 @@ TestServer.prototype.stop = function() {
         // Remove test flag from env
         delete process.env.TEST;
 
-        _this.eae_compute.stop().then(function() {
+        _this.eae_interface.stop().then(function() {
             _this._server.close(function(error) {
                     if (error)
                         reject(error);
@@ -57,7 +57,7 @@ TestServer.prototype.stop = function() {
 };
 
 TestServer.prototype.mongo = function() {
-    return this.eae_compute.db;
+    return this.eae_interface.db;
 };
 
 module.exports = TestServer;
