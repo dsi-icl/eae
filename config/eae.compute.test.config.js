@@ -1,8 +1,12 @@
+const {Constants}  =  require('eae-utils');
+
 module.exports = {
     mongoURL: 'mongodb://mongodb/eae',
     port: 80,
 	enableCors: true,
     swiftURL: 'http://swift:8080',
     swiftUsername: 'test:tester',
-    swiftPassword: 'testing'
+    swiftPassword: 'testing',
+    computeType: [Constants.EAE_COMPUTE_TYPE_PYTHON2],
+    clusters:{}
 };

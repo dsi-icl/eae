@@ -5,7 +5,7 @@ info:
   license:
     name: MIT
     url: https://github.com/dsi-icl/eae-compute/blob/master/LICENSE
-  description:  Eae compute
+  description:  eAE Compute
 
 paths:
   /status:
@@ -158,10 +158,13 @@ definitions:
                 description: Unique identifier
             type:
                 type: string
-                description: Job type definition, MUST be oneof EAE_JOB_TYPE_XXX.
+                description: Job type definition, MUST be oneof EAE_JOB_TYPE_XXX
             status:
-                type: string
-                description: State of the job, MUST be oneof EAE_JOB_STATUS_XXX
+                type: array
+                description: History of jobs states
+                items:
+                    type: string
+                    description: State of the job, MUST be one of EAE_JOB_STATUS_XXX
             startDate:
                 type: string
                 format: dateTime
