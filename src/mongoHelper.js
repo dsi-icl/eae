@@ -21,6 +21,7 @@ function MongoHelper(){
     this.archiveJob = MongoHelper.prototype.archiveJob.bind(this);
     this.retrieveFailedJobs = MongoHelper.prototype.retrieveFailedJobs.bind(this);
     this.archiveFailedJob = MongoHelper.prototype.archiveFailedJob.bind(this);
+    this.findAndReserveAvailableWorker = MongoHelper.prototype.findAndReserveAvailableWorker.bind(this);
 }
 
 /**
