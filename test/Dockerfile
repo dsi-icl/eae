@@ -16,7 +16,6 @@ RUN npm install --silent; exit 0;
 
 # Bundle app
 COPY ./src ./src
-COPY ./config/eae.scheduler.config.js ./config/eae.scheduler.config.js
 COPY ./test ./test
 
 # Run compute service
