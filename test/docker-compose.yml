@@ -17,9 +17,10 @@ services:
         logging:
               driver: "none"
 
-    scheduler:
+    tests:
         build:
-             .
+            context: ..
+            dockerfile: ./test/Dockerfile
         depends_on:
             - mongodb
             - swift
