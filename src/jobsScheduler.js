@@ -189,7 +189,7 @@ JobsScheduler.prototype._queuedJobs = function () {
                                                                 if(success.nModified === 1) {
                                                                     reserved.push(workerNode);
                                                                 }else if(success.nModified === 0){
-                                                                    break;
+                                                                    //break;
                                                                 }
                                                             },
                                                             function(error){
