@@ -1,6 +1,6 @@
 
 module.exports = {
-    mongoURL: 'mongodb://test:test@146.169.33.32:27020/eaetesting',
+    mongoURL: 'mongodb://mongodb/eae',
     port: 80,
     enableCors: true
 };
