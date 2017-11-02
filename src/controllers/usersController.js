@@ -36,7 +36,7 @@ UsersController.prototype.getUser = function(req, res){
 
     if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
-        res.json(ErrorHelper('Missing eaeUsername or token'));
+        res.json(ErrorHelper('Missing username or token'));
         return;
     }
     try {
@@ -91,12 +91,12 @@ UsersController.prototype.createUser = function(req, res){
     let _this = this;
     let eaeUsername = req.body.eaeUsername;
     let userToken = req.body.eaeUserToken;
-    let newUser = Object.assign(interface_models.USER_MODEL, JSON.parse(req.body.newUser));
+    let newUser = Object.assign({},interface_models.USER_MODEL, JSON.parse(req.body.newUser));
     newUser.token = _this.utils.generateUUID();
 
     if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
-        res.json(ErrorHelper('Missing user_id or token'));
+        res.json(ErrorHelper('Missing username or token'));
         return;
     }
     try {
@@ -160,7 +160,7 @@ UsersController.prototype.deleteUser = function(req, res){
 
     if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
-        res.json(ErrorHelper('Missing eaeUsername or token'));
+        res.json(ErrorHelper('Missing username or token'));
         return;
     }
     try {
