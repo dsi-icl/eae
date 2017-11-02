@@ -3,6 +3,8 @@ const eaeutils = require('eae-utils');
 let config = require('../config/eae.interface.test.config.js');
 let TestServer = require('./testserver.js');
 
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;// 20 seconds
+
 let ts = new TestServer();
 let adminUsername = 'adminUsers';
 let adminPassword = 'qwertyUsers';
@@ -154,6 +156,31 @@ test('Get user that doesn\'t exist', function(done) {
     );
 });
 
+test('Create a new user', function(done) {
+    expect.assertions(3);
+    let newUser = JSON.stringify({"username": "NotLegit"});
+    request(
+        {
+            method: 'POST',
+            baseUrl: 'http://127.0.0.1:' + config.port,
+            uri: '/user/create',
+            json: true,
+            body: {
+                eaeUsername: adminUsername,
+                eaeUserToken: adminPassword,
+                newUser: newUser
+            }
+        },
+        function(error, response, body) {
+            if (error) {
+                done.fail(error.toString());
+            }
+            expect(response).toBeDefined();
+            expect(response.statusCode).toEqual(200);
+            expect(body).toBeDefined();
+            done();
+        });
+});
 
 afterAll(function() {
     return new Promise(function (resolve, reject) {
