@@ -13,14 +13,15 @@ RUN git clone -b master https://github.com/dsi-icl/eae-compute
 
 WORKDIR /root/eae-compute
 
+# Bundle app
+RUN cp package.json /usr/app/ \
+   && cp -r src /usr/app/src
+
+WORKDIR /usr/app
+
 # Install eae-compute npm dependencies
-RUN cp package.json /usr/app/
 RUN npm install --silent; exit 0;
 RUN cat /root/.npm/_logs/*; exit 0;
-
-# Bundle app
-RUN cp -r src /usr/app/src \
-   && cp config/eae.compute.sample.config.js /usr/app/config/eae.compute.config.js
 
 # Run compute service
 EXPOSE 80
