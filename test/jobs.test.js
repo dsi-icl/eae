@@ -4,10 +4,12 @@ let config = require('../config/eae.interface.test.config.js');
 let TestServer = require('./testserver.js');
 
 let ts = new TestServer();
+let adminUsername = 'adminUsername';
+let adminPassword = 'qwertyUsername';
 beforeAll(function() {
     return new Promise(function (resolve, reject) {
         ts.run().then(function() {
-            ts.addAdminUser().then(function(){
+            ts.addAdminUser(adminUsername, adminPassword).then(function(){
                 resolve(true);
             },function(insertError){
                 reject(insertError);

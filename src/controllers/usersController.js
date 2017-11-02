@@ -55,7 +55,7 @@ UsersController.prototype.getUser = function(req, res){
             if (user.type === interface_constants.USER_TYPE.admin) {
                 _this._usersCollection.findOne({username: requestedUsername}).then(function(user){
                         if (user === null) {
-                            res.status(200);
+                            res.status(401);
                             res.json('User ' + requestedUsername + ' doesn\'t exist.');
                         }else {
                             delete user._id;

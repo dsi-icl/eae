@@ -44,7 +44,7 @@ TestServer.prototype.stop = function() {
     return new Promise(function(resolve, reject) {
         // Remove test flag from env
         delete process.env.TEST;
-        // _this.eae_interface.db.drop();
+        // _this.eae_interface.db.dropDatabase();
         _this.eae_interface.stop().then(function() {
             _this._server.close(function(error) {
                     if (error) {
@@ -62,17 +62,17 @@ TestServer.prototype.mongo = function() {
     return this.eae_interface.db;
 };
 
-TestServer.prototype.addAdminUser = function(){
+TestServer.prototype.addAdminUser = function(username, password){
     let _this = this;
     return new Promise(function(resolve, reject) {
         let admin = {
             type: interface_constants.USER_TYPE.admin,
-            username : 'admin',
-            token: 'qwerty1234',
+            username : username,
+            token: password,
         };
         let adminUser = Object.assign({}, interface_models.USER_MODEL , admin);
         _this.eae_interface.usersController._usersCollection.insertOne(adminUser).then(function () {
-                resolve(true);
+            resolve(true);
         }, function (error) {
             reject(error);
         });
