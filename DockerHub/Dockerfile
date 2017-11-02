@@ -6,15 +6,15 @@ RUN apt-get update -q && apt-get upgrade -y --no-install-recommends
 
 # Create app directories
 RUN mkdir -p /usr/app
-WORKDIR /usr/app
+WORKDIR /root
 
 # We download the eae compute
-RUN git clone -b master https://github.com/dsi-icl/eae-compute \
-    && cd eae-compute
+RUN git clone -b master https://github.com/dsi-icl/eae-compute
 
-# Install app dependencies
-COPY ./package.json /usr/app/
+WORKDIR /root/eae-compute
+
 # Install eae-compute npm dependencies
+COPY package.json /usr/app/
 RUN npm install --silent; exit 0;
 RUN cat /root/.npm/_logs/*; exit 0;
 
