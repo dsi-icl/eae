@@ -76,7 +76,7 @@ JobsController.prototype.createNewJob = function(req, res){
                 // We create a manifest for the carriers to work against
                 jobsManagement.createJobManifestForCarriers(newJob, newJob._id.toString()).then(function(_unused__result) {
                     res.status(200);
-                    res.json({status: 'OK'});
+                    res.json({status: 'OK', jobID: newJob._id.toString()});
                     // This will monitor the data transfer status
                     jobsManagement.startJobMonitoring(newJob,  newJob._id.toString()).then(function (_unused__updated) {
                         // if(updated.updatedExisting)

@@ -26,7 +26,7 @@ test('Get Job Missing Credentials Username', function(done) {
         {
             method: 'POST',
             baseUrl: 'http://127.0.0.1:' + config.port,
-            uri: '/servicesStatus',
+            uri: '/getjob',
             json: true,
             body: {
                 eaeUsername: null,
@@ -52,7 +52,7 @@ test('Get Job Missing Credentials token', function(done) {
         {
             method: 'POST',
             baseUrl: 'http://127.0.0.1:' + config.port,
-            uri: '/servicesStatus',
+            uri: '/getjob',
             json: true,
             body: {
                 eaeUsername: 'test',
@@ -72,13 +72,13 @@ test('Get Job Missing Credentials token', function(done) {
     );
 });
 
-test('Get Job Invalid Credentials', function(done) {
+test('Get Job No jobID', function(done) {
     expect.assertions(4);
     request(
         {
             method: 'POST',
             baseUrl: 'http://127.0.0.1:' + config.port,
-            uri: '/servicesStatus',
+            uri: '/getjob',
             json: true,
             body: {
                 eaeUsername: 'test',
@@ -92,12 +92,65 @@ test('Get Job Invalid Credentials', function(done) {
             expect(response).toBeDefined();
             expect(response.statusCode).toEqual(401);
             expect(body).toBeDefined();
-            expect(body).toEqual({error:'Unauthorized access. The unauthorized access has been logged.'});
+            expect(body).toEqual({error:'The job request do not exit. The query has been logged.'});
             done();
         }
     );
 });
 
+test('Create a Job and subsequently get it', function(done) {
+    expect.assertions(14);
+    let job = JSON.stringify({"type": "python", "main": "hello.py", "params": [], "input": ["input1.txt", "input2.txt"]});
+    request(
+        {
+            method: 'POST',
+            baseUrl: 'http://127.0.0.1:' + config.port,
+            uri: '/createjob',
+            json: true,
+            body: {
+                eaeUsername: adminUsername,
+                eaeUserToken: adminPassword,
+                job: job
+            }
+        },
+        function(error, response, body) {
+            if (error) {
+                done.fail(error.toString());
+            }
+            expect(response).toBeDefined();
+            expect(response.statusCode).toEqual(200);
+            expect(body).toBeDefined();
+            expect(body.status).toEqual('OK');
+            expect(body.jobID).toBeDefined();
+            request(
+                {
+                    method: 'POST',
+                    baseUrl: 'http://127.0.0.1:' + config.port,
+                    uri: '/getjob',
+                    json: true,
+                    body: {
+                        eaeUsername: adminUsername,
+                        eaeUserToken: adminPassword,
+                        jobID: body.jobID
+                    }
+                }, function(error, response, body) {
+                    if (error) {
+                        done.fail(error.toString());
+                    }
+                    expect(response).toBeDefined();
+                    expect(response.statusCode).toEqual(200);
+                    expect(body).toBeDefined();
+                    expect(body.type).toEqual('python');
+                    expect(body.requester).toEqual(adminUsername);
+                    expect(body.main).toEqual('hello.py');
+                    expect(body.statusLock).toEqual(false);
+                    expect(body.exitCode).toEqual(-1);
+                    expect(body.input).toEqual([ 'input1.txt', 'input2.txt' ]);
+                    done();
+                });
+        }
+    );
+});
 
 afterAll(function() {
     return new Promise(function (resolve, reject) {
