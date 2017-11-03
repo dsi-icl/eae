@@ -183,7 +183,7 @@ test('Create a new user', function(done) {
 });
 
 test('Delete a user', function(done) {
-    expect.assertions(4);
+    expect.assertions(8);
     let userToBeDeleted = 'NotLegit';
     request(
         {
@@ -201,14 +201,32 @@ test('Delete a user', function(done) {
             if (error) {
                 done.fail(error.toString());
             }
-            console.log(response);
-            console.log(body);
-
             expect(response).toBeDefined();
             expect(response.statusCode).toEqual(200);
             expect(body).toBeDefined();
             expect(body).toEqual('The user ' + userToBeDeleted + ' has been successfully deleted');
-            done();
+            request(
+                {
+                    method: 'POST',
+                    baseUrl: 'http://127.0.0.1:' + config.port,
+                    uri: '/user',
+                    json: true,
+                    body: {
+                        eaeUsername: adminUsername,
+                        eaeUserToken: adminPassword,
+                        requestedUsername: userToBeDeleted
+                    }
+                },
+                function(error, response, body) {
+                    if (error) {
+                        done.fail(error.toString());
+                    }
+                    expect(response).toBeDefined();
+                    expect(response.statusCode).toEqual(401);
+                    expect(body).toBeDefined();
+                    expect(body).toEqual('User ' + userToBeDeleted + ' doesn\'t exist.');
+                    done();
+                });
         });
 });
 

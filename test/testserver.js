@@ -11,6 +11,7 @@ function TestServer() {
     this.run = TestServer.prototype.run.bind(this);
     this.stop = TestServer.prototype.stop.bind(this);
     this.addAdminUser = TestServer.prototype.addAdminUser.bind(this);
+    this.addCluster = TestServer.prototype.addCluster.bind(this);
     this.mongo = TestServer.prototype.mongo.bind(this);
 }
 
@@ -72,6 +73,17 @@ TestServer.prototype.addAdminUser = function(username, password){
         };
         let adminUser = Object.assign({}, interface_models.USER_MODEL , admin);
         _this.eae_interface.usersController._usersCollection.insertOne(adminUser).then(function () {
+            resolve(true);
+        }, function (error) {
+            reject(error);
+        });
+    });
+};
+
+TestServer.prototype.addCluster = function(statuses) {
+    let _this = this;
+    return new Promise(function(resolve, reject) {
+        _this.eae_interface.clusterController._statusCollection.insertMany(statuses).then(function () {
             resolve(true);
         }, function (error) {
             reject(error);
