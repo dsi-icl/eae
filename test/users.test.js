@@ -182,6 +182,36 @@ test('Create a new user', function(done) {
         });
 });
 
+test('Delete a user', function(done) {
+    expect.assertions(4);
+    let userToBeDeleted = 'NotLegit';
+    request(
+        {
+            method: 'DELETE',
+            baseUrl: 'http://127.0.0.1:' + config.port,
+            uri: '/user/delete',
+            json: true,
+            body: {
+                eaeUsername: adminUsername,
+                eaeUserToken: adminPassword,
+                userToBeDeleted: userToBeDeleted
+            }
+        },
+        function(error, response, body) {
+            if (error) {
+                done.fail(error.toString());
+            }
+            console.log(response);
+            console.log(body);
+
+            expect(response).toBeDefined();
+            expect(response.statusCode).toEqual(200);
+            expect(body).toBeDefined();
+            expect(body).toEqual('The user ' + userToBeDeleted + ' has been successfully deleted');
+            done();
+        });
+});
+
 afterAll(function() {
     return new Promise(function (resolve, reject) {
         ts.stop().then(function() {
