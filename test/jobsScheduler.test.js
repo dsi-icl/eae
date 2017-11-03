@@ -72,8 +72,8 @@ afterAll(function ()  {
 });
 
 //TODO(emanuelerossi): Make sure the test work after we have a computer service on during tests and we make requests to it in jobsScheduler
-test('A queued non-spark job gets scheduled', async () => {
-    expect.assertions(4);
+test('_queued_jobs: A queued non-spark job gets scheduled', async () => {
+    expect.assertions(1);
 
     let job = {
         status: [Constants.EAE_JOB_STATUS_QUEUED],
@@ -81,27 +81,37 @@ test('A queued non-spark job gets scheduled', async () => {
         statusLock: false
     };
 
-    let jobs = await mongo_helper.retrieveJobs({});
-    expect(jobs.length).toBe(0);
-    console.log("Collection has initially 0 jobs");
-
     await db.collection(Constants.EAE_COLLECTION_JOBS).insertOne(job);
-    console.log("Inserted job");
-
-    jobs = await mongo_helper.retrieveJobs({});
-    expect(jobs.length).toBe(1);
-    console.log("Collection has now 1 job");
 
     await jobsScheduler._queuedJobs();
-    console.log("Run queuedJobs()");
 
-    jobs = await mongo_helper.retrieveJobs({});
-    expect(jobs.length).toBe(1);
+    let jobs = await mongo_helper.retrieveJobs({_id: job._id});
     expect(jobs[0].status).toEqual([Constants.EAE_JOB_STATUS_QUEUED, Constants.EAE_JOB_STATUS_SCHEDULED]);
-    console.log("job is now scheduled");
 });
 
-test('A non-spark job in error state gets added to the archived collection and then queued again', async () => {
+test('_queued_jobs: If a queued job has failed 3 times, then it is set to dead and then completed', async () => {
+    expect.assertions(2);
+
+    let job = {
+        status: [
+            Constants.EAE_JOB_STATUS_QUEUED,
+            Constants.EAE_JOB_STATUS_ERROR,
+            Constants.EAE_JOB_STATUS_ERROR,
+            Constants.EAE_JOB_STATUS_ERROR
+        ],
+        statusLock: false,
+    };
+
+    await db.collection(Constants.EAE_COLLECTION_JOBS).insertOne(job);
+
+    await jobsScheduler._queuedJobs();
+
+    let jobs = await mongo_helper.retrieveJobs({_id: job._id});
+    expect(jobs[0].status[0]).toEqual(Constants.EAE_JOB_STATUS_COMPLETED);
+    expect(jobs[0].status[1]).toEqual(Constants.EAE_JOB_STATUS_DEAD);
+});
+
+test('_errosJobs: A job in error state gets added to the archived collection and then queued again', async () => {
     expect.assertions(4);
 
     let job = {
@@ -109,15 +119,11 @@ test('A non-spark job in error state gets added to the archived collection and t
         statusLock: false,
     };
 
-    let jobs = await mongo_helper.retrieveJobs({});
-    expect(jobs.length).toBe(0);
-
     await db.collection(Constants.EAE_COLLECTION_JOBS).insertOne(job);
 
     await jobsScheduler._errorJobs();
 
-    jobs = await mongo_helper.retrieveJobs({});
-    expect(jobs.length).toBe(1);
+    let jobs = await mongo_helper.retrieveJobs({});
     expect(jobs[0].status).toEqual([Constants.EAE_JOB_STATUS_QUEUED, Constants.EAE_JOB_STATUS_ERROR]);
 
     let archived_jobs = await mongo_helper.retrieveFailedJobs({_id: job._id});
