@@ -101,13 +101,12 @@ test('A queued non-spark job gets scheduled', async () => {
     console.log("job is now scheduled");
 });
 
-test('A non-spark job with in error state gets queued again', async () => {
-    expect.assertions(3);
+test('A non-spark job in error state gets added to the archived collection and then queued again', async () => {
+    expect.assertions(4);
 
     let job = {
         status: [Constants.EAE_JOB_STATUS_ERROR],
         statusLock: false,
-        _id: "59fbb61e67c6b84d65491a12",
     };
 
     let jobs = await mongo_helper.retrieveJobs({});
@@ -120,4 +119,7 @@ test('A non-spark job with in error state gets queued again', async () => {
     jobs = await mongo_helper.retrieveJobs({});
     expect(jobs.length).toBe(1);
     expect(jobs[0].status).toEqual([Constants.EAE_JOB_STATUS_QUEUED, Constants.EAE_JOB_STATUS_ERROR]);
+
+    let archived_jobs = await mongo_helper.retrieveFailedJobs({_id: job._id});
+    expect(archived_jobs.length).toBe(1);
 });
