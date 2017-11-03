@@ -237,7 +237,7 @@ MongoHelper.prototype.archiveFailedJob = function(job){
             return;
         }
 
-        delete job._id;
+        // delete job._id;
         _this._failedJobsArchiveCollection.insert(job).then(function(success) {
             if (success.insertedCount === 1) {
                 console.log('The failed job: ' + job._id + ' has been archived properly.');
@@ -272,11 +272,9 @@ MongoHelper.prototype.findAndReserveAvailableWorker = function (filter) {
 
         _this._statusCollection.findOneAndUpdate(filter,
             { $set : update},
-            { returnOriginal: true }).then( function(success){
-                if(success.res.nModified === 1){
-                    resolve(success.value);
-                }else if (success.res.nModified === 0 ){
-                    resolve(false);
+            { returnOriginal: true }).then( function(original){
+                if(original.ok === 1){
+                    resolve(original.value);
                 }else{
                     reject(ErrorHelper('Something went horribly wrong when looking for an available resource'));
                 }
