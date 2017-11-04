@@ -19,6 +19,6 @@ RUN cat /root/.npm/_logs/*; exit 0;
 COPY ./src /usr/app/src
 COPY ./.eslintrc /usr/app/.eslintrc
 COPY ./test/*.js /usr/app/test/
-COPY ./config/eae.interface.test.config.js /usr/app/config/eae.interface.config.js
+COPY ./config/eae.interface.test.config.js /usr/app/config/eae.interface.test.config.js
 
 EXPOSE 80

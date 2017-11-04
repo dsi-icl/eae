@@ -76,7 +76,7 @@ JobsController.prototype.createNewJob = function(req, res){
                 // We create a manifest for the carriers to work against
                 jobsManagement.createJobManifestForCarriers(newJob, newJob._id.toString()).then(function(_unused__result) {
                     res.status(200);
-                    res.json({status: 'OK'});
+                    res.json({status: 'OK', jobID: newJob._id.toString()});
                     // This will monitor the data transfer status
                     jobsManagement.startJobMonitoring(newJob,  newJob._id.toString()).then(function (_unused__updated) {
                         // if(updated.updatedExisting)
@@ -116,7 +116,7 @@ JobsController.prototype.getJob = function(req, res){
 
     if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
-        res.json(ErrorHelper('Missing user_id or token'));
+        res.json(ErrorHelper('Missing username or token'));
         return;
     }
     try {
@@ -180,7 +180,7 @@ JobsController.prototype.getAllJobs = function(req, res){
 
     if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
-        res.json(ErrorHelper('Missing user_id or token'));
+        res.json(ErrorHelper('Missing username or token'));
         return;
     }
     try {
@@ -240,7 +240,7 @@ JobsController.prototype.getJobResults = function(req, res){
 
     if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
-        res.json(ErrorHelper('Missing user_id or token'));
+        res.json(ErrorHelper('Missing username or token'));
         return;
     }
     try{
