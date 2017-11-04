@@ -31,30 +31,7 @@ paths:
             schema:
                 $ref: '#definitions/statusModel'
 
-  /createjob:
-    post:
-      description: Creates a new job to be computed on the eAE
-      responses:
-        200:
-            description: Sends back 'OK'
-            schema:
-              type: object
-              properties:
-                status:
-                  type: string
-                  description: Contains 'OK'
-        401:
-            description: The request is not well formed
-            schema:
-              type: object
-              description: eAE ErrorStack tracking the error origin
-        500:
-            description: Internal mongo or server error.
-            schema:
-              type: object
-              description: eAE ErrorStack tracking the error origin
-
-  /getjob:
+  /job:
     post:
       description: Get a specific job
       responses:
@@ -73,7 +50,7 @@ paths:
               type: object
               description: eAE ErrorStack tracking the error origin
 
-  /getAllJobs:
+  /job/getAll:
     post:
       description: Get all jobs not archieved. Admin only
       responses:
@@ -94,6 +71,66 @@ paths:
               type: object
               description: eAE ErrorStack tracking the error origin
 
+  /job/create:
+    post:
+      description: Creates a new job to be computed on the eAE
+      responses:
+        200:
+            description: Sends back 'OK'
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  description: Contains 'OK'
+                jobID:
+                  type: string
+                  description: Contains the id of the job
+                carriers:
+                  type: array
+                  description: Contains the list of carriers to transfer to
+                  items:
+                    type: string
+                    description: Address (IP:Port or DNS Name) of the carrier
+        401:
+            description: The request is not well formed
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+        500:
+            description: Internal mongo or server error.
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+
+  /job/cancel:
+    post:
+      description: Cancels a job. Check that user requesting is owner of the job or Admin
+      responses:
+        200:
+          description: Sends back an acknowledgement that the job has been cancelled
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: Acknowledgement
+        401:
+            description: The request is not well formed
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+        412:
+            description: The requested job is not in a valid state to be cancelled
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+        500:
+            description: Internal mongo or server error.
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+
   /job/results:
     post:
       description: Retrieve the results for a specific job by sending back the carriers where they are available.
@@ -105,6 +142,11 @@ paths:
             description: TODO
         401:
             description: The request is not well formed
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
+        412:
+            description: The requested job is not ready for collection
             schema:
               type: object
               description: eAE ErrorStack tracking the error origin

@@ -6,23 +6,27 @@ const JobsManagement = require('../core/jobsManagement.js');
 /**
  * @fn JobsController
  * @desc Controller to manage the jobs service
+ * @param carriers
  * @param jobsCollection
  * @param carrierCollection
  * @param usersCollection
  * @param accessLogger
  * @constructor
  */
-function JobsController(jobsCollection, usersCollection, carrierCollection, accessLogger) {
+function JobsController(carriers, jobsCollection, usersCollection, carrierCollection, accessLogger) {
     let _this = this;
     _this._jobsCollection = jobsCollection;
     _this._usersCollection = usersCollection;
     _this._carrierCollection = carrierCollection;
     _this._accessLogger = accessLogger;
+    _this._carriers = carriers;
+    _this._jobsManagement = new JobsManagement(_this._carrierCollection, _this._jobsCollection, 5000);
 
     // Bind member functions
     _this.createNewJob = JobsController.prototype.createNewJob.bind(this);
     _this.getJob = JobsController.prototype.getJob.bind(this);
     _this.getAllJobs = JobsController.prototype.getAllJobs.bind(this);
+    _this.cancelJob = JobsController.prototype.cancelJob.bind(this);
     _this.getJobResults = JobsController.prototype.getJobResults.bind(this);
 }
 
@@ -72,13 +76,12 @@ JobsController.prototype.createNewJob = function(req, res){
             }
 
             _this._jobsCollection.insertOne(newJob).then(function (_unused__result) {
-                let jobsManagement = new JobsManagement(_this._carrierCollection, _this._jobsCollection, 5000);
                 // We create a manifest for the carriers to work against
-                jobsManagement.createJobManifestForCarriers(newJob, newJob._id.toString()).then(function(_unused__result) {
+                _this._jobsManagement.createJobManifestForCarriers(newJob, newJob._id.toString()).then(function(_unused__result) {
                     res.status(200);
-                    res.json({status: 'OK', jobID: newJob._id.toString()});
+                    res.json({status: 'OK', jobID: newJob._id.toString(), carriers: _this._carriers});
                     // This will monitor the data transfer status
-                    jobsManagement.startJobMonitoring(newJob,  newJob._id.toString()).then(function (_unused__updated) {
+                    _this._jobsManagement.startJobMonitoring(newJob,  newJob._id.toString()).then(function (_unused__updated) {
                         // if(updated.updatedExisting)
                     }, function (error) {
                         ErrorHelper('Couldn\'t start the monitoring of the transfer', error);
@@ -218,6 +221,88 @@ JobsController.prototype.getAllJobs = function(req, res){
             _this._accessLogger.logAccess(req);
         });
 
+    }
+    catch (error) {
+        res.status(500);
+        res.json(ErrorHelper('Error occurred', error));
+    }
+};
+
+/**
+ * @fn cancelJob
+ * @desc Cancels a job. Check that user requesting is owner of the job or Admin
+ * @param req Incoming message
+ * @param res Server Response
+ */
+JobsController.prototype.cancelJob = function(req, res) {
+    let _this = this;
+    let eaeUsername = req.body.eaeUsername;
+    let userToken = req.body.eaeUserToken;
+    let jobID = req.body.jobID;
+
+
+    if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
+        res.status(401);
+        res.json(ErrorHelper('Missing username or token'));
+        return;
+    }
+    try{
+        _this._jobsCollection.findOne({_id: ObjectID(jobID)}).then(function(job) {
+                if (job === null) {
+                    res.status(401);
+                    res.json(ErrorHelper('The job request do not exit. The query has been logged.'));
+                    // Log unauthorized access
+                    _this._accessLogger.logAccess(req);
+                    return;
+                } else {
+                    if(job.status[0] === Constants.EAE_JOB_STATUS_TRANSFERRING_DATA ||
+                        job.status[0] === Constants.EAE_JOB_STATUS_QUEUED ||
+                        job.status[0] === Constants.EAE_JOB_STATUS_SCHEDULED ||
+                        job.status[0] === Constants.EAE_JOB_STATUS_RUNNING ||
+                        job.status[0] === Constants.EAE_JOB_STATUS_ERROR
+                    ){
+                        let filter = {
+                            username: eaeUsername,
+                            token: userToken
+                        };
+                        _this._usersCollection.findOne(filter).then(function (user) {
+                            if (user === null) {
+                                res.status(401);
+                                res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
+                                // Log unauthorized access
+                                _this._accessLogger.logAccess(req);
+                                return;
+                            }
+                            if (user.type === interface_constants.USER_TYPE.admin || job.requester === user.username) {
+                                _this._jobsManagement.cancelJob(job).then(function(resCancelledJob){
+                                    res.status(200);
+                                    res.json(Object.assign({}, {status: 'Job ' + jobID + ' has been successfully cancelled.'}, resCancelledJob));
+                                },function(error){
+                                    res.status(500);
+                                    res.json(ErrorHelper('Internal server error', error));
+                                });
+                            }else{
+                                res.status(401);
+                                res.json(ErrorHelper('The user is not authorized to access this job.'));
+                                // Log unauthorized access
+                                _this._accessLogger.logAccess(req);
+                            }
+                        }, function (_unused__error) {
+                            res.status(401);
+                            res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
+                            // Log unauthorized access
+                            _this._accessLogger.logAccess(req);
+                        });
+                    }else{
+                        res.status(412);
+                        res.json(ErrorHelper('The job requested cannot be cancelled because he is not pending, queued, ' +
+                            'running or in error. Current status: ' + job.status[0]));
+                    }
+                }}
+            , function(error){
+                res.status(500);
+                res.json(ErrorHelper('Internal Mongo Error', error));
+            });
     }
     catch (error) {
         res.status(500);

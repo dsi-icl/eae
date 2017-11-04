@@ -19,6 +19,7 @@ function JobsManagement(carrierCollection, jobsCollection, delay = Constants.STA
     // Bind member functions
     _this.createJobManifestForCarriers = JobsManagement.prototype.createJobManifestForCarriers.bind(this);
     _this.startJobMonitoring = JobsManagement.prototype.startJobMonitoring.bind(this);
+    _this.cancelJob = JobsManagement.prototype.cancelJob.bind(this);
 
 }
 
@@ -27,6 +28,7 @@ function JobsManagement(carrierCollection, jobsCollection, delay = Constants.STA
  * @desc Creates a manifest for the carriers to know which files to expect.
  * @param newJob eae job containing the username of the requester and the filesArray
  * @param jobID id of the job
+ * @return {Promise}
  */
 JobsManagement.prototype.createJobManifestForCarriers = function(newJob, jobID){
     let _this = this;
@@ -60,6 +62,7 @@ JobsManagement.prototype.createJobManifestForCarriers = function(newJob, jobID){
  * job from data transfer to Queued.
  * @param newJob
  * @param jobID
+ * @return {Promise}
  */
 JobsManagement.prototype.startJobMonitoring =  function(newJob, jobID) {
     let _this = this;
@@ -111,5 +114,28 @@ JobsManagement.prototype.startJobMonitoring =  function(newJob, jobID) {
         }, _this._delay);
     });
 };
+
+/**
+ * @fn cancelJob
+ * @desc Sets the status of a job to cancelled. It then gets picked up by the scheduler for processing.
+ * @param job
+ * @returns {Promise}
+ */
+JobsManagement.prototype.cancelJob = function(job){
+    let _this = this;
+
+    return new Promise(function(resolve, reject) {
+        job.status.unshift(Constants.EAE_JOB_STATUS_CANCELLED);
+        _this._jobsCollection.findOneAndUpdate({_id: ObjectID(job._id)},
+            {$set: job},
+            {returnOriginal: false, w: 'majority', j: false})
+            .then(function (res) {
+                resolve({res: res, cancelledJob: job});
+            }, function (error) {
+                reject(ErrorHelper('Could not insert a new carrier job for the file transfer', error));
+            });
+    });
+};
+
 
 module.exports = JobsManagement;

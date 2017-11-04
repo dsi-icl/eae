@@ -144,7 +144,8 @@ EaeInterface.prototype._setupInterfaceControllers = function() {
     let _this = this;
 
     _this.accessLogger = new AccessLogger(_this.db.collection(Constants.EAE_COLLECTION_ACCESS_LOG));
-    _this.jobsController = new JobsControllerModule(_this.db.collection(Constants.EAE_COLLECTION_JOBS),
+    _this.jobsController = new JobsControllerModule(_this.config.carriers,
+                                                    _this.db.collection(Constants.EAE_COLLECTION_JOBS),
                                                     _this.db.collection(Constants.EAE_COLLECTION_USERS),
                                                     _this.db.collection(Constants.EAE_COLLECTION_CARRIER),
                                                     _this.accessLogger);
@@ -154,14 +155,17 @@ EaeInterface.prototype._setupInterfaceControllers = function() {
                                                           _this.db.collection(Constants.EAE_COLLECTION_USERS),
                                                           _this.accessLogger);
 
-    // Create a job request
-    _this.app.post('/createjob', _this.jobsController.createNewJob);
-
     // Retrieve a specific job - Check that user requesting is owner of the job or Admin
-    _this.app.post('/getjob', _this.jobsController.getJob);
+    _this.app.post('/job', _this.jobsController.getJob);
 
     // Retrieve all current jobs - Admin only
-    _this.app.post('/getAllJobs', _this.jobsController.getAllJobs);
+    _this.app.post('/job/getAll', _this.jobsController.getAllJobs);
+
+    // Create a job request
+    _this.app.post('/job/create', _this.jobsController.createNewJob);
+
+    // Cancel a Job
+    _this.app.post('/job/cancel', _this.jobsController.cancelJob);
 
     // Retrieve the results for a specific job
     _this.app.post('/job/results', _this.jobsController.getJobResults);
