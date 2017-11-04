@@ -154,7 +154,7 @@ test('Create a Job and subsequently get it', function(done) {
 });
 
 test('Create a Job and subsequently cancel it', function(done) {
-    expect.assertions(10);
+    expect.assertions(11);
     let job = JSON.stringify({"type": "python", "main": "hello.py", "params": [], "input": ["input1.txt", "input2.txt"]});
     request(
         {
