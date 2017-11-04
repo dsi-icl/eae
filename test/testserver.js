@@ -13,7 +13,6 @@ function TestServer() {
     this.stop = TestServer.prototype.stop.bind(this);
     this.addAdminUser = TestServer.prototype.addAdminUser.bind(this);
     this.addCluster = TestServer.prototype.addCluster.bind(this);
-    this.mongo = TestServer.prototype.mongo.bind(this);
 }
 
 TestServer.prototype.run = function() {
@@ -62,10 +61,6 @@ TestServer.prototype.stop = function() {
             })
     , 5000);
     });
-};
-
-TestServer.prototype.mongo = function() {
-    return this.eae_interface.db;
 };
 
 TestServer.prototype.addAdminUser = function(username, password){
