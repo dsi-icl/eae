@@ -125,17 +125,15 @@ JobsManagement.prototype.cancelJob = function(job){
     let _this = this;
 
     return new Promise(function(resolve, reject) {
-        job.status.unshift(Constants.EAE_JOB_STATUS_CANCELLED) ;
+        job.status.unshift(Constants.EAE_JOB_STATUS_CANCELLED);
         _this._jobsCollection.findOneAndUpdate({_id: ObjectID(job._id)},
-            { $set: job},
-            { returnOriginal: false, w: 'majority', j: false })
+            {$set: job},
+            {returnOriginal: false, w: 'majority', j: false})
             .then(function (res) {
                 resolve({res: res, cancelledJob: job});
-            }, function (error){
-                reject(ErrorHelper('Could not insert a new carrier job for the file transfer',error));
+            }, function (error) {
+                reject(ErrorHelper('Could not insert a new carrier job for the file transfer', error));
             });
-    },function(error){
-        reject(ErrorHelper('Internal Mongo Error', error));
     });
 };
 
