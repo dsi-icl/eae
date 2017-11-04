@@ -130,7 +130,7 @@ JobsManagement.prototype.cancelJob = function(job){
             { $set: job},
             { returnOriginal: false, w: 'majority', j: false })
             .then(function (res) {
-                resolve(res);
+                resolve({res: res, cancelledJob: job});
             }, function (error){
                 reject(ErrorHelper('Could not insert a new carrier job for the file transfer',error));
             });

@@ -274,9 +274,9 @@ JobsController.prototype.cancelJob = function(req, res) {
                                 return;
                             }
                             if (user.type === interface_constants.USER_TYPE.admin || job.requester === user.username) {
-                                _this._jobsManagement.cancelJob(job).then(function(_unused__success){
+                                _this._jobsManagement.cancelJob(job).then(function(resCancelledJob){
                                     res.status(200);
-                                    res.json({status: 'Job ' + jobID + ' has been successfully cancelled.'});
+                                    res.json(Object.assign({}, {status: 'Job ' + jobID + ' has been successfully cancelled.'}, resCancelledJob));
                                 },function(error){
                                     res.status(500);
                                     res.json(ErrorHelper('Internal server error', error));

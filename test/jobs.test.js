@@ -178,6 +178,7 @@ test('Create a Job and subsequently cancel it', function(done) {
             expect(body.status).toEqual('OK');
             expect(body.jobID).toBeDefined();
             expect(body.carriers).toEqual(config.carriers);
+            let jobID = body.jobID;
             request(
                 {
                     method: 'POST',
@@ -187,7 +188,7 @@ test('Create a Job and subsequently cancel it', function(done) {
                     body: {
                         eaeUsername: adminUsername,
                         eaeUserToken: adminPassword,
-                        jobID: body.jobID
+                        jobID: jobID
                     }
                 }, function(error, response, body) {
                     if (error) {
@@ -196,7 +197,8 @@ test('Create a Job and subsequently cancel it', function(done) {
                     expect(response).toBeDefined();
                     expect(response.statusCode).toEqual(200);
                     expect(body).toBeDefined();
-                    expect(body.status).toEqual('Job ' + body.jobID + ' has been successfully cancelled.');
+                    expect(body.status).toEqual('Job ' + jobID + ' has been successfully cancelled.');
+                    expect(body.cancelledJob.status).toEqual([eaeutils.Constants.EAE_JOB_STATUS_CANCELLED, eaeutils.Constants.EAE_JOB_STATUS_TRANSFERRING_DATA, eaeutils.Constants.EAE_JOB_STATUS_CREATED]);
                     done();
                 });
         }
