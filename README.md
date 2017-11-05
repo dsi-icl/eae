@@ -15,6 +15,6 @@ We provide the [API documentation](doc-api-swagger.yml) in swagger 2.0 format. Y
 [swagger editor](http://editor.swagger.io/) to render the API documentation. 
 
 ## Configuration
-At its construction, the `eae-interface` server receives a configuration object that MUST respect the following schema:
+At its construction, the `eae-carrier` server receives a configuration object that MUST respect the following schema:
  * [Example configuration](config/eae.carrier.sample.config.js)
  * [Tests configuration](config/eae.carrier.test.config.js)
