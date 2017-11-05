@@ -69,7 +69,7 @@ EaeScheduler.prototype.start = function() {
             // Setup route using controllers
             _this._setupStatusController();
 
-            //Setup the Helpers
+            // Setup the Helpers
             _this._setupMongoHelper();
             _this._setupSwiftHelper();
 
@@ -93,6 +93,18 @@ EaeScheduler.prototype.start = function() {
 
             // Start the scheduling of the queued jobs
             _this.jobs_scheduler.startPeriodicUpdate(1000); // Scheduling triggered every 1 second
+
+            // :)
+            _this.app.all('/whoareyou', function (__unused__req, res) {
+                res.status(418);
+                res.json(ErrorHelper('I\'m a teapot'));
+            });
+
+            // We take care of all remaining routes
+            _this.app.all('/*', function (__unused__req, res) {
+                res.status(400);
+                res.json(ErrorHelper('Bad request'));
+            });
 
             resolve(_this.app); // All good, returns application
         }, function (error) {
@@ -177,7 +189,7 @@ EaeScheduler.prototype._setupMongoHelper = function () {
 
 /**
  * @fn _setupSwiftHelper
- * @desc Initialize the helper class to intereact with Swift
+ * @desc Initialize the helper class to interact with Swift
  * @private
  */
 EaeScheduler.prototype._setupSwiftHelper = function () {
