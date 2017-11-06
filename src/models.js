@@ -1,5 +1,11 @@
+const transferType = {
+    upload: 'UPLOAD',
+    download: 'DOWNLOAD'
+};
+
 const carrierJobModel = {
     jobId: null,
+    type: '',
     files:[],
     requester: '',
     numberOfTransferredFiles: 0,
@@ -11,4 +17,7 @@ module.exports = {
     carrier_models:{
         CARRIER_JOB_MODEL: carrierJobModel
     },
+    carrier_constants: {
+        TRANSFER_TYPE: transferType
+    }
 };
