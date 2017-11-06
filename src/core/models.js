@@ -5,6 +5,11 @@ const userTypes = {
     standard: 'STANDARD'
 };
 
+const transferType = {
+  upload: 'UPLOAD',
+  download: 'DOWNLOAD'
+};
+
 const userModel = {
     type: userTypes.standard,
     username: '',
@@ -14,6 +19,7 @@ const userModel = {
 
 const carrierJobModel = {
     jobId: null,
+    type: '',
     files:[],
     requester: '',
     numberOfTransferredFiles: 0,
@@ -36,6 +42,7 @@ module.exports = {
         UNAUTHORIZED_ACCESS_MODEL: unauthorizedAccess
     },
     interface_constants: {
-        USER_TYPE: userTypes
+        USER_TYPE: userTypes,
+        TRANSFER_TYPE: transferType
     }
 };

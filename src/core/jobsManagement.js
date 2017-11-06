@@ -1,5 +1,5 @@
 const timer = require('timers');
-const { interface_models } = require('../core/models.js');
+const { interface_models, interface_constants } = require('../core/models.js');
 const { ErrorHelper, Constants } = require('eae-utils');
 const ObjectID = require('mongodb').ObjectID;
 
@@ -35,8 +35,8 @@ JobsManagement.prototype.createJobManifestForCarriers = function(newJob, jobID){
 
     return new Promise(function(resolve, reject) {
         // We build the carrier job
-        let carrierJob = Object.assign(interface_models.CARRIER_JOB_MODEL,
-            { files: newJob.input, requester: newJob.requester,
+        let carrierJob = Object.assign({}, interface_models.CARRIER_JOB_MODEL,
+            { files: newJob.input, requester: newJob.requester, type: interface_constants.TRANSFER_TYPE.upload,
                 jobId: jobID ,numberOfFilesToTransfer:  newJob.input.length});
         delete carrierJob._id;
         // We insert it for the carriers to work against
