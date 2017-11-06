@@ -390,6 +390,9 @@ definitions:
             jobId:
                 type: string
                 description: Id of the associated job located in the eAE job collection
+            type:
+                type: string
+                description: Defines if it is an upload to the eAE or download from it
             files:
                 type: array
                 description: List of files to be transfer
