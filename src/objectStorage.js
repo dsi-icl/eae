@@ -26,7 +26,7 @@ function ObjectStorage(
     // Creates os2 instances
     this._store = new os2.Store(this._url);
     this._account = new os2.Account(this._store, this._username, this._password);
-    this._container = new os2.Container(this._account, "toto_input"); // TODO: PUT the poper name! -- mongo id + _input
+    this._container = new os2.Container(this._account, 'toto_input'); // TODO: PUT the poper name! -- mongo id + _input
 
     // Internal ready status
     this._storage_ready = false;

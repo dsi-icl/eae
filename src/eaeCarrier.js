@@ -176,7 +176,7 @@ EaeCarrier.prototype._setupFileCarrier = function(){
     _this.carrierController.setFileCarrier(_this.fileCarrier);
 
     // We set up the routes for the file upload
-    _this.app.route('/file' + '/:input_id')
+    _this.app.route('/file-upload')
         .post(multer().single('file'), _this.carrierController.executeUpload);
 
     // :)
