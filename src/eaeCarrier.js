@@ -3,12 +3,13 @@ const mongodb = require('mongodb').MongoClient;
 const express = require('express');
 const body_parser = require('body-parser');
 const multer = require('multer');
-const { ErrorHelper, StatusHelper, SwiftHelper, Constants } = require('eae-utils');
+const { ErrorHelper, StatusHelper, Constants } = require('eae-utils');
 
 const package_json = require('../package.json');
 const StatusController = require('./statusController.js');
 const CarrierController = require('./carrierController');
 const FileCarrier = require('./fileCarrier.js');
+const ObjectStorage = require('./objectStorage.js');
 
 /**
  * @class EaeCarrier
@@ -147,7 +148,7 @@ EaeCarrier.prototype._setupStatusController = function () {
  */
 EaeCarrier.prototype._setupSwiftHelper = function () {
     let _this = this;
-    _this.swift_storage = new SwiftHelper({
+    _this.swift_storage = new ObjectStorage({
         url: _this.config.swiftURL,
         username: _this.config.swiftUsername,
         password: _this.config.swiftPassword

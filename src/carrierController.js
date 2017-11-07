@@ -6,10 +6,13 @@ const { ErrorHelper } = require('eae-utils');
  * @constructor
  */
 function CarrierController() {
+    let _this = this;
+    _this._carrierCollection = null;
+    _this._fileCarrier = null;
 
     // Bind member functions
-    this.executeUpload = CarrierController.prototype.executeUpload.bind(this);
-    this.setCollection = CarrierController.prototype.setCollection.bind(this);
+    _this.executeUpload = CarrierController.prototype.executeUpload.bind(this);
+    _this.setCollection = CarrierController.prototype.setCollection.bind(this);
 }
 
 /**
@@ -18,7 +21,8 @@ function CarrierController() {
  * @param carrierCollection Initialized mongodb collection to work against
  */
 CarrierController.prototype.setCollection = function(carrierCollection){
-    this._carrierCollection = carrierCollection;
+    let _this = this;
+    _this._carrierCollection = carrierCollection;
 };
 
 /**
@@ -27,7 +31,8 @@ CarrierController.prototype.setCollection = function(carrierCollection){
  * @param fileCarrier
  */
 CarrierController.prototype.setFileCarrier = function (fileCarrier) {
-    this._fileCarrier = fileCarrier;
+    let _this = this;
+    _this._fileCarrier = fileCarrier;
 };
 
 /**

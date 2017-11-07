@@ -7,15 +7,16 @@ const { ErrorHelper } =  require('eae-utils');
  * @constructor
  */
 function FileCarrier(swiftStorage) {
+    let _this = this;
     //Init member vars
-    this._swiftStorage = swiftStorage;
+    _this._swiftStorage = swiftStorage;
 
     //Bind member functions
-    this.initialize = FileCarrier.prototype.initialize.bind(this);
-    this.setOutput = FileCarrier.prototype.setOutput.bind(this);
+    _this.initialize = FileCarrier.prototype.initialize.bind(this);
+    _this.setOutput = FileCarrier.prototype.setOutput.bind(this);
 
     // Bind private member functions
-    this._receiveFile = FileCarrier.prototype._receiveFile.bind(this);
+    _this._receiveFile = FileCarrier.prototype._receiveFile.bind(this);
 
 }
 
