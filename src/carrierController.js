@@ -1,14 +1,16 @@
 const { ErrorHelper } = require('eae-utils');
+const FileCarrier = require('./fileCarrier.js');
+const ObjectStorage = require('./objectStorage.js');
 
 /**
  * @fn CarrierController
  * @desc Controller to manage the file transfer between the outside and the swift in the eAE
  * @constructor
  */
-function CarrierController() {
+function CarrierController(swiftConfig) {
     let _this = this;
     _this._carrierCollection = null;
-    _this._fileCarrier = null;
+    _this._swiftConfig = swiftConfig;
 
     // Bind member functions
     _this.executeUpload = CarrierController.prototype.executeUpload.bind(this);
@@ -23,16 +25,6 @@ function CarrierController() {
 CarrierController.prototype.setCollection = function(carrierCollection){
     let _this = this;
     _this._carrierCollection = carrierCollection;
-};
-
-/**
- * @fn setFileCarrier
- * @desc Setup the fileCarrier service that will carry over the file to the swift storage.
- * @param fileCarrier
- */
-CarrierController.prototype.setFileCarrier = function (fileCarrier) {
-    let _this = this;
-    _this._fileCarrier = fileCarrier;
 };
 
 /**
@@ -70,7 +62,9 @@ CarrierController.prototype.executeUpload = function (req, res) {
                     res.json(ErrorHelper('The proposed file for the upload is not valid.'));
                 }
                 if(carrierJob.requester === eaeUsername){
-                    _this._fileCarrier.initialize(req).then(function (_unused__success) {
+                    let objectStorage = new ObjectStorage(_this._swiftConfig,jobID,'input');
+                    let fileCarrier = new FileCarrier(objectStorage);
+                    fileCarrier.initialize(req).then(function (_unused__success) {
                         _this._carrierCollection.findOneAndUpdate({jobId: jobID},
                             {$inc: {numberOfTransferredFiles: 1}},
                             {returnOriginal: false, w: 'majority', j: false});

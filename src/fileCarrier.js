@@ -3,13 +3,13 @@ const { ErrorHelper } =  require('eae-utils');
 /**
  * @class FileCarrier
  * @desc Manages the transfer of files between the client application and Swift to be then used by the computes units.
- * @param swiftStorage Helper class to interact with Swift
+ * @param objectStorage Helper class to interact with Swift
  * @constructor
  */
-function FileCarrier(swiftStorage) {
+function FileCarrier(objectStorage) {
     let _this = this;
     //Init member vars
-    _this._swiftStorage = swiftStorage;
+    _this._objectStorage = objectStorage;
 
     //Bind member functions
     _this.initialize = FileCarrier.prototype.initialize.bind(this);
@@ -56,7 +56,7 @@ FileCarrier.prototype.initialize = function (request) {
 FileCarrier.prototype.setOutput = function(data) {
     let _this = this;
     return new Promise(function(resolve, reject) {
-        _this._swiftStorage.createObject(data).then(function(_unused__storage_id) {
+        _this._objectStorage.createObject(data).then(function(_unused__storage_id) {
             resolve(true);
         }, function(storage_error) {
             reject(ErrorHelper('Caching output in storage failed', storage_error));

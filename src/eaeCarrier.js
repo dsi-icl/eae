@@ -8,8 +8,6 @@ const { ErrorHelper, StatusHelper, Constants } = require('eae-utils');
 const package_json = require('../package.json');
 const StatusController = require('./statusController.js');
 const CarrierController = require('./carrierController');
-const FileCarrier = require('./fileCarrier.js');
-const ObjectStorage = require('./objectStorage.js');
 
 /**
  * @class EaeCarrier
@@ -32,7 +30,7 @@ function EaeCarrier(config) {
     this._setupStatusController = EaeCarrier.prototype._setupStatusController.bind(this);
     this._setupCarrierController = EaeCarrier.prototype._setupCarrierController.bind(this);
     this._setupFileCarrier = EaeCarrier.prototype._setupFileCarrier.bind(this);
-    this._setupSwiftHelper = EaeCarrier.prototype._setupSwiftHelper.bind(this);
+    this._setupSwiftConfig = EaeCarrier.prototype._setupSwiftConfig.bind(this);
 
     //Remove unwanted express headers
     this.app.set('x-powered-by', false);
@@ -65,7 +63,7 @@ EaeCarrier.prototype.start = function() {
             _this._setupStatusController();
 
             // Setup the helper
-            _this._setupSwiftHelper();
+            _this._setupSwiftConfig();
 
             // Setup the file carrier
             _this._setupCarrierController();
@@ -146,13 +144,13 @@ EaeCarrier.prototype._setupStatusController = function () {
  * @desc Initialize the helper class to interact with Swift
  * @private
  */
-EaeCarrier.prototype._setupSwiftHelper = function () {
+EaeCarrier.prototype._setupSwiftConfig = function () {
     let _this = this;
-    _this.swift_storage = new ObjectStorage({
+    _this.swiftStorageConfig = {
         url: _this.config.swiftURL,
         username: _this.config.swiftUsername,
         password: _this.config.swiftPassword
-    });
+    };
 };
 
 /**
@@ -162,7 +160,7 @@ EaeCarrier.prototype._setupSwiftHelper = function () {
  */
 EaeCarrier.prototype._setupCarrierController = function(){
     let _this = this;
-    _this.carrierController = new CarrierController();
+    _this.carrierController = new CarrierController(_this.swiftStorageConfig);
     _this.carrierController.setCollection(_this.db.collection(Constants.EAE_COLLECTION_CARRIER));
 };
 
@@ -173,8 +171,6 @@ EaeCarrier.prototype._setupCarrierController = function(){
  */
 EaeCarrier.prototype._setupFileCarrier = function(){
     let _this = this;
-    _this.fileCarrier = new FileCarrier(_this.swift_storage);
-    _this.carrierController.setFileCarrier(_this.fileCarrier);
 
     // We set up the routes for the file upload
     _this.app.route('/file-upload')
