@@ -178,55 +178,51 @@ JobsScheduler.prototype._queuedJobs = function () {
                                         };
                                         _this._mongoHelper.findAndReserveAvailableWorker(filter).then(
                                             function(candidateWorker){
-                                                if(candidateWorker !== false){
+                                                if(candidateWorker !== false && candidateWorker !== null){
                                                 switch (job.type) {
                                                     case Constants.EAE_JOB_TYPE_SPARK:
                                                         // We lock the cluster and set the candidate as the executor for the job
                                                         let reserved = [];
+                                                        let updates = [];
                                                         candidateWorker.clusters.spark.forEach(function(workerNode){
                                                             workerNode.statusLock = true;
-                                                            _this._mongoHelper.updateNodeStatus(workerNode).then(function(success){
-                                                                    if(success.nModified === 1) {
-                                                                        reserved.push(workerNode);
-                                                                    }else if(success.nModified === 0){
-                                                                        //break;
-                                                                    }
-                                                                },
-                                                                function(error){
-                                                                    reject(ErrorHelper('Error when locking node in cluster. ' +
-                                                                        'Node ' + candidateWorker.toString(),error));
-                                                                })
+                                                            updates.push(_this._mongoHelper.updateNodeStatus(workerNode));
+                                                            reserved.push(workerNode);
                                                         });
-                                                        if(reserved.length === candidateWorker.clusters.spark.length){
-                                                            candidateWorker.clusters.spark.forEach(function(workerNode) {
-                                                                workerNode.status = Constants.EAE_SERVICE_STATUS_BUSY;
-                                                                _this._mongoHelper.updateNodeStatus(workerNode).then(function(_unsued_success){
-                                                                    },
-                                                                    function(error){
-                                                                        reject(ErrorHelper('Error when setting node to busy ' +
-                                                                            'in cluster. Node ' + candidateWorker.toString(),error));
-                                                                    })
-                                                            })
-                                                        }else{
-                                                            // We free the reserved resources
-                                                            reserved.forEach(function(reservedWorker){
-                                                                reservedWorker.status = Constants.EAE_SERVICE_STATUS_IDLE;
-                                                                _this._mongoHelper.updateNodeStatus(reservedWorker).then(function(_unsued_success){
-                                                                    },
-                                                                    function(error){
-                                                                        reject(ErrorHelper('Error when setting node to busy ' +
-                                                                            'in cluster. Node ' + reservedWorker.toString(),error));
-                                                                    })
-                                                            });
-                                                            // we unlock the job
-                                                            job.statusLock = false;
-                                                            _this._mongoHelper.updateJob(job);
-                                                            console.log('No currently available resource for job : ' + job._id
-                                                                + ' of type ' + job.type + '.\nAt least one resource in the ' +
-                                                                'cluster is not available');
-                                                            resolve(false);
-                                                        }
-                                                        break;
+                                                        Promise.all(updates).then(successes => {
+                                                            if (successes.reduce((a, b) => a.ok + b.ok, 0) === candidateWorker.clusters.spark.length) {
+                                                                candidateWorker.clusters.spark.forEach(function(workerNode) {
+                                                                    workerNode.status = Constants.EAE_SERVICE_STATUS_BUSY;
+                                                                    _this._mongoHelper.updateNodeStatus(workerNode).then(function(_unsued_success){
+                                                                        },
+                                                                        function(error){
+                                                                            reject(ErrorHelper('Error when setting node to busy ' +
+                                                                                'in cluster. Node ' + candidateWorker.toString(),error));
+                                                                        })
+                                                                })
+                                                            }
+                                                            else {
+                                                                // We free the reserved resources
+                                                                reserved.forEach(function(reservedWorker){
+                                                                    reservedWorker.status = Constants.EAE_SERVICE_STATUS_IDLE;
+                                                                    _this._mongoHelper.updateNodeStatus(reservedWorker).then(function(_unsued_success){
+                                                                        },
+                                                                        function(error){
+                                                                            reject(ErrorHelper('Error when setting node to busy ' +
+                                                                                'in cluster. Node ' + reservedWorker.toString(),error));
+                                                                        })
+                                                                });
+                                                                // we unlock the job
+                                                                job.statusLock = false;
+                                                                _this._mongoHelper.updateJob(job);
+                                                                console.log('No currently available resource for job : ' + job._id
+                                                                    + ' of type ' + job.type + '.\nAt least one resource in the ' +
+                                                                    'cluster is not available');
+                                                                resolve(false);
+                                                            }
+                                                        }, reason => {
+                                                            reject(ErrorHelper('Error when locking node in cluster: ' + reason));
+                                                        });
                                                     default:
                                                         // Nothing to do
                                                         break;
