@@ -6,7 +6,8 @@ const MemoryStream = require('memorystream');
 /**
  * @fn ObjectStorage
  * @param options[in] A Plain JS object describing the swift object storage endpoint
- *
+ * @param jobID Id of the associated job. It defines the first half of the swift container name.
+ * @param type One of two possible values is input or output. it defines the second half og the swift container name.
  * @constructor
  */
 function ObjectStorage(
@@ -15,7 +16,7 @@ function ObjectStorage(
         username: 'admin',
         password: 'admin',
         chunkSize: 1024 * 1024 * 1024 - 1 // 1 Go
-    }) {
+    }, jobID, type) {
     // Init member vars
     // Destructuring options to private attributes
     this._url = options.url;
@@ -26,7 +27,7 @@ function ObjectStorage(
     // Creates os2 instances
     this._store = new os2.Store(this._url);
     this._account = new os2.Account(this._store, this._username, this._password);
-    this._container = new os2.Container(this._account, 'toto_input'); // TODO: PUT the poper name! -- mongo id + _input
+    this._container = new os2.Container(this._account, jobID + '_' + type); // mongoId + _ + input/output
 
     // Internal ready status
     this._storage_ready = false;
