@@ -74,25 +74,24 @@ afterAll(function ()  {
 });
 
 
-// test('_queued_jobs: A queued non-spark job gets scheduled', async () => {
-//     expect.assertions(1);
-//
-//     let job = {
-//         status: [Constants.EAE_JOB_STATUS_QUEUED],
-//         type: "r",
-//         executorIP: '127.0.0.1',
-//         executorPort: 80,
-//         statusLock: false
-//     };
-//
-//     await db.collection(Constants.EAE_COLLECTION_JOBS).insertOne(job);
-//
-//     await jobsScheduler._queuedJobs();
-//
-//     let jobs = await mongo_helper.retrieveJobs({_id: job._id});
-//     //TODO: Fails because _queuedJobs returns before waiting for the request to compute and before changing the status
-//     expect(jobs[0].status).toEqual([Constants.EAE_JOB_STATUS_QUEUED, Constants.EAE_JOB_STATUS_SCHEDULED]);
-// });
+test('_queued_jobs: A queued non-spark job gets scheduled', async () => {
+    expect.assertions(1);
+
+    let job = {
+        status: [Constants.EAE_JOB_STATUS_QUEUED],
+        type: "r",
+        executorIP: '127.0.0.1',
+        executorPort: 80,
+        statusLock: false
+    };
+
+    await db.collection(Constants.EAE_COLLECTION_JOBS).insertOne(job);
+
+    await jobsScheduler._queuedJobs();
+
+    let jobs = await mongo_helper.retrieveJobs({_id: job._id});
+    expect(jobs[0].status).toEqual([Constants.EAE_JOB_STATUS_SCHEDULED, Constants.EAE_JOB_STATUS_QUEUED]);
+});
 
 test('_queued_jobs: If a queued job has failed 3 times, then it is set to dead and then completed', async () => {
     expect.assertions(2);
