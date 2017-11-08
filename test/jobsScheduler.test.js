@@ -93,6 +93,57 @@ test('_queued_jobs: A queued non-spark job gets scheduled', async () => {
     expect(jobs[0].status).toEqual([Constants.EAE_JOB_STATUS_SCHEDULED, Constants.EAE_JOB_STATUS_QUEUED]);
 });
 
+// test('_queued_jobs: A queued spark job gets scheduled', async () => {
+//     expect.assertions(3);
+//
+//     let node2 = {
+//         ip: "192.168.10.10",
+//         port: 80,
+//         status: Constants.EAE_SERVICE_STATUS_IDLE,
+//         statusLock: false
+//     };
+//
+//     let node3 = {
+//         ip: "192.168.10.15",
+//         port: 80,
+//         status: Constants.EAE_SERVICE_STATUS_IDLE,
+//         statusLock: false
+//     };
+//
+//     let node = {
+//         ip: "192.168.0.5",
+//         port: 80,
+//         status: Constants.EAE_SERVICE_STATUS_IDLE,
+//         clusters: {
+//             spark: [node2, node3]
+//         },
+//         computeType: Constants.EAE_JOB_TYPE_SPARK,
+//         statusLock: false
+//     };
+//
+//     let job = {
+//         status: [Constants.EAE_JOB_STATUS_QUEUED],
+//         statusLock: false,
+//         type: Constants.EAE_JOB_TYPE_SPARK,
+//     };
+//
+//     await db.collection(Constants.EAE_COLLECTION_JOBS).insertOne(job);
+//     await db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node);
+//     await db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node2);
+//     await db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node3);
+//
+//     await jobsScheduler._queuedJobs();
+//
+//     let nodes = await mongo_helper.retrieveNodesStatus({_id: node._id});
+//     expect(nodes[0].status).toEqual(Constants.EAE_SERVICE_STATUS_LOCKED);
+//
+//     nodes = await mongo_helper.retrieveNodesStatus({_id: node2._id});
+//     expect(nodes[0].status).toEqual(Constants.EAE_SERVICE_STATUS_BUSY);
+//
+//     nodes = await mongo_helper.retrieveNodesStatus({_id: node3._id});
+//     expect(nodes[0].status).toEqual(Constants.EAE_SERVICE_STATUS_BUSY);
+// });
+
 test('_queued_jobs: If a queued job has failed 3 times, then it is set to dead and then completed', async () => {
     expect.assertions(2);
 
@@ -134,80 +185,79 @@ test('_errosJobs: A job in error state gets added to the archived collection and
     expect(archived_jobs.length).toBe(1);
 });
 
-// test('_errorJobs: When a spark job is in error status its resources get freed', async () => {
-//     expect.assertions(3);
-//
-//     let node2 = {
-//         ip: "192.168.10.10",
-//         port: 80,
-//         status: Constants.EAE_SERVICE_STATUS_BUSY,
-//         statusLock: false
-//     };
-//
-//     let node3 = {
-//         ip: "192.168.10.15",
-//         port: 80,
-//         status: Constants.EAE_SERVICE_STATUS_BUSY,
-//         statusLock: false
-//     };
-//
-//     //TODO: Am I right in saying that this node is the entrypoint for a spark cluster?
-//     let node = {
-//         ip: "192.168.0.1",
-//         port: 80,
-//         status: Constants.EAE_SERVICE_STATUS_BUSY,
-//         clusters: {
-//             spark: [node2, node3]
-//         },
-//         statusLock: false
-//     };
-//
-//     let job = {
-//         status: [Constants.EAE_JOB_STATUS_ERROR],
-//         statusLock: false,
-//         executorPort: 80,
-//         type: Constants.EAE_JOB_TYPE_SPARK,
-//         executorIP: "192.168.0.1"
-//     };
-//
-//     await db.collection(Constants.EAE_COLLECTION_JOBS).insertOne(job);
-//     await db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node);
-//     await db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node2);
-//     await db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node3);
-//
-//     await jobsScheduler._errorJobs();
-//
-//     //TODO: This assertion fails but in my opinion it should pass
-//     // let nodes = await mongo_helper.retrieveNodesStatus({_id: node._id});
-//     // expect(nodes[0].status).toEqual(Constants.EAE_SERVICE_STATUS_IDLE);
-//
-//     let nodes = await mongo_helper.retrieveNodesStatus({_id: node2._id});
-//     expect(nodes[0].status).toEqual(Constants.EAE_SERVICE_STATUS_IDLE);
-//
-//     nodes = await mongo_helper.retrieveNodesStatus({_id: node3._id});
-//     expect(nodes[0].status).toEqual(Constants.EAE_SERVICE_STATUS_IDLE);
-// });
+test('_errorJobs: When a spark job is in error status, its cluster gets freed', async () => {
+    expect.assertions(2);
 
-// test('_canceledOrDoneJobs: jobs in canceled or done state gets set to completed', async () => {
-//     expect.assertions(2);
-//
-//     let doneJob = {
-//         status: [Constants.EAE_JOB_STATUS_CANCELLED],
-//         statusLock: false,
-//     };
-//
-//     let canceledJob = {
-//         status: [Constants.EAE_JOB_STATUS_DONE],
-//         statusLock: false,
-//     };
-//
-//     await db.collection(Constants.EAE_COLLECTION_JOBS).insertOne(doneJob);
-//     await db.collection(Constants.EAE_COLLECTION_JOBS).insertOne(canceledJob);
-//
-//     await jobsScheduler._canceledOrDoneJobs();
-//
-//     let jobs = await mongo_helper.retrieveJobs({});
-//     expect(jobs[0].status[0]).toEqual(Constants.EAE_JOB_STATUS_COMPLETED);
-//     //TODO: This second job doesn't get updated because it can't get unlocked in canceledOrDone()
-//     expect(jobs[1].status[0]).toEqual(Constants.EAE_JOB_STATUS_COMPLETED);
-// });
+    let node2 = {
+        ip: "192.168.10.10",
+        port: 80,
+        status: Constants.EAE_SERVICE_STATUS_BUSY,
+        statusLock: false
+    };
+
+    let node3 = {
+        ip: "192.168.10.15",
+        port: 80,
+        status: Constants.EAE_SERVICE_STATUS_BUSY,
+        statusLock: false
+    };
+
+    let node = {
+        ip: "192.168.0.5",
+        port: 80,
+        status: Constants.EAE_SERVICE_STATUS_LOCKED,
+        clusters: {
+            spark: [node2, node3]
+        },
+        statusLock: false
+    };
+
+    let job = {
+        status: [Constants.EAE_JOB_STATUS_ERROR],
+        statusLock: false,
+        executorPort: 80,
+        type: Constants.EAE_JOB_TYPE_SPARK,
+        executorIP: "192.168.0.5"
+    };
+
+    await db.collection(Constants.EAE_COLLECTION_JOBS).insertOne(job);
+    await db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node);
+    await db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node2);
+    await db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node3);
+
+    await jobsScheduler._errorJobs();
+
+    let nodes = await mongo_helper.retrieveNodesStatus({_id: node2._id});
+    expect(nodes[0].status).toEqual(Constants.EAE_SERVICE_STATUS_IDLE);
+
+    nodes = await mongo_helper.retrieveNodesStatus({_id: node3._id});
+    expect(nodes[0].status).toEqual(Constants.EAE_SERVICE_STATUS_IDLE);
+});
+
+test('_canceledOrDoneJobs: job in canceled state gets set to completed', async () => {
+    let canceledJob = {
+        status: [Constants.EAE_JOB_STATUS_CANCELLED],
+        statusLock: false,
+    };
+
+    await db.collection(Constants.EAE_COLLECTION_JOBS).insertOne(canceledJob);
+
+    await jobsScheduler._canceledOrDoneJobs();
+
+    let jobs = await mongo_helper.retrieveJobs({});
+    expect(jobs[0].status[0]).toEqual(Constants.EAE_JOB_STATUS_COMPLETED);
+});
+
+test('_canceledOrDoneJobs: job in done state gets set to completed', async () => {
+    let doneJob = {
+        status: [Constants.EAE_JOB_STATUS_DONE],
+        statusLock: false,
+    };
+
+    await db.collection(Constants.EAE_COLLECTION_JOBS).insertOne(doneJob);
+
+    await jobsScheduler._canceledOrDoneJobs();
+
+    let jobs = await mongo_helper.retrieveJobs({});
+    expect(jobs[0].status[0]).toEqual(Constants.EAE_JOB_STATUS_COMPLETED);
+});
