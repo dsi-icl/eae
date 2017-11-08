@@ -19,5 +19,5 @@ COPY ./src ./src
 COPY ./test ./test
 
 # Run compute service
-EXPOSE 80
+EXPOSE 8000
 CMD [ "npm", "test" ]
