@@ -20,4 +20,4 @@ COPY ./test ./test
 
 # Run compute service
 EXPOSE 8000
-CMD [ "npm", "test" ]
+CMD [ "npm", "test", "--forceExit" ]
