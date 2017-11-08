@@ -252,10 +252,12 @@ JobsScheduler.prototype._queuedJobs = function () {
                                                         job.executorIP = candidateWorker.ip;
                                                         job.executorPort = candidateWorker.port;
                                                         job.statusLock = false;
-                                                        job.status.shift(Constants.EAE_JOB_STATUS_SCHEDULED);
-                                                        _this._mongoHelper.updateJob(job);
+                                                        job.status.unshift(Constants.EAE_JOB_STATUS_SCHEDULED);
+                                                        _this._mongoHelper.updateJob(job).then(function () {
+                                                            resolve(true);
+                                                        });
+
                                                     });
-                                                resolve(true);
                                             }else{
                                                     // we unlock the job
                                                     job.statusLock = false;
