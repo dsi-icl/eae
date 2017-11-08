@@ -232,32 +232,29 @@ JobsScheduler.prototype._queuedJobs = function () {
                                                         break;
                                                 }
                                                 // Everything is set, we send the request to the worker
-                                                // request({
-                                                //         method: 'POST',
-                                                //         baseUrl: 'http://' + candidateWorker.ip + ':' + candidateWorker.port,
-                                                //         uri:'/run',
-                                                //         json: true,
-                                                //         body: {
-                                                //         job_id: job._id.toHexString()
-                                                //         }
-                                                //     },
-                                                //     function (error, response, body) {
-                                                //         if (error !== null) {
-                                                //             reject(ErrorHelper('The run request has failed:', error));
-                                                //         }
-                                                //         console.log('The run request sent to host ' + candidateWorker.ip
-                                                //             + ':' + candidateWorker.port + ' and the response was ', response, body);
-                                                //         // We set the candidate as the executor for the job, set it to
-                                                //         // scheduled and unlock it.
-                                                //         job.executorIP = candidateWorker.ip;
-                                                //         job.executorPort = candidateWorker.port;
-                                                //         job.statusLock = false;
-                                                //         job.status  = Constants.EAE_JOB_STATUS_SCHEDULED;
-                                                //         _this._mongoHelper.updateJob(job);
-                                                //     });
-                                                    job.statusLock = false;
-                                                    job.status.push(Constants.EAE_JOB_STATUS_SCHEDULED);
-                                                    _this._mongoHelper.updateJob(job);
+                                                request({
+                                                        method: 'POST',
+                                                        baseUrl: 'http://' + candidateWorker.ip + ':' + candidateWorker.port,
+                                                        uri:'/run',
+                                                        json: true,
+                                                        body: {
+                                                        job_id: job._id.toHexString()
+                                                        }
+                                                    },
+                                                    function (error, response, body) {
+                                                        if (error !== null) {
+                                                            reject(ErrorHelper('The run request has failed:', error));
+                                                        }
+                                                        console.log('The run request sent to host ' + candidateWorker.ip
+                                                            + ':' + candidateWorker.port + ' and the response was ', response, body);
+                                                        // We set the candidate as the executor for the job, set it to
+                                                        // scheduled and unlock it.
+                                                        job.executorIP = candidateWorker.ip;
+                                                        job.executorPort = candidateWorker.port;
+                                                        job.statusLock = false;
+                                                        job.status.shift(Constants.EAE_JOB_STATUS_SCHEDULED);
+                                                        _this._mongoHelper.updateJob(job);
+                                                    });
                                                 resolve(true);
                                             }else{
                                                     // we unlock the job
