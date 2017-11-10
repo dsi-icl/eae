@@ -105,14 +105,15 @@ ObjectStorage.prototype._internalClosure = function (callback, ...args) {
 /**
  * @fn createObject
  * @param object_data String or Buffer data to store in a new object
+ * @param fileName The name of the file to be inserted into Swift
  * @return {Promise} Resolves to object id on success
  */
-ObjectStorage.prototype.createObject = function (object_data) {
+ObjectStorage.prototype.createObject = function (object_data, fileName) {
     let _this = this;
 
     return _this._internalClosure(function () {
         return new Promise(function (resolve, reject) {
-            let objName = _this._generateFilename();
+            let objName = fileName || _this._generateFilename();
             let obj = new os2.StaticLargeObject(_this._container, objName);
             let data_stream = new MemoryStream();
 
