@@ -20,6 +20,7 @@ function JobsManagement(carrierCollection, jobsCollection, delay = Constants.STA
     _this.createJobManifestForCarriers = JobsManagement.prototype.createJobManifestForCarriers.bind(this);
     _this.startJobMonitoring = JobsManagement.prototype.startJobMonitoring.bind(this);
     _this.cancelJob = JobsManagement.prototype.cancelJob.bind(this);
+    _this.createDownloadManifestForCarriers = JobsManagement.prototype.createDownloadManifestForCarriers.bind(this);
 
 }
 
@@ -55,6 +56,31 @@ JobsManagement.prototype.createJobManifestForCarriers = function(newJob, jobID){
         });
     });
 };
+
+/**
+ * @fn createDownloadManifestForCarriers
+ * @desc Creates a manifest for the carriers to enable the download of the results by the user.
+ * @param job Completed job with the list of output(s)
+ * @returns {Promise}
+ */
+JobsManagement.prototype.createDownloadManifestForCarriers = function(job) {
+    let _this = this;
+
+    return new Promise(function (resolve, reject) {
+        // We create a download manifest
+        let carrierJob = Object.assign({}, interface_models.CARRIER_JOB_MODEL,
+            { files: job.output, requester: job.requester, type: interface_constants.TRANSFER_TYPE.download,
+                jobId: job._id ,numberOfFilesToTransfer:  job.input.length});
+        delete carrierJob._id; // Useless?
+        // We insert it for the carriers to work against
+        _this._carrierCollection.insertOne(carrierJob).then(function (_unused__result) {
+            resolve(job.output);
+        }, function (error){
+            reject(ErrorHelper('Could not insert a new carrier job for the file transfer',error));
+        });
+    });
+};
+
 
 /**
  * @fn jobMonitoring
