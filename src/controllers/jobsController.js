@@ -351,9 +351,10 @@ JobsController.prototype.getJobResults = function(req, res){
                             return;
                         }
                         if(user.type === interface_constants.USER_TYPE.admin || job.requester === user.username){
-                            // TODO: implement the sending back of the address of carriers to download from and prepare carriers for the download by the user - Create a manifest?
-                            res.status(200);
-                            res.json('toto');
+                            _this._jobsManagement.createDownloadManifestForCarriers(job).then(function(outputFiles) {
+                                res.status(200);
+                                res.json({status: 'OK', carriers: _this._carriers, output: outputFiles});
+                            })
                         }else{
                             res.status(401);
                             res.json(ErrorHelper('The user is not authorized to access this job.'));
