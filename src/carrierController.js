@@ -14,6 +14,7 @@ function CarrierController(swiftConfig) {
 
     // Bind member functions
     _this.executeUpload = CarrierController.prototype.executeUpload.bind(this);
+    _this.executeDownload = CarrierController.prototype.executeDownload.bind(this);
     _this.setCollection = CarrierController.prototype.setCollection.bind(this);
 }
 
@@ -47,10 +48,9 @@ CarrierController.prototype.executeUpload = function (req, res) {
 
         if (jobID === null || jobID === undefined || fileName === null || fileName === undefined) {
             res.status(401);
-            res.json(ErrorHelper('Missing InputId or FileName.\nInputId: ' + jobID + '\nfileName: ' + fileName));
+            res.json(ErrorHelper('Missing jobID or FileName.\njobID: ' + jobID + '\nfileName: ' + fileName));
         }
         else {
-
             _this._carrierCollection.findOne({jobId: jobID}).then(function(carrierJob){
                 if(carrierJob === null){
                     res.status(401);
@@ -64,7 +64,7 @@ CarrierController.prototype.executeUpload = function (req, res) {
                 if(carrierJob.requester === eaeUsername){
                     let objectStorage = new ObjectStorage(_this._swiftConfig,jobID,'input');
                     let fileCarrier = new FileCarrier(objectStorage);
-                    fileCarrier.initialize(req).then(function (_unused__success) {
+                    fileCarrier.initializeUpload(req, fileName).then(function (_unused__success) {
                         _this._carrierCollection.findOneAndUpdate({jobId: jobID},
                             {$inc: {numberOfTransferredFiles: 1}},
                             {returnOriginal: false, w: 'majority', j: false});
@@ -90,5 +90,66 @@ CarrierController.prototype.executeUpload = function (req, res) {
     }
 };
 
+/**
+ * @fn executeDownload
+ * @desc Serves the requested the file from the swift for the specified carrier job.
+ * @param req Express.js request object
+ * @param res Express.js response object
+ */
+CarrierController.prototype.executeDownload = function (req, res) {
+    let _this = this;
+    let jobID = req.body.jobID;
+    let fileName = req.body.fileName;
+    let eaeUsername = req.body.eaeUsername;
+
+    try {
+        if (eaeUsername === null || eaeUsername === undefined) {
+            res.status(401);
+            res.json(ErrorHelper('Missing username'));
+        }
+
+        if (jobID === null || jobID === undefined || fileName === null || fileName === undefined) {
+            res.status(401);
+            res.json(ErrorHelper('Missing jobID or FileName.\njobID: ' + jobID + '\nfileName: ' + fileName));
+        }
+        else {
+            _this._carrierCollection.findOne({jobId: jobID}).then(function (carrierJob) {
+                if (carrierJob === null) {
+                    res.status(401);
+                    res.json(ErrorHelper('The job request do not exit. The query has been logged.'));
+                }
+                let isNotLegit = !(carrierJob.files.indexOf(fileName) > -1);
+                if(isNotLegit){
+                    res.status(401);
+                    res.json(ErrorHelper('The proposed file for download is not valid.'));
+                }
+                if (carrierJob.requester === eaeUsername) {
+                    let objectStorage = new ObjectStorage(_this._swiftConfig,jobID,'output');
+                    let fileCarrier = new FileCarrier(objectStorage);
+                    fileCarrier.initializeDownload(fileName).then(function (data) {
+                        _this._carrierCollection.findOneAndUpdate({jobId: jobID},
+                            {$inc: {numberOfTransferredFiles: 1}},
+                            {returnOriginal: false, w: 'majority', j: false});
+                        res.status(200);
+                        res.json(data);
+                    }, function (error) {
+                        res.status(500);
+                        res.json(ErrorHelper('Failed to upload file to Swift', error));
+                    });
+                }else{
+                    res.status(401);
+                    res.json(ErrorHelper('The username for this file transfer do not match the requester of the job.'));
+                }
+            },function(error){
+                res.status(500);
+                res.json(ErrorHelper('Internal Mongo Error', error));
+            });
+        }
+    }
+    catch (error) {
+        res.status(500);
+        res.json(ErrorHelper('Error occurred', error));
+    }
+};
 
 module.exports = CarrierController;
