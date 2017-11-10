@@ -78,7 +78,7 @@ JobsManagement.prototype.createDownloadManifestForCarriers = function(job) {
         }, function (error){
             reject(ErrorHelper('Could not insert a new carrier job for the file transfer',error));
         });
-    })
+    });
 };
 
 
