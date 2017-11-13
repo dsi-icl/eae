@@ -44,13 +44,13 @@ CarrierController.prototype.executeUpload = function (req, res) {
         if (eaeUsername === null || eaeUsername === undefined) {
             res.status(401);
             res.json(ErrorHelper('Missing username'));
+            return;
         }
 
         if (jobID === null || jobID === undefined || fileName === null || fileName === undefined) {
             res.status(401);
             res.json(ErrorHelper('Missing jobID or FileName.\njobID: ' + jobID + '\nfileName: ' + fileName));
-        }
-        else {
+        }else {
             _this._carrierCollection.findOne({jobId: jobID}).then(function(carrierJob){
                 if(carrierJob === null){
                     res.status(401);
@@ -106,13 +106,13 @@ CarrierController.prototype.executeDownload = function (req, res) {
         if (eaeUsername === null || eaeUsername === undefined) {
             res.status(401);
             res.json(ErrorHelper('Missing username'));
+            return;
         }
 
         if (jobID === null || jobID === undefined || fileName === null || fileName === undefined) {
             res.status(401);
-            res.json(ErrorHelper('Missing jobID or FileName.\njobID: ' + jobID + '\nfileName: ' + fileName));
-        }
-        else {
+            res.json(ErrorHelper('Missing jobID or FileName.\njobID: ' + jobID + '\nfileName: ' + fileName))
+        }else {
             _this._carrierCollection.findOne({jobId: jobID}).then(function (carrierJob) {
                 if (carrierJob === null) {
                     res.status(401);
