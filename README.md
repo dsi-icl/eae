@@ -18,8 +18,9 @@ At its construction, the `eaeCompute` server receives a configuration object tha
  
 
 ### Supported job types
- * `EAE_JOB_TYPE_PYTHON2` from the eae-utils package. Runs a python script using python2 cli
- * `EAE_JOB_TYPE_PIP`. Use the pip command. Support both install and uninstall via this job parameters
+ * `EAE_JOB_TYPE_PYTHON2` From the eae-utils package. Runs a python script using python2 cli
+ * `EAE_JOB_TYPE_PIP` Use the pip command. Support both install and uninstall via this job parameters
+ * `EAE_JOB_TYPE_R` From the eae-utils package. Runs an R script using Rscript cli
 
 ### Contributing
 To add support for more Job types:
