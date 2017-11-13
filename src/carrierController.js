@@ -111,7 +111,7 @@ CarrierController.prototype.executeDownload = function (req, res) {
 
         if (jobID === null || jobID === undefined || fileName === null || fileName === undefined) {
             res.status(401);
-            res.json(ErrorHelper('Missing jobID or FileName.\njobID: ' + jobID + '\nfileName: ' + fileName))
+            res.json(ErrorHelper('Missing jobID or FileName.\njobID: ' + jobID + '\nfileName: ' + fileName));
         }else {
             _this._carrierCollection.findOne({jobId: jobID}).then(function (carrierJob) {
                 if (carrierJob === null) {
