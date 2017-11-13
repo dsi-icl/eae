@@ -4,12 +4,8 @@ FROM node:wheezy
 # Install all dependencies
 RUN apt-get update -q                                   \
     && apt-get upgrade -y --no-install-recommends       \
-    && apt-get install -y python-pip
-
-RUN wget https://mran.microsoft.com/install/mro/3.4.2/microsoft-r-open-3.4.2.tar.gz \
-    && tar xzf microsoft-r-open-3.4.2.tar.gz \
-    && cd microsoft-r-open \
-    && ./install.sh
+    && apt-get install -y python-pip                    \
+    && apt-get install -y r-base
 
 # Create app directories
 RUN mkdir -p /usr/app && mkdir -p /usr/test
