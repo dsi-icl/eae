@@ -6,10 +6,10 @@ RUN apt-get update -q                                   \
     && apt-get upgrade -y --no-install-recommends       \
     && apt-get install -y python-pip
 
-#RUN wget https://mran.microsoft.com/install/mro/3.4.0/microsoft-r-open-3.4.0.tar.gz \
-#    && tar xzf microsoft-r-open-3.4.0.tar.gz \
-#    && cd microsoft-r-open \
-#    && ./install.sh
+RUN wget https://mran.microsoft.com/install/mro/3.4.2/microsoft-r-open-3.4.2.tar.gz \
+    && tar xzf microsoft-r-open-3.4.2.tar.gz \
+    && cd microsoft-r-open \
+    && ./install.sh
 
 # Create app directories
 RUN mkdir -p /usr/app && mkdir -p /usr/test

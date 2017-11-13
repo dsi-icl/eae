@@ -3,6 +3,7 @@ const { ErrorHelper, Constants } =  require('eae-utils');
 
 const JobExecutorPython = require('./jobExecutorPython.js');
 const JobExecutorPip = require('./jobExecutorPip.js');
+const JobExecutorR = require('./jobExecutorR.js');
 
 /**
  * @class JobExecutorFactory
@@ -33,6 +34,9 @@ JobExecutorFactory.prototype.createFromId = function(jobID, jobCollection) {
                     break;
                 case Constants.EAE_JOB_TYPE_PIP:
                     resolve(new JobExecutorPip(jobID, jobCollection, jobModel));
+                    break;
+                case Constants.EAE_JOB_TYPE_R:
+                    resolve(new JobExecutorR(jobID, jobCollection, jobModel));
                     break;
                 default:
                     reject(ErrorHelper('Execution is not supported for ' + jobModel.type));
