@@ -134,7 +134,7 @@ CarrierController.prototype.executeDownload = function (req, res) {
                         res.json(data);
                     }, function (error) {
                         res.status(500);
-                        res.json(ErrorHelper('Failed to upload file to Swift', error));
+                        res.json(ErrorHelper('Failed download file from Swift', error));
                     });
                 }else{
                     res.status(401);
