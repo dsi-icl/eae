@@ -2,10 +2,11 @@
 const {Constants}  =  require('eae-utils');
 
 module.exports = {
-    mongoURL: 'mongodb://jean:root@146.169.33.32:27020/eaeservices',
-    port: 3001,
+    mongoURL: 'mongodb://mongodb:27017',
+    port: 8080,
     enableCors: true,
-    swiftUsername: 'jean',
+    swiftURL: 'http://0.0.0.0:8080',
+    swiftUsername: 'test',
     swiftPassword: 'test',
     computeType: [Constants.EAE_COMPUTE_TYPE_PYTHON2],
     clusters:{}
