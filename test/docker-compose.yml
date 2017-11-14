@@ -21,6 +21,12 @@ services:
         build:
             context: .
             dockerfile: ./compute/Dockerfile
+        depends_on:
+            - mongodb
+            - swift
+        links:
+            - mongodb
+            - swift
         ports:
             - 80:80
 
