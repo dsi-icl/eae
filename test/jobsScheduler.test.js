@@ -27,7 +27,7 @@ beforeEach(() => {
                 db.collection(Constants.EAE_COLLECTION_STATUS).deleteMany({}).then(() => {
                     console.log("Cleared status collection");
                     let node = {
-                        ip: "192.168.0.1",
+                        ip: "compute",
                         port: 80,
                         status: Constants.EAE_SERVICE_STATUS_IDLE,
                         computeType: "r",
@@ -80,7 +80,7 @@ test('_queued_jobs: A queued non-spark job gets scheduled', async () => {
     let job = {
         status: [Constants.EAE_JOB_STATUS_QUEUED],
         type: "r",
-        executorIP: '127.0.0.1',
+        executorIP: 'compute',
         executorPort: 80,
         statusLock: false
     };
