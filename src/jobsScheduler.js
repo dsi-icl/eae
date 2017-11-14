@@ -31,7 +31,7 @@ function JobsScheduler(mongoHelper) {
  * @param job Job to process
  * @private
  */
-JobsScheduler.prototype._freeComputeResources= function(job){
+JobsScheduler.prototype._freeComputeResources = function(job){
     let _this = this;
 
     switch (job.type) {
