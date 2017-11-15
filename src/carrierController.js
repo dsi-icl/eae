@@ -131,12 +131,9 @@ CarrierController.prototype.executeDownload = function (req, res) {
                             {$inc: {numberOfTransferredFiles: 1}},
                             {returnOriginal: false, w: 'majority', j: false});
                         res.status(200);
-                        // res.contentType('application/octet-stream');
-                        // res.setEncoding('utf8');
                         //Read data and write data to response
                         data.on('data', function (chunk) {
                             let stringifiedChunk = chunk.toString();
-                            console.log(stringifiedChunk);
                             res.write(stringifiedChunk);
                         });
                         //Reading done, resolve
