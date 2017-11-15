@@ -139,24 +139,10 @@ ObjectStorage.prototype.getObject = function (object_id) {
     return _this._internalClosure(function () {
         return new Promise(function (resolve, reject) {
             try {
-                let data = '';
-
                 // Open file in swift
                 let obj = new os2.StaticLargeObject(_this._container, object_id);
                 obj.getContentStream().then(function (readable) {
-                    //Read data and accumulate to var data
-                    readable.on('data', function (chunk) {
-                        data += chunk;
-                    });
-                    //Reading done, resolve
-                    readable.on('end', function () {
-                        resolve(data);
-                    });
-                    //Handling errors
-                    readable.on('error', function (error) {
-                        reject(ErrorHelper('Readable error', error));
-                    });
-
+                    resolve(readable);
                 }, function (read_error) {
                     reject(ErrorHelper('Get content failed', read_error));
                 });

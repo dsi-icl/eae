@@ -124,14 +124,29 @@ CarrierController.prototype.executeDownload = function (req, res) {
                     res.json(ErrorHelper('The proposed file for download is not valid.'));
                 }
                 if (carrierJob.requester === eaeUsername) {
-                    let objectStorage = new ObjectStorage(_this._swiftConfig,jobID,'output');
+                    let objectStorage = new ObjectStorage(_this._swiftConfig,jobID,'input');
                     let fileCarrier = new FileCarrier(objectStorage);
                     fileCarrier.initializeDownload(fileName).then(function (data) {
                         _this._carrierCollection.findOneAndUpdate({jobId: jobID},
                             {$inc: {numberOfTransferredFiles: 1}},
                             {returnOriginal: false, w: 'majority', j: false});
                         res.status(200);
-                        res.json(data);
+                        // res.contentType('application/octet-stream');
+                        // res.setEncoding('utf8');
+                        //Read data and write data to response
+                        data.on('data', function (chunk) {
+                            let stringifiedChunk = chunk.toString();
+                            console.log(stringifiedChunk);
+                            res.write(stringifiedChunk);
+                        });
+                        //Reading done, resolve
+                        data.on('end', function () {
+                            res.end();
+                        });
+                        //Handling errors
+                        data.on('error', function (error) {
+                            res.json(ErrorHelper('Readable error', error));
+                        });
                     }, function (error) {
                         res.status(500);
                         res.json(ErrorHelper('Failed download file from Swift', error));

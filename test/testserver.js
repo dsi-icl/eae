@@ -18,8 +18,8 @@ TestServer.prototype.run = function() {
     return new Promise(function(resolve, reject) {
         // Setup node env to test during test
         process.env.TEST = 1;
-        let oldMongoConfig = config.mongoURL;
-        config.mongoURL = oldMongoConfig + uuidv4().toString().replace(/-/g, "");
+        // let oldMongoConfig = config.mongoURL;
+        // config.mongoURL = oldMongoConfig + uuidv4().toString().replace(/-/g, "");
         // Create eae compute server
         _this.eae_carrier = new EaeCarrier(config);
 
@@ -44,7 +44,7 @@ TestServer.prototype.stop = function() {
     return new Promise(function(resolve, reject) {
         // Remove test flag from env
         delete process.env.TEST;
-        setTimeout(_this.eae_carrier.db.dropDatabase().then(function(){
+        // setTimeout(_this.eae_carrier.db.dropDatabase().then(function(){
             _this.eae_carrier.stop().then(function() {
                 _this._server.close(function(error) {
                         if (error) {
@@ -52,12 +52,12 @@ TestServer.prototype.stop = function() {
                         }else{
                             resolve(true);
                         }});
-                })}, function (error) {
+                }, function (error) {
                     reject(error);
             },function(error){
                 reject(error);
-            })
-    , 5000);
+            });
+    // , 5000);
     });
 };
 
