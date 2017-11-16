@@ -52,7 +52,7 @@ test('Service specs', function(done) {
             expect(response).toBeDefined();
             expect(response.statusCode).toEqual(200);
             expect(body).toBeDefined();
-            expect(body.type).toEqual(eaeutils.Constants.EAE_SERVICE_TYPE_API);
+            expect(body.type).toEqual(eaeutils.Constants.EAE_SERVICE_TYPE_CARRIER);
             done();
     });
 });
