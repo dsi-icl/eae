@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./src/index.js",
     "lint": "eslint src",
-    "test": "jest --runInBand --verbose --useStderr"
+    "test": "jest --runInBand --verbose --useStderr --forceExit"
   },
   "keywords": [
     "eae",
@@ -41,6 +41,7 @@
     "eae-utils": "git+https://github.com/dsi-icl/eae-utils.git",
     "express": "4.15.3",
     "fs-extra": "4.0.0",
-    "mongodb": "2.2.30"
+    "mongodb": "2.2.30",
+    "os2": "0.0.11"
   }
 }

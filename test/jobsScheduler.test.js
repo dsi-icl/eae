@@ -3,6 +3,8 @@ const mongodb = require('mongodb').MongoClient;
 const MongoHelper = require('../src/mongoHelper');
 let JobsScheduler = require('../src/jobsScheduler.js');
 
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
+
 var mongoURL = 'mongodb://mongodb:27017';
 // var mongoURL = 'mongodb://localhost:27017';
 var db = null;
