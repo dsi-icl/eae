@@ -72,8 +72,7 @@ TestServer.prototype.createManifests = function(){
             ],
             requester : "admin",
             numberOfTransferredFiles : 0,
-            numberOfFilesToTransfer : 1,
-            created : ISODate("2017-11-06T16:32:50.961+0000")
+            numberOfFilesToTransfer : 1
         };
         let download = {
             jobId : "5a09bbea4a8rulesd63a665e",
@@ -83,8 +82,7 @@ TestServer.prototype.createManifests = function(){
             ],
             requester : "admin",
             numberOfTransferredFiles : 0,
-            numberOfFilesToTransfer : 1,
-            created : ISODate("2017-11-06T16:32:50.961+0000")
+            numberOfFilesToTransfer : 1
         };
         let uploadManifest = Object.assign({}, carrier_models.CARRIER_JOB_MODEL , upload);
         let downloadManifest = Object.assign({}, carrier_models.CARRIER_JOB_MODEL , download);
