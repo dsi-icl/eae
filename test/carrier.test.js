@@ -103,18 +103,21 @@ test('Testing Download of the Uploaded File', function(done) {
             });
             response.on('end', () => {
                 writable.end();
-                resolve(size);
+                resolve(writable);
             });
             response.on('error', (error)=>{
                 reject(error);
             });
         });
-        prom.then(function(fileSize){
+        prom.then(function(writable){
             expect(response).toBeDefined();
             expect(response.statusCode).toEqual(200);
-            console.log(fs.statSync('file_test.txt').size);
-            expect(fileSize).toEqual(expectedFileSize);
-            done();
+            writable.on('close', function(){
+                let newFileSize = fs.statSync('file_test.txt').size;
+                console.log(newFileSize);
+                expect(newFileSize).toEqual(expectedFileSize);
+                done();
+            });
         }, function(error){
             done.fail(error.toString());
         });
