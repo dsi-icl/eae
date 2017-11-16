@@ -58,7 +58,7 @@ test('Testing Upload Of A File', function(done) {
                 'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' },
         formData:
             { file:
-                { value: fs.createReadStream('files/Faust by Johann Wolfgang von Goethe.txt'),
+                { value: fs.createReadStream('test/files/Faust by Johann Wolfgang von Goethe.txt'),
                     options:
                         { filename: 'Faust by Johann Wolfgang von Goethe.txt',
                             contentType: null } },
