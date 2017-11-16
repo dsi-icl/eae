@@ -10,13 +10,20 @@ services:
         ports:
             - 27017:27017
 
+    swift:
+        image: bouncestorage/swift-aio
+        ports:
+            - 8080:8080
+
     tests:
         build:
             context: ..
             dockerfile: ./test/Dockerfile
         depends_on:
             - mongodb
+            - swift
         links:
             - mongodb
+            - swift
         ports:
             - 80:80

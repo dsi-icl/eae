@@ -131,7 +131,19 @@ CarrierController.prototype.executeDownload = function (req, res) {
                             {$inc: {numberOfTransferredFiles: 1}},
                             {returnOriginal: false, w: 'majority', j: false});
                         res.status(200);
-                        res.json(data);
+                        //Read data and write data to response
+                        data.on('data', function (chunk) {
+                            let stringifiedChunk = chunk.toString();
+                            res.write(stringifiedChunk);
+                        });
+                        //Reading done, resolve
+                        data.on('end', function () {
+                            res.end();
+                        });
+                        //Handling errors
+                        data.on('error', function (error) {
+                            res.json(ErrorHelper('Readable error', error));
+                        });
                     }, function (error) {
                         res.status(500);
                         res.json(ErrorHelper('Failed download file from Swift', error));

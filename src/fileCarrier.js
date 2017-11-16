@@ -86,7 +86,7 @@ FileCarrier.prototype.setOutput = function(data, fileName) {
 
 /**
  * @fn initializeDownload
- * @desc Initialize the data stream trasnfer to the requester.
+ * @desc Initialize the data stream transfer to the requester.
  * @param fileName
  * @returns {Promise} Resolve to the data stream from swift if ok, rejects an ErrorHelper otherwise
  */
