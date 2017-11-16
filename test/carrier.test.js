@@ -70,7 +70,7 @@ test('Testing Upload Of A File', function(done) {
             expect(response).toBeDefined();
             expect(response.statusCode).toEqual(200);
             expect(body).toBeDefined();
-            expect(body).toEqual(true);
+            expect(body).toEqual('true');
             done();
         });
 });
