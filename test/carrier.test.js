@@ -81,6 +81,7 @@ test('Testing Upload Of A File', function(done) {
 
 test('Testing Download of the Uploaded File', function(done) {
     expect.assertions(3);
+    let expectedFileSize = fs.statSync('test/files/Faust by Johann Wolfgang von Goethe.txt').size;
     request(
         {
             method: 'POST',
@@ -111,8 +112,7 @@ test('Testing Download of the Uploaded File', function(done) {
         prom.then(function(fileSize){
             expect(response).toBeDefined();
             expect(response.statusCode).toEqual(200);
-            // let downloadedFileSize = fs.statSync('file_test.txt').size;
-            expect(fileSize).toEqual(249289);
+            expect(fileSize).toEqual(expectedFileSize);
             done();
         }, function(error){
             done.fail(error.toString());
