@@ -112,6 +112,7 @@ test('Testing Download of the Uploaded File', function(done) {
         prom.then(function(fileSize){
             expect(response).toBeDefined();
             expect(response.statusCode).toEqual(200);
+            console.log(fs.statSync('file_test.txt').size);
             expect(fileSize).toEqual(expectedFileSize);
             done();
         }, function(error){
