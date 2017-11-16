@@ -237,7 +237,6 @@ MongoHelper.prototype.archiveFailedJob = function(job){
             return;
         }
 
-        // delete job._id;
         _this._failedJobsArchiveCollection.insert(job).then(function(success) {
             if (success.insertedCount === 1) {
                 console.log('The failed job: ' + job._id + ' has been archived properly.');
