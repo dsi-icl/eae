@@ -12,7 +12,11 @@ beforeAll(function() {
     return new Promise(function (resolve, reject) {
         ts.run().then(function() {
             ts.createManifests().then(function(){
-                resolve(true);
+                ts.createOutputInSwift().then(function() {
+                    resolve(true);
+                },function(error){
+                    reject(error.toString());
+                });
             },function (error){
                 reject(error.toString());
             });
