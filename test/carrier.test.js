@@ -114,7 +114,6 @@ test('Testing Download of the Uploaded File', function(done) {
             expect(response.statusCode).toEqual(200);
             writable.on('close', function(){
                 let newFileSize = fs.statSync('file_test.txt').size;
-                console.log(newFileSize);
                 expect(newFileSize).toEqual(expectedFileSize);
                 done();
             });
