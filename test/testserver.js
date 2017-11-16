@@ -2,6 +2,7 @@ let express = require('express');
 let EaeCarrier = require('../src/eaeCarrier.js');
 let config = require('../config/eae.carrier.test.config.js');
 let fs = require('fs');
+const path = require('path');
 const uuidv4 = require('uuid/v4');
 const { SwiftHelper } = require('eae-utils');
 const { carrier_models, carrier_constants } = require('../src/models.js');
@@ -99,13 +100,14 @@ TestServer.prototype.createManifests = function(){
 
 TestServer.prototype.createOutputInSwift = function(){
     let container_name = '5a09bbea4a8rulesd63a665e' + '_output';
-    let fileToUpload = './files/Faust by Johann Wolfgang von Goethe.txt';
-    let fileName = 'Faust by Johann Wolfgang von Goethe.txt';
+    let fileName = 'Faust_by_Johann_Wolfgang_von_Goethe.txt';
+    let fileToUpload = path.join(path.resolve('./'), 'files', fileName);
     // Init member attributes
     let _swift = new SwiftHelper({
         url: config.swiftURL,
         username: config.swiftUsername,
-        password: config.swiftPassword
+        password: config.swiftPassword,
+        chunkSize:  1024 * 1024 - 1 // 1MB
     });
     return new Promise(function(resolve, reject) {
         _swift.createContainer(container_name).then(function(_unused__ok) {
