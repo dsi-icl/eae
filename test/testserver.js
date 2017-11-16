@@ -19,7 +19,7 @@ TestServer.prototype.run = function() {
         // Setup node env to test during test
         process.env.TEST = 1;
         let oldMongoConfig = config.mongoURL;
-        config.mongoURL = oldMongoConfig + uuidv4().toString().replace(/-/g, "");
+        config.mongoURL = oldMongoConfig + uuidv4().toString().replace(/-/g, '');
         // Create eae compute server
         _this.eae_carrier = new EaeCarrier(config);
 
@@ -52,7 +52,8 @@ TestServer.prototype.stop = function() {
                         }else{
                             resolve(true);
                         }});
-                })}, function (error) {
+                });
+                }, function (error) {
                 reject(error);
             },function(error){
                 reject(error);
@@ -65,22 +66,22 @@ TestServer.prototype.createManifests = function(){
     let _this = this;
     return new Promise(function(resolve, reject) {
         let upload = {
-            jobId : "5a09bbeaa4faust928cbd61a",
+            jobId : '5a09bbeaa4faust928cbd61a',
             type : carrier_constants.TRANSFER_TYPE.upload,
             files : [
                 'Faust by Johann Wolfgang von Goethe.txt'
             ],
-            requester : "admin",
+            requester : 'admin',
             numberOfTransferredFiles : 0,
             numberOfFilesToTransfer : 1
         };
         let download = {
-            jobId : "5a09bbea4a8rulesd63a665e",
+            jobId : '5a09bbea4a8rulesd63a665e',
             type : carrier_constants.TRANSFER_TYPE.download,
             files : [
                 'Faust by Johann Wolfgang von Goethe.txt'
             ],
-            requester : "admin",
+            requester : 'admin',
             numberOfTransferredFiles : 0,
             numberOfFilesToTransfer : 1
         };
