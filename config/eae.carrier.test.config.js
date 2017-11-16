@@ -5,5 +5,5 @@ module.exports = {
 	enableCors: true,
     swiftURL: 'http://swift:8080',
     swiftUsername: 'test:tester',
-    swiftPassword: 'testing',
+    swiftPassword: 'testing'
 };
