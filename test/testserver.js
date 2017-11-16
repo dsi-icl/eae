@@ -25,13 +25,6 @@ TestServer.prototype.run = function() {
         // Create eae carrier server
         _this.eae_carrier = new EaeCarrier(config);
 
-        // Init member attributes
-        this._swift = new SwiftHelper({
-            url: config.swiftURL,
-            username: config.swiftUsername,
-            password: config.swiftPassword
-        });
-
         // Start server
         _this.eae_carrier.start().then(function (carrier_router) {
             _this._app.use(carrier_router);
@@ -105,14 +98,19 @@ TestServer.prototype.createManifests = function(){
 };
 
 TestServer.prototype.createOutputInSwift = function(){
-    let _this = this;
     let container_name = '5a09bbea4a8rulesd63a665e' + '_output';
     let fileToUpload = './files/Faust by Johann Wolfgang von Goethe.txt';
     let fileName = 'Faust by Johann Wolfgang von Goethe.txt';
+    // Init member attributes
+    let _swift = new SwiftHelper({
+        url: config.swiftURL,
+        username: config.swiftUsername,
+        password: config.swiftPassword
+    });
     return new Promise(function(resolve, reject) {
-        _this._swift.createContainer(container_name).then(function(_unused__ok) {
+        _swift.createContainer(container_name).then(function(_unused__ok) {
             let rs = fs.createReadStream(fileToUpload);
-            _this._swift.createFile(container_name, fileName, rs).then(function (_unused__ok_array) {
+            _swift.createFile(container_name, fileName, rs).then(function (_unused__ok_array) {
                 resolve(true);// All good
             }, function (error) {
                 reject(error);
