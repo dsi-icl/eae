@@ -44,13 +44,13 @@ CarrierController.prototype.executeUpload = function (req, res) {
         if (eaeUsername === null || eaeUsername === undefined) {
             res.status(401);
             res.json(ErrorHelper('Missing username'));
+            return;
         }
 
         if (jobID === null || jobID === undefined || fileName === null || fileName === undefined) {
             res.status(401);
             res.json(ErrorHelper('Missing jobID or FileName.\njobID: ' + jobID + '\nfileName: ' + fileName));
-        }
-        else {
+        }else {
             _this._carrierCollection.findOne({jobId: jobID}).then(function(carrierJob){
                 if(carrierJob === null){
                     res.status(401);
@@ -106,13 +106,13 @@ CarrierController.prototype.executeDownload = function (req, res) {
         if (eaeUsername === null || eaeUsername === undefined) {
             res.status(401);
             res.json(ErrorHelper('Missing username'));
+            return;
         }
 
         if (jobID === null || jobID === undefined || fileName === null || fileName === undefined) {
             res.status(401);
             res.json(ErrorHelper('Missing jobID or FileName.\njobID: ' + jobID + '\nfileName: ' + fileName));
-        }
-        else {
+        }else {
             _this._carrierCollection.findOne({jobId: jobID}).then(function (carrierJob) {
                 if (carrierJob === null) {
                     res.status(401);
@@ -131,10 +131,22 @@ CarrierController.prototype.executeDownload = function (req, res) {
                             {$inc: {numberOfTransferredFiles: 1}},
                             {returnOriginal: false, w: 'majority', j: false});
                         res.status(200);
-                        res.json(data);
+                        //Read data and write data to response
+                        data.on('data', function (chunk) {
+                            let stringifiedChunk = chunk.toString();
+                            res.write(stringifiedChunk);
+                        });
+                        //Reading done, resolve
+                        data.on('end', function () {
+                            res.end();
+                        });
+                        //Handling errors
+                        data.on('error', function (error) {
+                            res.json(ErrorHelper('Readable error', error));
+                        });
                     }, function (error) {
                         res.status(500);
-                        res.json(ErrorHelper('Failed to upload file to Swift', error));
+                        res.json(ErrorHelper('Failed download file from Swift', error));
                     });
                 }else{
                     res.status(401);

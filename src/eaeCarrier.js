@@ -177,7 +177,7 @@ EaeCarrier.prototype._setupFileCarrier = function(){
         .post(multer().single('file'), _this.carrierController.executeUpload);
 
     // We set up the routes for the file upload
-    _this.app.post('/file-download').post(_this.carrierController.executeDownload);
+    _this.app.post('/file-download', _this.carrierController.executeDownload);
 
     // :)
     _this.app.all('/whoareyou', function (_unused__req, res) {

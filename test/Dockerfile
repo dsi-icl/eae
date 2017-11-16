@@ -19,6 +19,7 @@ RUN cat /root/.npm/_logs/*; exit 0;
 COPY ./src /usr/app/src
 COPY ./.eslintrc /usr/app/.eslintrc
 COPY ./test/*.js /usr/app/test/
+COPY ./test/files /usr/app/test/files
 COPY ./config/eae.carrier.test.config.js /usr/app/config/eae.carrier.test.config.js
 
 EXPOSE 80
