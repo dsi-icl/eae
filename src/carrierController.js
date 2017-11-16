@@ -124,7 +124,7 @@ CarrierController.prototype.executeDownload = function (req, res) {
                     res.json(ErrorHelper('The proposed file for download is not valid.'));
                 }
                 if (carrierJob.requester === eaeUsername) {
-                    let objectStorage = new ObjectStorage(_this._swiftConfig,jobID,'input');
+                    let objectStorage = new ObjectStorage(_this._swiftConfig,jobID,'output');
                     let fileCarrier = new FileCarrier(objectStorage);
                     fileCarrier.initializeDownload(fileName).then(function (data) {
                         _this._carrierCollection.findOneAndUpdate({jobId: jobID},

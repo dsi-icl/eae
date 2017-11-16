@@ -58,9 +58,9 @@ test('Testing Upload Of A File', function(done) {
                 'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW' },
         formData:
             { file:
-                { value: 'fs.createReadStream("files/Faust by Johann Wolfgang von Goethe.txt")',
+                { value: fs.createReadStream('test/files/Faust by Johann Wolfgang von Goethe.txt'),
                     options:
-                        { filename: 'files/Faust by Johann Wolfgang von Goethe.txt',
+                        { filename: 'Faust by Johann Wolfgang von Goethe.txt',
                             contentType: null } },
                 jobID: '5a09bbeaa4faust928cbd61a',
                 fileName: 'Faust by Johann Wolfgang von Goethe.txt',
@@ -95,21 +95,24 @@ test('Testing Download of the Uploaded File', function(done) {
         }).on('response', function(response) {
         let prom = new Promise(function(resolve, reject) {
             let writable = fs.createWriteStream('file_test.txt');
+            let size = 0;
             response.on('data', (chunk) => {
+                size += chunk.toString().length;
                 writable.write(chunk);
             });
             response.on('end', () => {
-                resolve(writable.end());
+                writable.end();
+                resolve(size);
             });
             response.on('error', (error)=>{
                 reject(error);
             });
         });
-        prom.then(function(){
+        prom.then(function(fileSize){
             expect(response).toBeDefined();
             expect(response.statusCode).toEqual(200);
-            let downloadedFileSize = fs.statSync('file_test.txt').size;
-            expect(downloadedFileSize).toEqual(249318);
+            // let downloadedFileSize = fs.statSync('file_test.txt').size;
+            expect(fileSize).toEqual(249289);
             done();
         }, function(error){
             done.fail(error.toString());
