@@ -185,12 +185,15 @@ JobsScheduler.prototype._queuedJobs = function () {
                                                         let reserved = [];
                                                         let updates = [];
                                                         candidateWorker.clusters.spark.forEach(function(workerNode){
-                                                            workerNode.statusLock = true;
-                                                            updates.push(_this._mongoHelper.updateNodeStatus(workerNode));
-                                                            reserved.push(workerNode);
+                                                            if (workerNode.statusLock === false) {
+                                                                workerNode.statusLock = true;
+                                                                updates.push(_this._mongoHelper.updateNodeStatus(workerNode));
+                                                                reserved.push(workerNode);
+                                                            }
                                                         });
                                                         Promise.all(updates).then(successes => {
-                                                            if (successes.reduce((a, b) => a.ok + b.ok, 0) === candidateWorker.clusters.spark.length) {
+                                                            let numberOfWorkersAcquired = successes.reduce((acc, curr) => curr.ok + acc, 0);
+                                                            if (numberOfWorkersAcquired === candidateWorker.clusters.spark.length) {
                                                                 candidateWorker.clusters.spark.forEach(function(workerNode) {
                                                                     workerNode.status = Constants.EAE_SERVICE_STATUS_BUSY;
                                                                     _this._mongoHelper.updateNodeStatus(workerNode).then(function(_unsued_success){

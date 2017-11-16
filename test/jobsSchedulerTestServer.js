@@ -77,8 +77,9 @@ JobsSchedulerTestServer.prototype.insertJob = function(job) {
 };
 
 JobsSchedulerTestServer.prototype.insertNode = function(node) {
+    let _this = this;
     return new Promise(function(resolve, reject) {
-        db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node).then(function(document) {
+        _this.db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node).then(function(document) {
           resolve(document);
         });
     });

@@ -9,7 +9,6 @@ beforeEach(() => {
     return jobsSchedulerTestServer.setup();
 });
 
-// Close mongo connection
 afterAll(function ()  {
     return jobsSchedulerTestServer.shutdown();
 });
@@ -103,53 +102,53 @@ test('_queued_jobs: A queued non-spark job gets scheduled', async () => {
     expect(jobs[0].status).toEqual([Constants.EAE_JOB_STATUS_SCHEDULED, Constants.EAE_JOB_STATUS_QUEUED]);
 });
 
-// test('_queued_jobs: A queued spark job gets scheduled', async () => {
-//     expect.assertions(3);
-//
-//     let node2 = {
-//         ip: "192.168.10.10",
-//         port: 80,
-//         status: Constants.EAE_SERVICE_STATUS_IDLE,
-//         statusLock: false
-//     };
-//
-//     let node3 = {
-//         ip: "192.168.10.15",
-//         port: 80,
-//         status: Constants.EAE_SERVICE_STATUS_IDLE,
-//         statusLock: false
-//     };
-//
-//     let node = {
-//         ip: "192.168.0.5",
-//         port: 80,
-//         status: Constants.EAE_SERVICE_STATUS_IDLE,
-//         clusters: {
-//             spark: [node2, node3]
-//         },
-//         computeType: Constants.EAE_JOB_TYPE_SPARK,
-//         statusLock: false
-//     };
-//
-//     let job = {
-//         status: [Constants.EAE_JOB_STATUS_QUEUED],
-//         statusLock: false,
-//         type: Constants.EAE_JOB_TYPE_SPARK,
-//     };
-//
-//     await jobsSchedulerTestServer.insertJob(job);
-//     await jobsSchedulerTestServer.insertJob(node);
-//     await jobsSchedulerTestServer.insertJob(node2);
-//     await jobsSchedulerTestServer.insertJob(node3);
-//
-//     await jobsSchedulerTestServer.queuedJobs();
-//
-//     let nodes = await jobsSchedulerTestServer.mongo_helper.retrieveNodesStatus({_id: node._id});
-//     expect(nodes[0].status).toEqual(Constants.EAE_SERVICE_STATUS_LOCKED);
-//
-//     nodes = await jobsSchedulerTestServer.mongo_helper.retrieveNodesStatus({_id: node2._id});
-//     expect(nodes[0].status).toEqual(Constants.EAE_SERVICE_STATUS_BUSY);
-//
-//     nodes = await jobsSchedulerTestServer.mongo_helper.retrieveNodesStatus({_id: node3._id});
-//     expect(nodes[0].status).toEqual(Constants.EAE_SERVICE_STATUS_BUSY);
-// });
+test('_queued_jobs: A queued spark job gets scheduled', async () => {
+    expect.assertions(3);
+
+    let node2 = {
+        ip: "192.168.10.10",
+        port: 80,
+        status: Constants.EAE_SERVICE_STATUS_IDLE,
+        statusLock: false
+    };
+
+    let node3 = {
+        ip: "192.168.10.15",
+        port: 80,
+        status: Constants.EAE_SERVICE_STATUS_IDLE,
+        statusLock: false
+    };
+
+    let node = {
+        ip: "compute",
+        port: 80,
+        status: Constants.EAE_SERVICE_STATUS_IDLE,
+        clusters: {
+            spark: [node2, node3]
+        },
+        computeType: Constants.EAE_JOB_TYPE_SPARK,
+        statusLock: false
+    };
+
+    let job = {
+        status: [Constants.EAE_JOB_STATUS_QUEUED],
+        statusLock: false,
+        type: Constants.EAE_JOB_TYPE_SPARK,
+    };
+
+    await jobsSchedulerTestServer.insertJob(job);
+    await jobsSchedulerTestServer.insertNode(node);
+    await jobsSchedulerTestServer.insertNode(node2);
+    await jobsSchedulerTestServer.insertNode(node3);
+
+    await jobsSchedulerTestServer.queuedJobs();
+
+    let nodes = await jobsSchedulerTestServer.mongo_helper.retrieveNodesStatus({_id: node._id});
+    expect(nodes[0].status).toEqual(Constants.EAE_SERVICE_STATUS_LOCKED);
+
+    nodes = await jobsSchedulerTestServer.mongo_helper.retrieveNodesStatus({_id: node2._id});
+    expect(nodes[0].status).toEqual(Constants.EAE_SERVICE_STATUS_BUSY);
+
+    nodes = await jobsSchedulerTestServer.mongo_helper.retrieveNodesStatus({_id: node3._id});
+    expect(nodes[0].status).toEqual(Constants.EAE_SERVICE_STATUS_BUSY);
+});
