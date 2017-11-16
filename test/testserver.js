@@ -101,7 +101,7 @@ TestServer.prototype.createManifests = function(){
 TestServer.prototype.createOutputInSwift = function(){
     let container_name = '5a09bbea4a8rulesd63a665e' + '_output';
     let fileName = 'Faust by Johann Wolfgang von Goethe.txt';
-    let fileToUpload = path.join(path.resolve('./'), 'test', 'files', fileName);
+    let fileToUpload = path.join(path.resolve('./'), 'files', fileName);
     // Init member attributes
     let _swift = new SwiftHelper({
         url: config.swiftURL,
