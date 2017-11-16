@@ -20,7 +20,7 @@ TestServer.prototype.run = function() {
         process.env.TEST = 1;
         let oldMongoConfig = config.mongoURL;
         config.mongoURL = oldMongoConfig + uuidv4().toString().replace(/-/g, '');
-        // Create eae compute server
+        // Create eae carrier server
         _this.eae_carrier = new EaeCarrier(config);
 
         // Start server
@@ -45,7 +45,7 @@ TestServer.prototype.stop = function() {
         // Remove test flag from env
         delete process.env.TEST;
         setTimeout(_this.eae_carrier.db.dropDatabase().then(function(){
-                _this.eae_interface.stop().then(function() {
+                _this.eae_carrier.stop().then(function() {
                     _this._server.close(function(error) {
                         if (error) {
                             reject(error);
