@@ -67,9 +67,6 @@ test('Testing Upload Of A File', function(done) {
             if (error) {
                 done.fail(error.toString());
             }
-            if(response.statusCode.valueOf() === 500 || response.statusCode.valueOf() === 401){
-                done.fail(body.error.toString());
-            }
             expect(response).toBeDefined();
             expect(response.statusCode).toEqual(200);
             expect(body).toBeDefined();
@@ -92,9 +89,6 @@ test('Testing Download of the Uploaded File', function(done) {
                 jobID: '5a09bbea4a8rulesd63a665e'
             }
         }).on('response', function(response) {
-        if(response.statusCode.valueOf() === 500 || response.statusCode.valueOf() === 401){
-            done.fail(body.error.toString());
-        }
         let prom = new Promise(function(resolve, reject) {
             let writable = fs.createWriteStream('file_test.txt');
             response.on('data', (chunk) => {
