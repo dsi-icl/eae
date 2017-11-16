@@ -12,6 +12,7 @@ services:
 install:
   - docker-compose -f ./test/docker-compose.yml build mongodb
   - docker-compose -f ./test/docker-compose.yml build swift
+  - docker-compose -f ./test/docker-compose.yml build compute
   - docker-compose -f ./test/docker-compose.yml build tests
   - docker-compose -f ./test/docker-compose.yml images
 
