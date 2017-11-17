@@ -16,7 +16,6 @@ services:
           - 8080:8080
 
     compute1:
-        build:
           image: aoehmich/eae-compute:latest
         depends_on:
           - mongodb
@@ -28,8 +27,7 @@ services:
           - eae.compute.config.js:/usr/app/config/eae.compute.config.js
 
     compute2:
-        build:
-          image: aoehmich/eae-compute:latest
+        image: aoehmich/eae-compute:latest
         depends_on:
           - mongodb
           - swift
@@ -40,8 +38,7 @@ services:
           - eae.compute.config.js:/usr/app/config/eae.compute.config.js
 
     scheduler:
-        build:
-          image: aoehmich/eae-scheduler:latest
+        image: aoehmich/eae-scheduler:latest
         depends_on:
           - compute1
           - compute2
@@ -52,8 +49,7 @@ services:
           - eae.scheduler.config.js:/usr/app/config/eae.scheduler.config.js
 
     carrier:
-        build:
-          image: aoehmich/eae-carrier:latest
+        image: aoehmich/eae-carrier:latest
         depends_on:
           - scheduler
         links:
@@ -63,8 +59,7 @@ services:
           - eae.carrier.config.js:/usr/app/config/eae.carrier.config.js
 
     interface:
-        build:
-          image: aoehmich/eae-interface:latest
+        image: aoehmich/eae-interface:latest
         depends_on:
           - carrier
         links:
