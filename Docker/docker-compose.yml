@@ -25,7 +25,7 @@ services:
           - mongodb
           - swift
         volumes:
-          -
+          - eae.compute.config.js:/usr/app/config/eae.compute.config.js
 
     compute2:
         build:
@@ -36,6 +36,8 @@ services:
         links:
           - mongodb
           - swift
+        volumes:
+          - eae.compute.config.js:/usr/app/config/eae.compute.config.js
 
     scheduler:
         build:
@@ -46,6 +48,8 @@ services:
         links:
           - mongodb
           - swift
+        volumes:
+          - eae.scheduler.config.js:/usr/app/config/eae.scheduler.config.js
 
     carrier:
         build:
@@ -55,6 +59,8 @@ services:
         links:
           - mongodb
           - swift
+        volumes:
+          - eae.carrier.config.js:/usr/app/config/eae.carrier.config.js
 
     interface:
         build:
@@ -65,3 +71,5 @@ services:
           - mongodb
         ports:
           - 80:80
+        volumes:
+          - eae.interface.config.js:/usr/app/config/eae.interface.config.js
