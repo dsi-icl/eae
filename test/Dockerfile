@@ -22,4 +22,4 @@ COPY ./.eslintrc .
 
 # Run compute service
 EXPOSE 8000
-CMD [ "npm", "test", "--forceExit" ]
+CMD [ "npm", "test"]
