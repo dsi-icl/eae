@@ -57,7 +57,7 @@
             2,
             {
                 "vars": "all",
-                "args": "all",
+                "args": "after-used",
                 "argsIgnorePattern": "^_unused__"
             }
         ]

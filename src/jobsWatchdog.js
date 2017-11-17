@@ -41,6 +41,7 @@ JobsWatchdog.prototype._deleteSwiftFilesAndContainer = function(container, files
         filesArray.forEach(function (file) {
             let d = _this._swiftHelper.deleteFile(container, file).then(
                 function (_unused__deleteStatus) {
+                    // eslint-disable-next-line no-console
                     console.log('File : ' + file + ' has been successfully deleted from container : ' + container);
                 },
                 function (error) {
@@ -73,7 +74,7 @@ JobsWatchdog.prototype._archiveJobs = function(){
         var currentTime = new Date();
 
         let filter = {
-            "status.0": {$in: statuses},
+            'status.0': {$in: statuses},
             statusLock: false,
             endDate: {
                 '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.jobsExpiredStatusTime))
@@ -129,7 +130,7 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
         var currentTime = new Date();
 
         let filter = {
-            "status.0": {$in: statuses},
+            'status.0': {$in: statuses},
             statusLock: false,
             startDate: {
                 '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.jobsTimingoutTime))
@@ -156,7 +157,9 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
                                         if (error !== null) {
                                             reject(ErrorHelper('The cancel request has failed:', error));
                                         }
-                                        console.log('The cancel request sent to host ' + job.executorIP + ':' + job.executorIP + ' and the response was ', response, body);
+                                        // eslint-disable-next-line no-console
+                                        console.log('The cancel request sent to host ' + job.executorIP + ':' + job.executorIP
+                                            + ' and the response was ', response, body);
 
                                         // We change the job status back to Queued and unlock the job for scheduling
                                         job.status.unshift(Constants.EAE_JOB_STATUS_QUEUED) ;
