@@ -88,20 +88,20 @@ EaeScheduler.prototype.start = function() {
             // Start the monitoring of the nodes' status
             _this.nodes_watchdog.startPeriodicUpdate(60 * 1000); // Update status every 1 minute
 
-            // Start the monitoring of the nodes' status
+            // Start the monitoring of the jobs' status
             _this.jobs_watchdog.startPeriodicUpdate(3000 * 1000); // Update status every 30 minutes
 
             // Start the scheduling of the queued jobs
             _this.jobs_scheduler.startPeriodicUpdate(1000); // Scheduling triggered every 1 second
 
             // :)
-            _this.app.all('/whoareyou', function (__unused__req, res) {
+            _this.app.all('/whoareyou', function (_, res) {
                 res.status(418);
                 res.json(ErrorHelper('I\'m a teapot'));
             });
 
             // We take care of all remaining routes
-            _this.app.all('/*', function (__unused__req, res) {
+            _this.app.all('/*', function (_, res) {
                 res.status(400);
                 res.json(ErrorHelper('Bad request'));
             });
@@ -115,7 +115,7 @@ EaeScheduler.prototype.start = function() {
 
 /**
  * @fn stop
- * @desc Stop the eae compute service
+ * @desc Stop the eae scheduler service
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
@@ -203,7 +203,7 @@ EaeScheduler.prototype._setupSwiftHelper = function () {
 
 /**
  * @fn _setupNodesWatchdog
- * @desc Initialize the periodic monitoring  of the compute nodes
+ * @desc Initialize the periodic monitoring of the compute nodes
  * @private
  */
 EaeScheduler.prototype._setupNodesWatchdog = function () {

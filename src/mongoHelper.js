@@ -21,6 +21,7 @@ function MongoHelper(){
     this.archiveJob = MongoHelper.prototype.archiveJob.bind(this);
     this.retrieveFailedJobs = MongoHelper.prototype.retrieveFailedJobs.bind(this);
     this.archiveFailedJob = MongoHelper.prototype.archiveFailedJob.bind(this);
+    this.findAndReserveAvailableWorker = MongoHelper.prototype.findAndReserveAvailableWorker.bind(this);
 }
 
 /**
@@ -174,7 +175,7 @@ MongoHelper.prototype.archiveJob = function(jobId){
                 _this._jobsArchiveCollection.insert(job).then(function(success) {
                         if (success.insertedCount === 1) {
                             _this._jobsCollection.deleteOne(filter).then(function(){
-                                console.log('The job ' + jobId + 'has been successfully archived');
+                                console.log('The job ' + jobId + 'has been successfully archived');// eslint-disable-line no-console
                                 resolve(job);
                             },function(error){
                                 reject(ErrorHelper('The old job could not be deleted properly from jobsCollection. ' +
@@ -236,10 +237,10 @@ MongoHelper.prototype.archiveFailedJob = function(job){
             return;
         }
 
-        delete job._id;
+        // delete job._id;
         _this._failedJobsArchiveCollection.insert(job).then(function(success) {
             if (success.insertedCount === 1) {
-                console.log('The failed job: ' + job._id + ' has been archived properly.');
+                console.log('The failed job: ' + job._id + ' has been archived properly.'); // eslint-disable-line no-console
                 resolve(true);
             }else{
                 reject(ErrorHelper('The job couldn\'t be inserted properly. The insert count != 1. ' +
@@ -264,18 +265,16 @@ MongoHelper.prototype.findAndReserveAvailableWorker = function (filter) {
             reject(ErrorHelper('No MongoDB collection to retrieve the nodes statuses against'));
             return;
         }
-        let update ={
+        let update = {
             status: Constants.EAE_SERVICE_STATUS_LOCKED,
             statusLock: true
         };
 
         _this._statusCollection.findOneAndUpdate(filter,
             { $set : update},
-            { returnOriginal: true }).then( function(success){
-                if(success.res.nModified === 1){
-                    resolve(success.value);
-                }else if (success.res.nModified === 0 ){
-                    resolve(false);
+            { returnOriginal: true }).then(function(original){
+                if(original.ok === 1){
+                    resolve(original.value);
                 }else{
                     reject(ErrorHelper('Something went horribly wrong when looking for an available resource'));
                 }

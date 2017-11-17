@@ -31,6 +31,7 @@ function NodesWatchdog(mongoHelper) {
  */
 NodesWatchdog.prototype._notifyAdmin = function(deadNode){
     // For now it just prints to the console but in the future we want it to send a mail. #TODO
+    // eslint-disable-next-line no-console
     console.log('The node with IP ' + deadNode.ip + ' and port ' + deadNode.port);
 };
 
@@ -85,8 +86,10 @@ NodesWatchdog.prototype._purgeExpired = function() {
             _this._mongoHelper.updateNodeStatus(node).then(
                 function (success) {
                     if(success.nModified === 1){
+                        // eslint-disable-next-line no-console
                         console.log('The expired node' + node.ip + ':' + node.port + 'has been set to DEAD successfully');
                     }else{
+                        // eslint-disable-next-line no-console
                         console.log('The node has already been updated ' + node.ip + ':' + node.port);
                     }},
                 function (error) {
@@ -118,6 +121,7 @@ NodesWatchdog.prototype._invalidateDead = function() {
             _this._excludeNodes(deadNodes);
         }
     }, function(error) {
+        // eslint-disable-next-line no-console
         console.log('Failed to retrieve nodes status. Filter:' + filter.toString() , error);
     });
 };
