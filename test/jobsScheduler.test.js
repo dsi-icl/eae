@@ -28,7 +28,7 @@ test('_queued_jobs: If a queued job has failed 3 times, then it is set to dead a
 
     await jobsSchedulerTestServer.insertJob(job);
 
-    await jobsSchedulerTestServer.queuedJobs();
+    await jobsSchedulerTestServer.jobsScheduler._queuedJobs();
 
     let jobs = await jobsSchedulerTestServer.mongo_helper.retrieveJobs({_id: job._id});
     expect(jobs[0].status[0]).toEqual(Constants.EAE_JOB_STATUS_COMPLETED);
@@ -45,7 +45,7 @@ test('_errosJobs: A job in error state gets added to the archived collection and
 
     await jobsSchedulerTestServer.insertJob(job);
 
-    await jobsSchedulerTestServer.errorJobs();
+    await jobsSchedulerTestServer.jobsScheduler._errorJobs();
 
     let jobs = await jobsSchedulerTestServer.mongo_helper.retrieveJobs({});
     expect(jobs[0].status).toEqual([Constants.EAE_JOB_STATUS_QUEUED, Constants.EAE_JOB_STATUS_ERROR]);
@@ -62,7 +62,7 @@ test('_canceledOrDoneJobs: job in canceled state gets set to completed', async (
 
     await jobsSchedulerTestServer.insertJob(canceledJob);
 
-    await jobsSchedulerTestServer.canceledOrDoneJobs();
+    await jobsSchedulerTestServer.jobsScheduler._canceledOrDoneJobs();
 
     let jobs = await jobsSchedulerTestServer.mongo_helper.retrieveJobs({});
     expect(jobs[0].status[0]).toEqual(Constants.EAE_JOB_STATUS_COMPLETED);
@@ -76,7 +76,7 @@ test('_canceledOrDoneJobs: job in done state gets set to completed', async () =>
 
     await jobsSchedulerTestServer.insertJob(doneJob);
 
-    await jobsSchedulerTestServer.canceledOrDoneJobs();
+    await jobsSchedulerTestServer.jobsScheduler._canceledOrDoneJobs();
 
     let jobs = await jobsSchedulerTestServer.mongo_helper.retrieveJobs({});
     expect(jobs[0].status[0]).toEqual(Constants.EAE_JOB_STATUS_COMPLETED);
@@ -96,7 +96,7 @@ test('_queued_jobs: A queued non-spark job gets scheduled', async () => {
 
     await jobsSchedulerTestServer.insertJob(job);
 
-    await jobsSchedulerTestServer.queuedJobs();
+    await jobsSchedulerTestServer.jobsScheduler._queuedJobs();
 
     let jobs = await jobsSchedulerTestServer.mongo_helper.retrieveJobs({_id: job._id});
     expect(jobs[0].status).toEqual([Constants.EAE_JOB_STATUS_SCHEDULED, Constants.EAE_JOB_STATUS_QUEUED]);
@@ -141,7 +141,7 @@ test('_queued_jobs: A queued spark job gets scheduled', async () => {
     await jobsSchedulerTestServer.insertNode(node2);
     await jobsSchedulerTestServer.insertNode(node3);
 
-    await jobsSchedulerTestServer.queuedJobs();
+    await jobsSchedulerTestServer.jobsScheduler._queuedJobs();
 
     let nodes = await jobsSchedulerTestServer.mongo_helper.retrieveNodesStatus({_id: node._id});
     expect(nodes[0].status).toEqual(Constants.EAE_SERVICE_STATUS_LOCKED);

@@ -14,9 +14,6 @@ function JobsSchedulerTestServer() {
     this.shutdown = JobsSchedulerTestServer.prototype.shutdown.bind(this);
     this.insertNode = JobsSchedulerTestServer.prototype.insertNode.bind(this);
     this.insertJob = JobsSchedulerTestServer.prototype.insertJob.bind(this);
-    this.queuedJobs = JobsSchedulerTestServer.prototype.queuedJobs.bind(this);
-    this.errorJobs = JobsSchedulerTestServer.prototype.errorJobs.bind(this);
-    this.canceledOrDoneJobs = JobsSchedulerTestServer.prototype.canceledOrDoneJobs.bind(this);
 }
 
 JobsSchedulerTestServer.prototype.setup = function() {
@@ -83,18 +80,6 @@ JobsSchedulerTestServer.prototype.insertNode = function(node) {
           resolve(document);
         });
     });
-};
-
-JobsSchedulerTestServer.prototype.queuedJobs = function() {
-    return this.jobsScheduler._queuedJobs();
-};
-
-JobsSchedulerTestServer.prototype.errorJobs = function() {
-    return this.jobsScheduler._errorJobs();
-};
-
-JobsSchedulerTestServer.prototype.canceledOrDoneJobs = function() {
-    return this.jobsScheduler._canceledOrDoneJobs();
 };
 
 module.exports = JobsSchedulerTestServer;
