@@ -237,6 +237,7 @@ MongoHelper.prototype.archiveFailedJob = function(job){
             return;
         }
 
+        // delete job._id;
         _this._failedJobsArchiveCollection.insert(job).then(function(success) {
             if (success.insertedCount === 1) {
                 console.log('The failed job: ' + job._id + ' has been archived properly.');
@@ -264,14 +265,14 @@ MongoHelper.prototype.findAndReserveAvailableWorker = function (filter) {
             reject(ErrorHelper('No MongoDB collection to retrieve the nodes statuses against'));
             return;
         }
-        let update ={
+        let update = {
             status: Constants.EAE_SERVICE_STATUS_LOCKED,
             statusLock: true
         };
 
         _this._statusCollection.findOneAndUpdate(filter,
             { $set : update},
-            { returnOriginal: true }).then( function(original){
+            { returnOriginal: true }).then(function(original){
                 if(original.ok === 1){
                     resolve(original.value);
                 }else{

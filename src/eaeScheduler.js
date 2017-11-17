@@ -95,13 +95,13 @@ EaeScheduler.prototype.start = function() {
             _this.jobs_scheduler.startPeriodicUpdate(1000); // Scheduling triggered every 1 second
 
             // :)
-            _this.app.all('/whoareyou', function (__unused__req, res) {
+            _this.app.all('/whoareyou', function (_, res) {
                 res.status(418);
                 res.json(ErrorHelper('I\'m a teapot'));
             });
 
             // We take care of all remaining routes
-            _this.app.all('/*', function (__unused__req, res) {
+            _this.app.all('/*', function (_, res) {
                 res.status(400);
                 res.json(ErrorHelper('Bad request'));
             });

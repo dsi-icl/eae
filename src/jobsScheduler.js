@@ -35,25 +35,26 @@ JobsScheduler.prototype._freeComputeResources = function(job){
     let _this = this;
 
     switch (job.type) {
-        case Constants.EAE_JOB_TYPE_SPARK:
+        case Constants.EAE_JOB_TYPE_SPARK: {
             let filter = {
                 ip: job.executorIP,
                 port: job.executorPort
             };
             _this._mongoHelper.retrieveNodesStatus(filter).then(
-                function(node){
+                function (node) {
                     let sparkCluster = node[0].clusters.spark;
-                    sparkCluster.forEach(function(node){
+                    sparkCluster.forEach(function (node) {
                         node.status = Constants.EAE_SERVICE_STATUS_IDLE;
                         node.statusLock = false;
                         _this._mongoHelper.updateNodeStatus(node);
                     });
                 },
-                function(error){
+                function (error) {
                     ErrorHelper('Failed to retrieve nodes status. Filter:' + filter.toString(), error);
                 }
             );
             break;
+        }
         default:
             break;
     }
@@ -70,45 +71,43 @@ JobsScheduler.prototype._reportFailedJob = function(job){
 
     // We archive the failed job and check if the executor for the job exceeds the threshold for failed jobs
     _this._mongoHelper.archiveFailedJob(job).then(function () {
-            var currentTime = new Date();
+        const currentTime = new Date();
 
-            let filter = {
-                executorPort : job.executorPort,
-                executorIP : job.executorIP,
-                startDate: {
-                    '$ge': new Date(currentTime.setHours(currentTime.getDay() - 7))
-                }
-            };
-            _this._mongoHelper.retrieveFailedJobs(filter).then(function(failedJobs){
-                if(failedJobs.length > 3){
-                    let node = {
-                        ip : job.executorIP,
-                        port : job.executorPort,
-                        status : Constants.EAE_SERVICE_STATUS_DEAD,
-                        statusLock : true
-                    };
-                    // lock the node and set status to dead
-                    _this._mongoHelper.updateNodeStatus(node).then(
-                        function(success){
-                            if(success.nModified === 1){
-                                console.log('The node' + node.ip + ':' + node.port + 'has been set to DEAD successfully ' +
-                                    'following excessive job failures');
-                            }else{
-                                ErrorHelper('Something went horribly wrong when locking the node and setting to DEAD. Node: '
-                                    + node.ip + ' ' + node.port);
-                            }},function(error){
-                            ErrorHelper('Failed to lock the node and set its status to DEAD. Node: '
-                                + node.ip + ' ' + node.port, error);
-                        });
-                }
-            },function(error){
-                ErrorHelper('Failed to retrieve failed jobs for executor:' + filter.toString(), error);
-            });
-        },function (error){
-            ErrorHelper('Failed to archive failed Job. Job:' + job._id, error);
-        }
-
-    );
+        let filter = {
+            executorPort : job.executorPort,
+            executorIP : job.executorIP,
+            startDate: {
+                '$ge': new Date(currentTime.setHours(currentTime.getDay() - 7))
+            }
+        };
+        _this._mongoHelper.retrieveFailedJobs(filter).then(function(failedJobs){
+            if(failedJobs.length > 3){
+                let node = {
+                    ip : job.executorIP,
+                    port : job.executorPort,
+                    status : Constants.EAE_SERVICE_STATUS_DEAD,
+                    statusLock : true
+                };
+                // lock the node and set status to dead
+                _this._mongoHelper.updateNodeStatus(node).then(
+                    function(success){
+                        if(success.nModified === 1){
+                            console.log('The node' + node.ip + ':' + node.port + 'has been set to DEAD successfully ' +
+                                'following excessive job failures');
+                        }else{
+                            ErrorHelper('Something went horribly wrong when locking the node and setting to DEAD. Node: '
+                                + node.ip + ' ' + node.port);
+                        }},function(error){
+                        ErrorHelper('Failed to lock the node and set its status to DEAD. Node: '
+                            + node.ip + ' ' + node.port, error);
+                    });
+            }
+        },function(error){
+            ErrorHelper('Failed to retrieve failed jobs for executor:' + filter.toString(), error);
+        });
+    },function (error){
+        ErrorHelper('Failed to archive failed Job. Job:' + job._id, error);
+    });
 };
 
 /**
@@ -125,17 +124,17 @@ JobsScheduler.prototype._analyzeJobHistory = function (job) {
         let errorHistory = job.status.filter(function(it) {return it === Constants.EAE_JOB_STATUS_ERROR;});
         // This shouldn't happen!
         if(errorHistory.length > 3){
-            reject(ErrorHelper('The number of errors in the job history exceeds 3!'))
+            reject(ErrorHelper('The number of errors in the job history exceeds 3!'));
         }
         // We set the job to DEAD if it finished in error three times
         if(errorHistory.length === 3){
             job.status.unshift(Constants.EAE_JOB_STATUS_DEAD);
             job.status.unshift(Constants.EAE_JOB_STATUS_COMPLETED);
-            _this._mongoHelper.updateJob(job).then(function(_unused__res){
+            _this._mongoHelper.updateJob(job).then(function(){
                 resolve(true);
             },function(error){
-                reject(ErrorHelper('Failed to set the job to DEAD', error))
-            })
+                reject(ErrorHelper('Failed to set the job to DEAD', error));
+            });
         }else{
             resolve(false);
         }
@@ -156,7 +155,7 @@ JobsScheduler.prototype._queuedJobs = function () {
         let statuses = [Constants.EAE_JOB_STATUS_QUEUED];
 
         let filter = {
-            "status.0": {$in: statuses},
+            'status.0': {$in: statuses},
             statusLock: false,
         };
 
@@ -180,11 +179,11 @@ JobsScheduler.prototype._queuedJobs = function () {
                                             function(candidateWorker){
                                                 if(candidateWorker !== false && candidateWorker !== null){
                                                 switch (job.type) {
-                                                    case Constants.EAE_JOB_TYPE_SPARK:
+                                                    case Constants.EAE_JOB_TYPE_SPARK: {
                                                         // We lock the cluster and set the candidate as the executor for the job
                                                         let reserved = [];
                                                         let updates = [];
-                                                        candidateWorker.clusters.spark.forEach(function(workerNode){
+                                                        candidateWorker.clusters.spark.forEach(function (workerNode) {
                                                             if (workerNode.statusLock === false) {
                                                                 workerNode.statusLock = true;
                                                                 updates.push(_this._mongoHelper.updateNodeStatus(workerNode));
@@ -194,26 +193,26 @@ JobsScheduler.prototype._queuedJobs = function () {
                                                         Promise.all(updates).then(successes => {
                                                             let numberOfWorkersAcquired = successes.reduce((acc, curr) => curr.ok + acc, 0);
                                                             if (numberOfWorkersAcquired === candidateWorker.clusters.spark.length) {
-                                                                candidateWorker.clusters.spark.forEach(function(workerNode) {
+                                                                candidateWorker.clusters.spark.forEach(function (workerNode) {
                                                                     workerNode.status = Constants.EAE_SERVICE_STATUS_BUSY;
-                                                                    _this._mongoHelper.updateNodeStatus(workerNode).then(function(_unsued_success){
+                                                                    _this._mongoHelper.updateNodeStatus(workerNode).then(function () {
                                                                         },
-                                                                        function(error){
+                                                                        function (error) {
                                                                             reject(ErrorHelper('Error when setting node to busy ' +
-                                                                                'in cluster. Node ' + candidateWorker.toString(),error));
-                                                                        })
-                                                                })
+                                                                                'in cluster. Node ' + candidateWorker.toString(), error));
+                                                                        });
+                                                                });
                                                             }
                                                             else {
                                                                 // We free the reserved resources
-                                                                reserved.forEach(function(reservedWorker){
+                                                                reserved.forEach(function (reservedWorker) {
                                                                     reservedWorker.status = Constants.EAE_SERVICE_STATUS_IDLE;
-                                                                    _this._mongoHelper.updateNodeStatus(reservedWorker).then(function(_unsued_success){
+                                                                    _this._mongoHelper.updateNodeStatus(reservedWorker).then(function () {
                                                                         },
-                                                                        function(error){
+                                                                        function (error) {
                                                                             reject(ErrorHelper('Error when setting node to busy ' +
-                                                                                'in cluster. Node ' + reservedWorker.toString(),error));
-                                                                        })
+                                                                                'in cluster. Node ' + reservedWorker.toString(), error));
+                                                                        });
                                                                 });
                                                                 // we unlock the job
                                                                 job.statusLock = false;
@@ -226,6 +225,8 @@ JobsScheduler.prototype._queuedJobs = function () {
                                                         }, reason => {
                                                             reject(ErrorHelper('Error when locking node in cluster: ' + reason));
                                                         });
+                                                        break;
+                                                    }
                                                     default:
                                                         // Nothing to do
                                                         break;
@@ -272,11 +273,11 @@ JobsScheduler.prototype._queuedJobs = function () {
                                         );
                                     }else{
                                         console.log('The job ' + job._id + ' is now DEAD.');
-                                        resolve(true)
+                                        resolve(true);
                                     }
                                 },function(error){
                                     reject(ErrorHelper('Could not analyze the job history. Error: ', error));
-                                })
+                                });
                             }
                         },function (error) {
                             reject(ErrorHelper('Failed to lock the job. Filter:' + job._id, error));
@@ -301,7 +302,7 @@ JobsScheduler.prototype._errorJobs = function () {
         let statuses = [Constants.EAE_JOB_STATUS_ERROR];
 
         let filter = {
-            "status.0": {$in: statuses},
+            'status.0': {$in: statuses},
             statusLock: false,
         };
 
@@ -356,7 +357,7 @@ JobsScheduler.prototype._canceledOrDoneJobs = function () {
         let statuses = [Constants.EAE_JOB_STATUS_CANCELLED, Constants.EAE_JOB_STATUS_DONE];
 
         let filter = {
-            "status.0": {$in: statuses},
+            'status.0': {$in: statuses},
             statusLock: false,
         };
 

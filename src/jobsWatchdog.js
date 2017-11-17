@@ -73,7 +73,7 @@ JobsWatchdog.prototype._archiveJobs = function(){
         var currentTime = new Date();
 
         let filter = {
-            "status.0": {$in: statuses},
+            'status.0': {$in: statuses},
             statusLock: false,
             endDate: {
                 '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.jobsExpiredStatusTime))
@@ -129,7 +129,7 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
         var currentTime = new Date();
 
         let filter = {
-            "status.0": {$in: statuses},
+            'status.0': {$in: statuses},
             statusLock: false,
             startDate: {
                 '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.jobsTimingoutTime))
