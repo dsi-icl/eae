@@ -92,6 +92,7 @@ JobsScheduler.prototype._reportFailedJob = function(job){
                 _this._mongoHelper.updateNodeStatus(node).then(
                     function(success){
                         if(success.nModified === 1){
+                            // eslint-disable-next-line no-console
                             console.log('The node' + node.ip + ':' + node.port + 'has been set to DEAD successfully ' +
                                 'following excessive job failures');
                         }else{
@@ -217,6 +218,7 @@ JobsScheduler.prototype._queuedJobs = function () {
                                                                 // we unlock the job
                                                                 job.statusLock = false;
                                                                 _this._mongoHelper.updateJob(job);
+                                                                // eslint-disable-next-line no-console
                                                                 console.log('No currently available resource for job : ' + job._id
                                                                     + ' of type ' + job.type + '.\nAt least one resource in the ' +
                                                                     'cluster is not available');
@@ -245,6 +247,7 @@ JobsScheduler.prototype._queuedJobs = function () {
                                                         if (error !== null) {
                                                             reject(ErrorHelper('The run request has failed:', error));
                                                         }
+                                                        // eslint-disable-next-line no-console
                                                         console.log('The run request sent to host ' + candidateWorker.ip
                                                             + ':' + candidateWorker.port + ' and the response was ', response, body);
                                                         // We set the candidate as the executor for the job, set it to
@@ -262,6 +265,7 @@ JobsScheduler.prototype._queuedJobs = function () {
                                                     // we unlock the job
                                                     job.statusLock = false;
                                                     _this._mongoHelper.updateJob(job);
+                                                    // eslint-disable-next-line no-console
                                                     console.log('No currently available resource for job : ' + job._id
                                                         + ' of type ' + job.type);
                                                     resolve(false);
@@ -272,6 +276,7 @@ JobsScheduler.prototype._queuedJobs = function () {
                                             }
                                         );
                                     }else{
+                                        // eslint-disable-next-line no-console
                                         console.log('The job ' + job._id + ' is now DEAD.');
                                         resolve(true);
                                     }

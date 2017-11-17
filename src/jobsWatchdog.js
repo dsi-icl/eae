@@ -41,7 +41,7 @@ JobsWatchdog.prototype._deleteSwiftFilesAndContainer = function(container, files
         filesArray.forEach(function (file) {
             let d = _this._swiftHelper.deleteFile(container, file).then(
                 function (_unused__deleteStatus) {
-                    console.log('File : ' + file + ' has been successfully deleted from container : ' + container);
+                    console.log('File : ' + file + ' has been successfully deleted from container : ' + container); // eslint-disable-line no-console
                 },
                 function (error) {
                     ErrorHelper('Failed to delete file in swift: container - '
@@ -156,7 +156,7 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
                                         if (error !== null) {
                                             reject(ErrorHelper('The cancel request has failed:', error));
                                         }
-                                        console.log('The cancel request sent to host ' + job.executorIP + ':' + job.executorIP + ' and the response was ', response, body);
+                                        console.log('The cancel request sent to host ' + job.executorIP + ':' + job.executorIP + ' and the response was ', response, body); // eslint-disable-line no-console
 
                                         // We change the job status back to Queued and unlock the job for scheduling
                                         job.status.unshift(Constants.EAE_JOB_STATUS_QUEUED) ;

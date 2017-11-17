@@ -175,7 +175,7 @@ MongoHelper.prototype.archiveJob = function(jobId){
                 _this._jobsArchiveCollection.insert(job).then(function(success) {
                         if (success.insertedCount === 1) {
                             _this._jobsCollection.deleteOne(filter).then(function(){
-                                console.log('The job ' + jobId + 'has been successfully archived');
+                                console.log('The job ' + jobId + 'has been successfully archived');// eslint-disable-line no-console
                                 resolve(job);
                             },function(error){
                                 reject(ErrorHelper('The old job could not be deleted properly from jobsCollection. ' +
@@ -240,7 +240,7 @@ MongoHelper.prototype.archiveFailedJob = function(job){
         // delete job._id;
         _this._failedJobsArchiveCollection.insert(job).then(function(success) {
             if (success.insertedCount === 1) {
-                console.log('The failed job: ' + job._id + ' has been archived properly.');
+                console.log('The failed job: ' + job._id + ' has been archived properly.'); // eslint-disable-line no-console
                 resolve(true);
             }else{
                 reject(ErrorHelper('The job couldn\'t be inserted properly. The insert count != 1. ' +
