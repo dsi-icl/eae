@@ -10,6 +10,13 @@ services:
         ports:
           - 27017:27017
 
+    mongodb-initialize:
+        image: aoehmich/eae-mongodb-initialize:latest
+        depends_on:
+          - mongodb
+        links:
+          - mongodb
+
     swift:
         image: bouncestorage/swift-aio
         ports:
