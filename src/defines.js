@@ -85,7 +85,7 @@ module.exports = {
     SERVICE_TYPE_API: 'eae_api',
 
     SERVICE_STATUS_IDLE: 'eae_service_idle',
-    SERVICE_STATUS_BUSY: 'eae_service_kartoffelsalat',
+    SERVICE_STATUS_BUSY: 'eae_service_busy',
     SERVICE_STATUS_LOCKED: 'eae_service_locked',
     SERVICE_STATUS_DEAD: 'eae_service_dead',
 
