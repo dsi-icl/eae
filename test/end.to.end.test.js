@@ -99,7 +99,7 @@ test('Create a Job and Upload the two files', function(done) {
                             }
                     };
 
-                    request(options,
+                    request(options2,
                         function (error, response, body) {
                             if (error) {
                                 done.fail(error.toString());
