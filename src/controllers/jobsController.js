@@ -50,13 +50,28 @@ JobsController.prototype.createNewJob = function(req, res){
         // Check the validity of the JOB
         let jobRequest = JSON.parse(req.body.job);
         let requiredJobFields = ['type', 'main', 'params', 'input'];
+        let terminateCreation = false;
         requiredJobFields.forEach(function(key){
             if(jobRequest[key] === null || jobRequest[key] === undefined){
                 res.status(401);
                 res.json(ErrorHelper('Job request is not well formed. Missing ' + jobRequest[key]));
-                return;
+                terminateCreation = true;
+            }
+            if(key === 'type'){
+                let listOfSupportedComputations = [Constants.EAE_COMPUTE_TYPE_PYTHON2, Constants.EAE_COMPUTE_TYPE_R,
+                    Constants.EAE_COMPUTE_TYPE_TENSORFLOW, Constants.EAE_COMPUTE_TYPE_SPARK];
+                if(!(listOfSupportedComputations.includes(jobRequest[key]))) {
+                    res.status(405);
+                    res.json(ErrorHelper('The requested compute type is currently not supported. The list of supported computations: ' +
+                        Constants.EAE_COMPUTE_TYPE_PYTHON2 + ', ' + Constants.EAE_COMPUTE_TYPE_SPARK + ', ' + Constants.EAE_COMPUTE_TYPE_R + ', ' +
+                        Constants.EAE_COMPUTE_TYPE_TENSORFLOW));
+                    terminateCreation = true;
+                }
             }
         });
+        // we cannot stop the foreach without throwing an error so it is a bad workaround
+        if(terminateCreation) return;
+
         // Prevent the model from being updated
         let eaeJobModel = JSON.parse(JSON.stringify(DataModels.EAE_JOB_MODEL));
         let newJob = Object.assign({}, eaeJobModel, jobRequest, {_id: new ObjectID()});

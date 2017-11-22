@@ -98,9 +98,40 @@ test('Get Job No jobID', function(done) {
     );
 });
 
+test('Create a Job with a nonsupported compute type', function(done) {
+    expect.assertions(4);
+    let job = JSON.stringify({"type": "python", "main": "hello.py", "params": [], "input": ["input1.txt", "input2.txt"]});
+    request(
+        {
+            method: 'POST',
+            baseUrl: 'http://127.0.0.1:' + config.port,
+            uri: '/job/create',
+            json: true,
+            body: {
+                eaeUsername: adminUsername,
+                eaeUserToken: adminPassword,
+                job: job
+            }
+        },
+        function(error, response, body) {
+            if (error) {
+                done.fail(error.toString());
+            }
+            expect(response).toBeDefined();
+            expect(response.statusCode).toEqual(405);
+            expect(body).toBeDefined();
+            expect(body).toEqual({error:'The requested compute type is currently not supported. The list of supported computations: ' +
+                            eaeutils.Constants.EAE_COMPUTE_TYPE_PYTHON2 + ', ' + eaeutils.Constants.EAE_COMPUTE_TYPE_SPARK + ', ' +
+                            eaeutils.Constants.EAE_COMPUTE_TYPE_R + ', ' + eaeutils.Constants.EAE_COMPUTE_TYPE_TENSORFLOW});
+            done();
+        }
+    );
+});
+
+
 test('Create a Job and subsequently get it', function(done) {
     expect.assertions(15);
-    let job = JSON.stringify({"type": "python", "main": "hello.py", "params": [], "input": ["input1.txt", "input2.txt"]});
+    let job = JSON.stringify({"type": eaeutils.Constants.EAE_COMPUTE_TYPE_PYTHON2, "main": "hello.py", "params": [], "input": ["input1.txt", "input2.txt"]});
     request(
         {
             method: 'POST',
@@ -141,7 +172,7 @@ test('Create a Job and subsequently get it', function(done) {
                     expect(response).toBeDefined();
                     expect(response.statusCode).toEqual(200);
                     expect(body).toBeDefined();
-                    expect(body.type).toEqual('python');
+                    expect(body.type).toEqual(eaeutils.Constants.EAE_COMPUTE_TYPE_PYTHON2);
                     expect(body.requester).toEqual(adminUsername);
                     expect(body.main).toEqual('hello.py');
                     expect(body.statusLock).toEqual(false);
@@ -155,7 +186,7 @@ test('Create a Job and subsequently get it', function(done) {
 
 test('Create a Job and subsequently cancel it', function(done) {
     expect.assertions(11);
-    let job = JSON.stringify({"type": "python", "main": "hello.py", "params": [], "input": ["input1.txt", "input2.txt"]});
+    let job = JSON.stringify({"type": eaeutils.Constants.EAE_COMPUTE_TYPE_PYTHON2, "main": "hello.py", "params": [], "input": ["input1.txt", "input2.txt"]});
     request(
         {
             method: 'POST',
