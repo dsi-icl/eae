@@ -56,6 +56,16 @@ JobsController.prototype.createNewJob = function(req, res){
                 res.json(ErrorHelper('Job request is not well formed. Missing ' + jobRequest[key]));
                 return;
             }
+            if(key === 'type'){
+                let listOfSupportedComputations = [Constants.EAE_COMPUTE_TYPE_PYTHON2, Constants.EAE_COMPUTE_TYPE_R,
+                    Constants.EAE_COMPUTE_TYPE_TENSORFLOW, Constants.EAE_COMPUTE_TYPE_SPARK];
+                if(!(listOfSupportedComputations.includes(jobRequest[key]))) {
+                    res.status(405);
+                    res.json(ErrorHelper('The requested compute type is currently not supported. The list of supported computations: ' +
+                        Constants.EAE_COMPUTE_TYPE_PYTHON2 + ', ' + Constants.EAE_COMPUTE_TYPE_SPARK + ', ' + Constants.EAE_COMPUTE_TYPE_R + ', ' +
+                        Constants.EAE_COMPUTE_TYPE_TENSORFLOW));
+                }
+            }
         });
         // Prevent the model from being updated
         let eaeJobModel = JSON.parse(JSON.stringify(DataModels.EAE_JOB_MODEL));

@@ -97,6 +97,11 @@ paths:
             schema:
               type: object
               description: eAE ErrorStack tracking the error origin
+        405:
+            description: The requested compute type is not supported
+            schema:
+              type: object
+              description: eAE ErrorStack tracking the error origin
         500:
             description: Internal mongo or server error.
             schema:
