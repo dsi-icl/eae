@@ -117,7 +117,6 @@ test('Create a Job with a nonsupported compute type', function(done) {
             if (error) {
                 done.fail(error.toString());
             }
-            console.log(response);
             expect(response).toBeDefined();
             expect(response.statusCode).toEqual(405);
             expect(body).toBeDefined();
