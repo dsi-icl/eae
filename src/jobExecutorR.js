@@ -82,8 +82,8 @@ JobExecutorR.prototype._preExecution = function() {
         //Wait for all files to be transferred
         Promise.all(file_transfer_promises).then(function(__unused__ok_array) {
             //Create output directory if doesnt exists
-            if (fs.existsSync(path.join(_this._tmpDirectory, 'output')) === false) {
-                fs.mkdirSync(path.join(_this._tmpDirectory, 'output'));
+            if (fs.existsSync(path.join(_this._tmpDirectory, 'input', 'output')) === false) {
+                fs.mkdirSync(path.join(_this._tmpDirectory, 'input', 'output'));
             }
             resolve(true); // All good
         }, function(error) {
