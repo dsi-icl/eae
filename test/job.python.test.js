@@ -21,7 +21,7 @@ beforeAll(function() {
 test('Create dummy job & start running', function(done) {
     expect.assertions(6);
     ts.createJob(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2,
-        './input/dummy.py', [], [ './test/jobs/dummy/dummy.py' ]).then(function(job_model) {
+        'dummy.py', [], [ './test/jobs/dummy/dummy.py' ]).then(function(job_model) {
         expect(job_model).toBeDefined();
         expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2);
         job_model.output = [ "test.txt" ]; //Manually insert expected output files
@@ -91,7 +91,7 @@ test('Check dummy output result and delete job', function(done) {
 test('Create timer job & start running', function(done) {
     expect.assertions(6);
     ts.createJob(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2,
-        './input/timer.py', [], [ './test/jobs/timer/timer.py' ]).then(function(job_model) {
+        'timer.py', [], [ './test/jobs/timer/timer.py' ]).then(function(job_model) {
         expect(job_model).toBeDefined();
         expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2);
         job_model.output = [ ]; //Manually insert expected output files
@@ -204,7 +204,7 @@ test('Cancel job on idle compute, check error', function(done) {
 test('Create cancel job & start running', function(done) {
     expect.assertions(6);
     ts.createJob(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2,
-        './input/cancel.py', [], [ './test/jobs/cancel/cancel.py' ]).then(function(job_model) {
+        'cancel.py', [], [ './test/jobs/cancel/cancel.py' ]).then(function(job_model) {
         expect(job_model).toBeDefined();
         expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2);
         job_model.output = [ ]; //Manually insert expected output files

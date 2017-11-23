@@ -21,7 +21,7 @@ beforeAll(function() {
 test('Create dummy R job & start running', function(done) {
     expect.assertions(6);
     ts.createJob(eaeutils.Constants.EAE_JOB_TYPE_R,
-        './input/dummy.R', [], [ './test/jobs/dummy/dummy.R' ]).then(function(job_model) {
+        'dummy.R', [], [ './test/jobs/dummy/dummy.R' ]).then(function(job_model) {
         expect(job_model).toBeDefined();
         expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_R);
         job_model.output = [ "test.txt" ]; //Manually insert expected output files
@@ -91,7 +91,7 @@ test('Check dummy output result and delete job', function(done) {
 test('Create timer job & start running', function(done) {
     expect.assertions(6);
     ts.createJob(eaeutils.Constants.EAE_JOB_TYPE_R,
-        './input/timer.R', [], [ './test/jobs/timer/timer.R' ]).then(function(job_model) {
+        'timer.R', [], [ './test/jobs/timer/timer.R' ]).then(function(job_model) {
         expect(job_model).toBeDefined();
         expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_R);
         job_model.output = [ ]; //Manually insert expected output files
@@ -204,7 +204,7 @@ test('Cancel job on idle compute, check error', function(done) {
 test('Create cancel job & start running', function(done) {
     expect.assertions(6);
     ts.createJob(eaeutils.Constants.EAE_JOB_TYPE_R,
-        './input/cancel.R', [], [ './test/jobs/cancel/cancel.R' ]).then(function(job_model) {
+        'cancel.R', [], [ './test/jobs/cancel/cancel.R' ]).then(function(job_model) {
         expect(job_model).toBeDefined();
         expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_R);
         job_model.output = [ ]; //Manually insert expected output files

@@ -92,7 +92,7 @@ test('Delete pip install job', function(done) {
 test('Create pymongo job & start running', function(done) {
     expect.assertions(6);
     ts.createJob(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2,
-        './input/pymongo.py', [], [ './test/jobs/pymongo/pymongo.py' ]).then(function(job_model) {
+        'pymongo.py', [], [ './test/jobs/pymongo/pymongo.py' ]).then(function(job_model) {
         expect(job_model).toBeDefined();
         expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2);
         g_job = job_model;
