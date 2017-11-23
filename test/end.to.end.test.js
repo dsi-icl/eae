@@ -8,12 +8,12 @@ let adminPassword = 'admin';
 
 
 test('Create a Job and Upload the two files', function(done) {
-    expect.assertions(24);
+    expect.assertions(25);
     let job = JSON.stringify({
-        "type": "python",
+        "type": eaeutils.Constants.EAE_JOB_TYPE_PYTHON2,
         "main": "test.py",
         "params": ["Hello_this_is_patrick"],
-        "input": ["test.py", "faust.txt"]
+        "input": ["faust.txt"]
     });
     request(
         {
@@ -157,8 +157,8 @@ test('Create a Job and Upload the two files', function(done) {
                                             expect(response).toBeDefined();
                                             expect(response.statusCode).toEqual(200);
                                             writable.on('close', function(){
-                                                // let newFileSize = fs.statSync('file_test.txt').size;
-                                                // expect(newFileSize).toEqual(expectedFileSize);
+                                                let isFileWritten = (fs.statSync('file_test.txt').size > 0);
+                                                expect(isFileWritten).toEqual(true);
                                                 done();
                                             });
                                         }, function(error){
