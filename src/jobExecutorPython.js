@@ -103,7 +103,7 @@ JobExecutorPython.prototype._postExecution = function() {
     let _this = this;
     return new Promise(function (resolve, reject) {
         let container_name = _this._jobID.toString() + '_output';
-        let tmpSource = path.join(_this._tmpDirectory, 'output');
+        let tmpSource = path.join(_this._tmpDirectory, 'input','output');
         let upload_file_promises = [];
 
         // Cleanup current output in model
@@ -172,7 +172,7 @@ JobExecutorPython.prototype.startExecution = function(callback) {
             let cmd = 'python ' + _this._model.main;
             let args = _this._model.params;
             let opts = {
-                cwd: _this._tmpDirectory,
+                cwd: _this._tmpDirectory + '/input',
                 end: process.env,
                 shell: true
             };
