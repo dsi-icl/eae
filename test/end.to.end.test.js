@@ -1,13 +1,14 @@
 const request = require('request');
 let fs = require('fs');
 let config = require('deploy.test.config.js');
+let eaeutils = require('eae-utils');
 
 let adminUsername = 'admin';
 let adminPassword = 'admin';
 
 
 test('Create a Job and Upload the two files', function(done) {
-    expect.assertions(14);
+    expect.assertions(24);
     let job = JSON.stringify({
         "type": "python",
         "main": "test.py",
@@ -43,21 +44,14 @@ test('Create a Job and Upload the two files', function(done) {
                 method: 'POST',
                 url: 'http://' + carrierURL + '/file-upload',
                 headers:
-                    {
-                        'cache-control': 'no-cache',
-                        'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW'
-                    },
+                    {   'cache-control': 'no-cache',
+                        'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW'},
                 formData:
-                    {
-                        file:
-                            {
-                                value: fs.createReadStream('test/files/faust.txt'),
-                                options:
-                                    {
-                                        filename: 'faust.txt',
-                                        contentType: null
-                                    }
-                            },
+                    {  file:
+                        {   value: fs.createReadStream('test/files/faust.txt'),
+                            options:
+                                {   filename: 'faust.txt',
+                                    contentType: null    }},
                         jobID: jobID,
                         fileName: 'faust.txt',
                         eaeUsername: 'admin'
@@ -78,26 +72,20 @@ test('Create a Job and Upload the two files', function(done) {
                         method: 'POST',
                         url: 'http://' + carrierURL + '/file-upload',
                         headers:
-                            {
-                                'cache-control': 'no-cache',
+                            {   'cache-control': 'no-cache',
                                 'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW'
                             },
                         formData:
-                            {
-                                file:
-                                    {
-                                        value: fs.createReadStream('test/files/test.py'),
-                                        options:
-                                            {
-                                                filename: 'test.py',
-                                                contentType: null
-                                            }
-                                    },
+                            {   file:
+                                {   value: fs.createReadStream('test/files/test.py'),
+                                    options:
+                                        {   filename: 'test.py',
+                                            contentType: null
+                                        }},
                                 jobID: jobID,
                                 fileName: 'test.py',
                                 eaeUsername: 'admin'
-                            }
-                    };
+                            }};
 
                     request(options2,
                         function (error, response, body) {
@@ -108,55 +96,78 @@ test('Create a Job and Upload the two files', function(done) {
                             expect(response.statusCode).toEqual(200);
                             expect(body).toBeDefined();
                             expect(body).toEqual('true');
-                            done();
+
+                            setTimeout(function(){
+                                request(
+                                    {
+                                        method: 'POST',
+                                        baseUrl: 'http://' + config.interfaceURL + ':' + config.interfacePort ,
+                                        uri: '/job',
+                                        json: true,
+                                        body: {
+                                            eaeUsername: adminUsername,
+                                            eaeUserToken: adminPassword,
+                                            jobID: body.jobID
+                                        }
+                                    }, function(error, response, body) {
+                                        if (error) {
+                                            done.fail(error.toString());
+                                        }
+                                        expect(response).toBeDefined();
+                                        expect(response.statusCode).toEqual(200);
+                                        expect(body).toBeDefined();
+                                        expect(body.type).toEqual(eaeutils.Constants.EAE_COMPUTE_TYPE_PYTHON2);
+                                        expect(body.requester).toEqual(adminUsername);
+                                        expect(body.main).toEqual('test.py');
+                                        expect(body.statusLock).toEqual(false);
+                                        expect(body.exitCode).toEqual(-1);
+                                        expect(body.input).toEqual([ 'faust.txt' ]);
+                                    });
+                            }, 5000);
+
+                            setTimeout(function () {
+                                    request(
+                                        {
+                                            method: 'POST',
+                                            baseUrl: 'http://' + carrierURL,
+                                            uri: '/file-download',
+                                            json: true,
+                                            body: {
+                                                eaeUsername: adminUsername,
+                                                fileName: 'test_out.txt',
+                                                jobID: jobID
+                                            }
+                                        }).on('response', function(response) {
+                                        let prom = new Promise(function(resolve, reject) {
+                                            let writable = fs.createWriteStream('file_test.txt');
+                                            let size = 0;
+                                            response.on('data', (chunk) => {
+                                                size += chunk.toString().length;
+                                                writable.write(chunk);
+                                            });
+                                            response.on('end', () => {
+                                                writable.end();
+                                                resolve(writable);
+                                            });
+                                            response.on('error', (error)=>{
+                                                reject(error);
+                                            });
+                                        });
+                                        prom.then(function(writable){
+                                            expect(response).toBeDefined();
+                                            expect(response.statusCode).toEqual(200);
+                                            writable.on('close', function(){
+                                                // let newFileSize = fs.statSync('file_test.txt').size;
+                                                // expect(newFileSize).toEqual(expectedFileSize);
+                                                done();
+                                            });
+                                        }, function(error){
+                                            done.fail(error.toString());
+                                        });
+                                    });
+                                },
+                            20000);
                         });
                 });
         });
 });
-
-
-// TODO test current status of the job then testing download of the result file
-//
-// test('Testing Download of the Result File', function(done) {
-//     expect.assertions(3);
-//     let expectedFileSize = fs.statSync('test/files/Faust by Johann Wolfgang von Goethe.txt').size;
-//     request(
-//         {
-//             method: 'POST',
-//             baseUrl: 'http://127.0.0.1:' + config.port,
-//             uri: '/file-download',
-//             json: true,
-//             body: {
-//                 eaeUsername: adminUsername,
-//                 fileName: 'Faust by Johann Wolfgang von Goethe.txt',
-//                 jobID: '5a09bbea4a8rulesd63a665e'
-//             }
-//         }).on('response', function(response) {
-//         let prom = new Promise(function(resolve, reject) {
-//             let writable = fs.createWriteStream('file_test.txt');
-//             let size = 0;
-//             response.on('data', (chunk) => {
-//                 size += chunk.toString().length;
-//             writable.write(chunk);
-//         });
-//             response.on('end', () => {
-//                 writable.end();
-//             resolve(writable);
-//         });
-//             response.on('error', (error)=>{
-//                 reject(error);
-//         });
-//         });
-//         prom.then(function(writable){
-//             expect(response).toBeDefined();
-//             expect(response.statusCode).toEqual(200);
-//             writable.on('close', function(){
-//                 let newFileSize = fs.statSync('file_test.txt').size;
-//                 expect(newFileSize).toEqual(expectedFileSize);
-//                 done();
-//             });
-//         }, function(error){
-//             done.fail(error.toString());
-//         });
-//     });
-// });
