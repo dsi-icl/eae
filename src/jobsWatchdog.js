@@ -153,13 +153,13 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
                                         baseUrl: 'http://' + job.executorIP + ':' + job.executorPort,
                                         uri:'/cancel'
                                     },
-                                    function (error, response, body) {
+                                    function (error, response, _unused__body) {
                                         if (error !== null) {
                                             reject(ErrorHelper('The cancel request has failed:', error));
                                         }
                                         // eslint-disable-next-line no-console
                                         console.log('The cancel request sent to host ' + job.executorIP + ':' + job.executorIP
-                                            + ' and the response was ', response, body);
+                                            + ' and the response was ', response.statusCode);
 
                                         // We change the job status back to Queued and unlock the job for scheduling
                                         job.status.unshift(Constants.EAE_JOB_STATUS_QUEUED) ;
