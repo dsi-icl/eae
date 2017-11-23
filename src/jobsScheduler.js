@@ -243,7 +243,7 @@ JobsScheduler.prototype._queuedJobs = function () {
                                                         job_id: job._id.toHexString()
                                                         }
                                                     },
-                                                    function (error, response, body) {
+                                                    function (error, response, _unused__body) {
                                                         if (error !== null) {
                                                             reject(ErrorHelper('The run request has failed:', error));
                                                         }

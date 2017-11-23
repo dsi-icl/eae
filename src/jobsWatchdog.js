@@ -153,7 +153,7 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
                                         baseUrl: 'http://' + job.executorIP + ':' + job.executorPort,
                                         uri:'/cancel'
                                     },
-                                    function (error, response, body) {
+                                    function (error, response, _unused__body) {
                                         if (error !== null) {
                                             reject(ErrorHelper('The cancel request has failed:', error));
                                         }
