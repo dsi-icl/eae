@@ -249,7 +249,7 @@ JobsScheduler.prototype._queuedJobs = function () {
                                                         }
                                                         // eslint-disable-next-line no-console
                                                         console.log('The run request sent to host ' + candidateWorker.ip
-                                                            + ':' + candidateWorker.port + ' and the response was ', response, body);
+                                                            + ':' + candidateWorker.port + ' and the response was ', response.statusCode);
                                                         // We set the candidate as the executor for the job, set it to
                                                         // scheduled and unlock it.
                                                         job.executorIP = candidateWorker.ip;

@@ -159,7 +159,7 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
                                         }
                                         // eslint-disable-next-line no-console
                                         console.log('The cancel request sent to host ' + job.executorIP + ':' + job.executorIP
-                                            + ' and the response was ', response, body);
+                                            + ' and the response was ', response.statusCode);
 
                                         // We change the job status back to Queued and unlock the job for scheduling
                                         job.status.unshift(Constants.EAE_JOB_STATUS_QUEUED) ;
