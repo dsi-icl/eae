@@ -56,6 +56,9 @@ JobExecutorAbstract.prototype.pushModel = function() {
     let _this = this;
 
     return new Promise(function(resolve, reject) {
+        // while(_this._model.statusLock){
+        //     setTimeout(function() { _this.fetchModel(); }, 500); // we wait for 500 ms before refreshing again
+        // }
         let replacementData = _this._model;
         delete replacementData._id; // Cleanup MongoDB managed _id field, if any
         _this._jobCollection.findOneAndReplace({ _id : _this._jobID }, replacementData, { upsert: true, returnOriginal: false })
@@ -109,48 +112,39 @@ JobExecutorAbstract.prototype._exec = function(command, args, options) {
         }); // Post execution error
     }; // end_fn
 
-    //Clean model for execution
-    _this._model.stdout = '';
-    _this._model.stderr = '';
-    _this._model.status.unshift(Constants.EAE_JOB_STATUS_RUNNING);
-    _this._model.startDate = new Date();
-    _this.pushModel().then(function() {
-        _this._preExecution().then(function() {
-            //Fork a process on the machine
-            _this._child_process = child_process.spawn(command, args, options);
+    _this._preExecution().then(function() {
+        //Fork a process on the machine
+        _this._child_process = child_process.spawn(command, args, options);
 
-            //Stores stdout
-            _this._child_process.stdout.on('data', function (stdout_data) {
-                _this._model.stdout += stdout_data;
-            });
-
-            //Stores stderr
-            _this._child_process.stderr.on('data', function (stderr_data) {
-                _this._model.stderr += stderr_data;
-            });
-
-            //Handle spawn errors
-            _this._child_process.on('error', function (error) {
-                end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, 'Spawn - ' + error.toString());
-            });
-
-            //Handle child termination
-            _this._child_process.on('exit', function (code, signal) {
-                if (code !== null) { //Successful run or interruption
-                    end_fn(Constants.EAE_JOB_STATUS_DONE, code, 'Exit success');
-                }
-                else if (signal === 'SIGTERM') {
-                    end_fn(Constants.EAE_JOB_STATUS_CANCELLED, 1, 'Interrupt success');
-                }
-                else {
-                    end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, 'Exit error');
-                }
-            });
-        }, function (error) {
-            end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, 'Pre-exec - ' + error.toString());
+        //Stores stdout
+        _this._child_process.stdout.on('data', function (stdout_data) {
+            _this._model.stdout += stdout_data;
         });
-    }, function(error) {
-        end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, 'Prepare -' + error.toString());
+
+        //Stores stderr
+        _this._child_process.stderr.on('data', function (stderr_data) {
+            _this._model.stderr += stderr_data;
+        });
+
+        //Handle spawn errors
+        _this._child_process.on('error', function (error) {
+            end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, 'Spawn - ' + error.toString());
+        });
+
+        //Handle child termination
+        _this._child_process.on('exit', function (code, signal) {
+            if (code !== null) { //Successful run or interruption
+                end_fn(Constants.EAE_JOB_STATUS_DONE, code, 'Exit success');
+            }
+            else if (signal === 'SIGTERM') {
+                end_fn(Constants.EAE_JOB_STATUS_CANCELLED, 1, 'Interrupt success');
+            }
+            else {
+                end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, 'Exit error');
+            }
+        });
+    }, function (error) {
+        end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, 'Pre-exec - ' + error.toString());
     });
 };
 
