@@ -1,4 +1,4 @@
-FROM aoehmich/eae-compute:dev
+FROM aoehmich/eae-compute:latest
 
 COPY ./compute/eae.compute.config.js /usr/app/config/eae.compute.config.js
 
