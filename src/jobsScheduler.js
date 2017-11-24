@@ -179,87 +179,88 @@ JobsScheduler.prototype._queuedJobs = function () {
                                         _this._mongoHelper.findAndReserveAvailableWorker(filter).then(
                                             function(candidateWorker){
                                                 if(candidateWorker !== false && candidateWorker !== null){
-                                                switch (job.type) {
-                                                    case Constants.EAE_JOB_TYPE_SPARK: {
-                                                        // We lock the cluster and set the candidate as the executor for the job
-                                                        let reserved = [];
-                                                        let updates = [];
-                                                        candidateWorker.clusters.spark.forEach(function (workerNode) {
-                                                            if (workerNode.statusLock === false) {
-                                                                workerNode.statusLock = true;
-                                                                updates.push(_this._mongoHelper.updateNodeStatus(workerNode));
-                                                                reserved.push(workerNode);
-                                                            }
-                                                        });
-                                                        Promise.all(updates).then(successes => {
-                                                            let numberOfWorkersAcquired = successes.reduce((acc, curr) => curr.ok + acc, 0);
-                                                            if (numberOfWorkersAcquired === candidateWorker.clusters.spark.length) {
-                                                                candidateWorker.clusters.spark.forEach(function (workerNode) {
-                                                                    workerNode.status = Constants.EAE_SERVICE_STATUS_BUSY;
-                                                                    _this._mongoHelper.updateNodeStatus(workerNode).then(function () {
-                                                                        },
-                                                                        function (error) {
-                                                                            reject(ErrorHelper('Error when setting node to busy ' +
-                                                                                'in cluster. Node ' + candidateWorker.toString(), error));
-                                                                        });
-                                                                });
-                                                            }
-                                                            else {
-                                                                // We free the reserved resources
-                                                                reserved.forEach(function (reservedWorker) {
-                                                                    reservedWorker.status = Constants.EAE_SERVICE_STATUS_IDLE;
-                                                                    _this._mongoHelper.updateNodeStatus(reservedWorker).then(function () {
-                                                                        },
-                                                                        function (error) {
-                                                                            reject(ErrorHelper('Error when setting node to busy ' +
-                                                                                'in cluster. Node ' + reservedWorker.toString(), error));
-                                                                        });
-                                                                });
-                                                                // we unlock the job
-                                                                job.statusLock = false;
-                                                                _this._mongoHelper.updateJob(job);
-                                                                // eslint-disable-next-line no-console
-                                                                console.log('No currently available resource for job : ' + job._id
-                                                                    + ' of type ' + job.type + '.\nAt least one resource in the ' +
-                                                                    'cluster is not available');
-                                                                resolve(false);
-                                                            }
-                                                        }, reason => {
-                                                            reject(ErrorHelper('Error when locking node in cluster: ' + reason));
-                                                        });
-                                                        break;
+                                                    switch (job.type) {
+                                                        case Constants.EAE_JOB_TYPE_SPARK: {
+                                                            // We lock the cluster and set the candidate as the executor for the job
+                                                            let reserved = [];
+                                                            let updates = [];
+                                                            candidateWorker.clusters.spark.forEach(function (workerNode) {
+                                                                if (workerNode.statusLock === false) {
+                                                                    workerNode.statusLock = true;
+                                                                    updates.push(_this._mongoHelper.updateNodeStatus(workerNode));
+                                                                    reserved.push(workerNode);
+                                                                }
+                                                            });
+                                                            Promise.all(updates).then(successes => {
+                                                                let numberOfWorkersAcquired = successes.reduce((acc, curr) => curr.ok + acc, 0);
+                                                                if (numberOfWorkersAcquired === candidateWorker.clusters.spark.length) {
+                                                                    candidateWorker.clusters.spark.forEach(function (workerNode) {
+                                                                        workerNode.status = Constants.EAE_SERVICE_STATUS_BUSY;
+                                                                        _this._mongoHelper.updateNodeStatus(workerNode).then(function () {
+                                                                            },
+                                                                            function (error) {
+                                                                                reject(ErrorHelper('Error when setting node to busy ' +
+                                                                                    'in cluster. Node ' + candidateWorker.toString(), error));
+                                                                            });
+                                                                    });
+                                                                }
+                                                                else {
+                                                                    // We free the reserved resources
+                                                                    reserved.forEach(function (reservedWorker) {
+                                                                        reservedWorker.status = Constants.EAE_SERVICE_STATUS_IDLE;
+                                                                        _this._mongoHelper.updateNodeStatus(reservedWorker).then(function () {
+                                                                            },
+                                                                            function (error) {
+                                                                                reject(ErrorHelper('Error when setting node to busy ' +
+                                                                                    'in cluster. Node ' + reservedWorker.toString(), error));
+                                                                            });
+                                                                    });
+                                                                    // we unlock the job
+                                                                    job.statusLock = false;
+                                                                    _this._mongoHelper.updateJob(job);
+                                                                    // eslint-disable-next-line no-console
+                                                                    console.log('No currently available resource for job : ' + job._id
+                                                                        + ' of type ' + job.type + '.\nAt least one resource in the ' +
+                                                                        'cluster is not available');
+                                                                    resolve(false);
+                                                                }
+                                                            }, reason => {
+                                                                reject(ErrorHelper('Error when locking node in cluster: ' + reason));
+                                                            });
+                                                            break;
+                                                        }
+                                                        default:
+                                                            // Nothing to do
+                                                            break;
                                                     }
-                                                    default:
-                                                        // Nothing to do
-                                                        break;
-                                                }
-                                                // Everything is set, we send the request to the worker
-                                                request({
-                                                        method: 'POST',
-                                                        baseUrl: 'http://' + candidateWorker.ip + ':' + candidateWorker.port,
-                                                        uri:'/run',
-                                                        json: true,
-                                                        body: {
-                                                        job_id: job._id.toHexString()
-                                                        }
-                                                    },
-                                                    function (error, response, _unused__body) {
-                                                        if (error !== null) {
-                                                            reject(ErrorHelper('The run request has failed:', error));
-                                                        }
-                                                        // eslint-disable-next-line no-console
-                                                        console.log('The run request sent to host ' + candidateWorker.ip
-                                                            + ':' + candidateWorker.port + ' and the response was ', response.statusCode);
-                                                        // We set the candidate as the executor for the job, set it to
-                                                        // scheduled and unlock it.
-                                                        job.executorIP = candidateWorker.ip;
-                                                        job.executorPort = candidateWorker.port;
-                                                        job.statusLock = false;
-                                                        job.status.unshift(Constants.EAE_JOB_STATUS_SCHEDULED);
-                                                        _this._mongoHelper.updateJob(job).then(function () {
-                                                            resolve(true);
-                                                        });
+                                                    // Everything is set, we send the request to the worker
+                                                    job.statusLock = false;
+                                                    job.status.unshift(Constants.EAE_JOB_STATUS_SCHEDULED);
+                                                    _this._mongoHelper.updateJob(job).then(function () {
+                                                        request({
+                                                                method: 'POST',
+                                                                baseUrl: 'http://' + candidateWorker.ip + ':' + candidateWorker.port,
+                                                                uri:'/run',
+                                                                json: true,
+                                                                body: {
+                                                                    job_id: job._id.toHexString()
+                                                                }
+                                                            },
+                                                            function (error, response, _unused__body) {
+                                                                if (error !== null) {
+                                                                    reject(ErrorHelper('The run request has failed:', error));
+                                                                }
+                                                                // eslint-disable-next-line no-console
+                                                                console.log('The run request sent to host ' + candidateWorker.ip
+                                                                    + ':' + candidateWorker.port + ' and the response was ', response.statusCode);
+                                                                // We set the candidate as the executor for the job
+                                                                job.executorIP = candidateWorker.ip;
+                                                                job.executorPort = candidateWorker.port;
+                                                                _this._mongoHelper.updateJob(job).then(function () {
+                                                                    resolve(true);
+                                                                });
 
+                                                            });
                                                     });
                                             }else{
                                                     // we unlock the job
