@@ -1,5 +1,6 @@
 const process = require('process');
 const JobExecutorAbstract = require('./jobExecutorAbstract.js');
+const {Constants} = require('eae-utils');
 
 /**
  * @class JobExecutorPip
@@ -57,14 +58,23 @@ JobExecutorPip.prototype.startExecution = function(callback) {
 
     _this._callback = callback;
     _this.fetchModel().then(function() {
-        let cmd = 'pip';
-        let args = _this._model.params;
-        let opts = {
-            cwd:  process.cwd(),
-            end: process.env,
-            shell: true
-        };
-        _this._exec(cmd, args, opts);
+        //Clean model for execution
+        _this._model.stdout = '';
+        _this._model.stderr = '';
+        _this._model.status.unshift(Constants.EAE_JOB_STATUS_RUNNING);
+        _this._model.startDate = new Date();
+        _this.pushModel().then(function() {
+            let cmd = 'pip';
+            let args = _this._model.params;
+            let opts = {
+                cwd:  process.cwd(),
+                end: process.env,
+                shell: true
+            };
+            _this._exec(cmd, args, opts);
+        }, function(error) {
+            throw error;
+        });
     }, function(error) {
         throw error;
     });
