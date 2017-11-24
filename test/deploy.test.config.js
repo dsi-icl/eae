@@ -1,6 +1,6 @@
 
 module.exports = {
-    interfaceURL: '127.0.0.1',
+    interfaceURL: 'interface',
     interfacePort: 80,
     enableCors: true,
 };
