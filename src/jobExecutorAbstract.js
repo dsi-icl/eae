@@ -56,9 +56,6 @@ JobExecutorAbstract.prototype.pushModel = function() {
     let _this = this;
 
     return new Promise(function(resolve, reject) {
-        // while(_this._model.statusLock){
-        //     setTimeout(function() { _this.fetchModel(); }, 500); // we wait for 500 ms before refreshing again
-        // }
         let replacementData = _this._model;
         delete replacementData._id; // Cleanup MongoDB managed _id field, if any
         _this._jobCollection.findOneAndReplace({ _id : _this._jobID }, replacementData, { upsert: true, returnOriginal: false })
