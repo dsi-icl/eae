@@ -18,7 +18,7 @@ services:
               driver: "none"
 
     compute:
-        image: aoehmich/eae-compute:dev
+        image: aoehmich/eae-compute:latest
         depends_on:
             - mongodb
             - swift
