@@ -246,13 +246,13 @@ JobsScheduler.prototype._queuedJobs = function () {
                                                                     job_id: job._id.toHexString()
                                                                 }
                                                             },
-                                                            function (error, response, body) {
+                                                            function (error, response, _unused__body) {
                                                                 if (error !== null) {
                                                                     reject(ErrorHelper('The run request has failed:', error));
                                                                 }
                                                                 // eslint-disable-next-line no-console
                                                                 console.log('The run request sent to host ' + candidateWorker.ip
-                                                                    + ':' + candidateWorker.port + ' and the response was ', response, body);
+                                                                    + ':' + candidateWorker.port + ' and the response was ', response.statusCode);
                                                                 // We set the candidate as the executor for the job
                                                                 job.executorIP = candidateWorker.ip;
                                                                 job.executorPort = candidateWorker.port;
