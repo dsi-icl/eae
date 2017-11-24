@@ -18,9 +18,7 @@ services:
               driver: "none"
 
     compute:
-        build:
-            context: .
-            dockerfile: ./compute/Dockerfile
+        image: aoehmich/eae-compute:dev
         depends_on:
             - mongodb
             - swift
@@ -29,6 +27,8 @@ services:
             - swift
         ports:
             - 80:80
+        volumes:
+            - ./eae.compute.config.js:/usr/app/config/eae.compute.config.js
 
     tests:
         build:

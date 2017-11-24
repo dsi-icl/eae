@@ -37,10 +37,10 @@
     "request": "^2.83.0"
   },
   "dependencies": {
-    "body-parser": "1.18.2",
+    "body-parser": "^1.18.2",
     "eae-utils": "git+https://github.com/dsi-icl/eae-utils.git",
-    "express": "4.16.2",
-    "fs-extra": "4.0.0",
+    "express": "^4.16.2",
+    "fs-extra": "^4.0.2",
     "mongodb": "^2.2.33",
     "os2": "0.0.11"
   }

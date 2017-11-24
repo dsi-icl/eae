@@ -71,7 +71,7 @@ JobsWatchdog.prototype._archiveJobs = function(){
     let _this = this;
     return new Promise(function(resolve, reject) {
         let statuses = [Constants.EAE_JOB_STATUS_COMPLETED];
-        var currentTime = new Date();
+        let currentTime = new Date();
 
         let filter = {
             'status.0': {$in: statuses},
@@ -127,7 +127,7 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
     let _this = this;
     return new Promise(function(resolve, reject) {
         let statuses = [Constants.EAE_JOB_STATUS_SCHEDULED, Constants.EAE_JOB_STATUS_RUNNING];
-        var currentTime = new Date();
+        let currentTime = new Date();
 
         let filter = {
             'status.0': {$in: statuses},
