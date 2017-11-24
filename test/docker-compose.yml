@@ -77,3 +77,14 @@ services:
           - 80:80
         volumes:
           - ./eae.interface.config.js:/usr/app/config/eae.interface.config.js
+
+    tests:
+        build:
+            context: ..
+            dockerfile: ./test/Dockerfile
+        depends_on:
+            - interface
+        links:
+            - interface
+        ports:
+            - 81:81

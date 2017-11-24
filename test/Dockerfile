@@ -21,4 +21,4 @@ COPY ./test/*.js /usr/app/test/
 COPY ./test/files /usr/app/test/files
 COPY ./test/config /usr/app/config
 
-EXPOSE 80
+EXPOSE 81
