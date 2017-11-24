@@ -13,8 +13,8 @@ echo -e "Building the images\n"
 
 docker-compose build
 
-echo -e "Pulling the latest Docker images from DockerHub\n"
+echo -e "\nPulling the latest Docker images from DockerHub\n"
 
 docker-compose pull
 
-echo -e "Please check the configuration files then start the eAE with 'bash start.sh'\n"
+echo -e "\nPlease check the configuration files then start the eAE with 'bash start.sh'\n"
