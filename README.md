@@ -9,7 +9,7 @@ eAE - Carrier micro-service
 
 The eAE-carrier manages the transfer of files between the client application and the eAE. 
 It enables the client to upload the required files for the computation and serves back the results once they have been computed
-by the compute serves.
+by the eAE compute services.
 
 We provide the [API documentation](doc-api-swagger.yml) in swagger 2.0 format. You can paste the content in the 
 [swagger editor](http://editor.swagger.io/) to render the API documentation. 
