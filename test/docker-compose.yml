@@ -31,7 +31,7 @@ services:
           - mongodb
           - swift
         volumes:
-          - ./eae.compute.config.js:/usr/app/config/eae.compute.config.js
+          - ./test/config/eae.compute.test.config.js:/usr/app/config/eae.compute.config.js
 
     compute2:
         image: aoehmich/eae-compute:latest
@@ -42,7 +42,7 @@ services:
           - mongodb
           - swift
         volumes:
-          - ./eae.compute.config.js:/usr/app/config/eae.compute.config.js
+          - ./test/config/eae.compute.test.config.js:/usr/app/config/eae.compute.config.js
 
     scheduler:
         image: aoehmich/eae-scheduler:latest
@@ -53,7 +53,7 @@ services:
           - mongodb
           - swift
         volumes:
-          - ./eae.scheduler.config.js:/usr/app/config/eae.scheduler.config.js
+          - ./test/config/eae.scheduler.test.config.js:/usr/app/config/eae.scheduler.config.js
 
     carrier:
         image: aoehmich/eae-carrier:latest
@@ -65,7 +65,7 @@ services:
         ports:
           - 3000:3000
         volumes:
-          - ./eae.carrier.config.js:/usr/app/config/eae.carrier.config.js
+          - ./test/config/eae.carrier.test.config.js:/usr/app/config/eae.carrier.config.js
 
     interface:
         image: aoehmich/eae-interface:latest
@@ -76,7 +76,7 @@ services:
         ports:
           - 80:80
         volumes:
-          - ./eae.interface.config.js:/usr/app/config/eae.interface.config.js
+          - ./test/config/eae.interface.test.config.js:/usr/app/config/eae.interface.config.js
 
     tests:
         build:
@@ -86,5 +86,3 @@ services:
             - interface
         links:
             - interface
-        ports:
-            - 81:81
