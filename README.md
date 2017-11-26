@@ -3,7 +3,7 @@
 
 This repository contains deployment information, docker-compose and deployment scripts for the eAE.
 
-Please not that the eAE officially supports only Ubuntu 16.06 LTS. Other Linux like environments are compatible (debian, macOS, etc.) but are not officially supported. 
+Please not that the **_eAE officially supports only Ubuntu 16.06 LTS_**. Other Linux like environments are compatible (debian, macOS, etc.) but are not officially supported. 
 
 ## Sandbox environment
 
