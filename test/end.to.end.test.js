@@ -1,6 +1,6 @@
 const request = require('request');
 let fs = require('fs');
-let config = require('deploy.test.config.js');
+let config = require('./deploy.test.config.js');
 let eaeutils = require('eae-utils');
 
 let adminUsername = 'admin';
