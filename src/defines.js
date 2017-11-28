@@ -91,10 +91,14 @@ module.exports = {
 
     JOB_TYPE_PYTHON2: 'python2',
     JOB_TYPE_PIP: 'pip',
+    JOB_TYPE_PYTHON3: 'python3',
+    JOB_TYPE_PIP3: 'pip3',
     JOB_TYPE_SPARK: 'spark',
     JOB_TYPE_R: 'r',
+    JOB_TYPE_TENSORFLOW: 'tensorflow',
 
     COMPUTE_TYPE_PYTHON2: 'python2',
+    COMPUTE_TYPE_PYTHON3: 'python3',
     COMPUTE_TYPE_R: 'r',
     COMPUTE_TYPE_SPARK: 'spark',
     COMPUTE_TYPE_TENSORFLOW: 'tensorflow',
