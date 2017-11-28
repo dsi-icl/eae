@@ -5,6 +5,8 @@ FROM node:wheezy
 RUN apt-get update -q                                   \
     && apt-get upgrade -y --no-install-recommends       \
     && apt-get install -y python-pip                    \
+    && apt-get install -y python3                       \
+    && apt-get install -y python3-pip                   \
     && apt-get install -y r-base
 
 # Create app directories

@@ -20,10 +20,10 @@ beforeAll(function() {
 
 test('Create dummy job & start running', function(done) {
     expect.assertions(6);
-    ts.createJob(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2,
+    ts.createJob(eaeutils.Constants.EAE_JOB_TYPE_PYTHON3,
         'dummy.py', [], [ './test/jobs/dummy/dummy.py' ]).then(function(job_model) {
         expect(job_model).toBeDefined();
-        expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2);
+        expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_PYTHON3);
         job_model.output = [ 'test.txt' ]; //Manually insert expected output files
         g_job = Object.assign({}, job_model);
         request(
@@ -90,10 +90,10 @@ test('Check dummy output result and delete job', function(done) {
 
 test('Create timer job & start running', function(done) {
     expect.assertions(6);
-    ts.createJob(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2,
+    ts.createJob(eaeutils.Constants.EAE_JOB_TYPE_PYTHON3,
         'timer.py', [], [ './test/jobs/timer/timer.py' ]).then(function(job_model) {
         expect(job_model).toBeDefined();
-        expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2);
+        expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_PYTHON3);
         job_model.output = [ ]; //Manually insert expected output files
         g_job = job_model;
         request(
@@ -203,10 +203,10 @@ test('Cancel job on idle compute, check error', function(done) {
 
 test('Create cancel job & start running', function(done) {
     expect.assertions(6);
-    ts.createJob(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2,
+    ts.createJob(eaeutils.Constants.EAE_JOB_TYPE_PYTHON3,
         'cancel.py', [], [ './test/jobs/cancel/cancel.py' ]).then(function(job_model) {
         expect(job_model).toBeDefined();
-        expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_PYTHON2);
+        expect(job_model.type).toEqual(eaeutils.Constants.EAE_JOB_TYPE_PYTHON3);
         job_model.output = [ ]; //Manually insert expected output files
         g_job = job_model;
         request(
