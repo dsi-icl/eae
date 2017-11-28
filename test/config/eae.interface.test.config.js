@@ -3,5 +3,5 @@ module.exports = {
     mongoURL: 'mongodb://mongodb/eae',
     port: 80,
     enableCors: true,
-    carriers: ['carrier:3000']
+    carriers: ['127.0.0.1:3000']
 };

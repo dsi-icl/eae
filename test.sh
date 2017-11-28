@@ -1,14 +1,20 @@
 #!/usr/bin/env bash
 
-# We build the Docker image for the test
-docker-compose -f ./test/docker-compose.yml build tests
+cd test
 
-# We check that all images are locally available otherwise we download them
-docker-compose -f ./test/docker-compose.yml images
+# We pull the latest images
+docker-compose pull
 
-# We run the end to end test
-docker-compose -f ./test/docker-compose.yml up tests
-docker-compose -f ./test/docker-compose.yml run tests npm test
+# We start the eAE environment in detached mode
+docker-compose up -d
+
+cd ..
+
+# We install the dependencies and run the end to end test
+npm install && npm update
+npm test
+
+cd test
 
 # We clean up
-docker-compose -f ./test/docker-compose.yml down --rmi all --remove-orphans
+docker-compose down --rmi all --remove-orphans
