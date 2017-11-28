@@ -144,7 +144,6 @@ test('End to end test - Create a Job, upload the two files, compute and retrieve
                                             done.fail(error.toString());
                                         }
                                         expect(response).toBeDefined();
-                                        console.log(body);
                                         expect(body.status).toEqual('OK');
                                         expect(body.carriers).toBeDefined();
                                         expect(body.output).toEqual(['test_out.txt']);
