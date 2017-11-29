@@ -65,7 +65,7 @@ NodesWatchdog.prototype._excludeNodes = function(deadNodes){
 NodesWatchdog.prototype._purgeExpired = function() {
     let _this = this;
     let statuses = [Constants.EAE_SERVICE_STATUS_BUSY, Constants.EAE_SERVICE_STATUS_LOCKED];
-    var currentTime = new Date();
+    let currentTime = new Date();
 
     let filter = {
         status: {$in: statuses},

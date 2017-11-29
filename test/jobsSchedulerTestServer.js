@@ -24,7 +24,6 @@ JobsSchedulerTestServer.prototype.setup = function() {
 
         mongodb.connect(mongoURL, options, function (err, mongo) {
             if (err !== null) {
-                console.log("Could not connect to mongo: " + err);
                 reject(ErrorHelper("Could not connect to mongo: ", err));
             }
             _this.db = mongo;

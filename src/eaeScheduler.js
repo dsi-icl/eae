@@ -89,7 +89,7 @@ EaeScheduler.prototype.start = function() {
             _this.nodes_watchdog.startPeriodicUpdate(60 * 1000); // Update status every 1 minute
 
             // Start the monitoring of the jobs' status
-            _this.jobs_watchdog.startPeriodicUpdate(3000 * 1000); // Update status every 30 minutes
+            _this.jobs_watchdog.startPeriodicUpdate(1800 * 1000); // Update status every 30 minutes
 
             // Start the scheduling of the queued jobs
             _this.jobs_scheduler.startPeriodicUpdate(1000); // Scheduling triggered every 1 second
