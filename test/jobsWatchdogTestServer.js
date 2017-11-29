@@ -20,7 +20,8 @@ function JobsWatchdogTestServer() {
 JobsWatchdogTestServer.prototype.setup = function() {
     let _this = this;
     global.eae_scheduler_config = {
-        jobsExpiredStatusTime: 1
+        jobsExpiredStatusTime: 1,
+        jobsTimingoutTime: 1
     };
     return new Promise(function(resolve, reject) {
         // Setup node env to test during test
@@ -38,16 +39,30 @@ JobsWatchdogTestServer.prototype.setup = function() {
                 console.log("Cleared jobs collection");
                 _this.db.collection(Constants.EAE_COLLECTION_JOBS_ARCHIVE).deleteMany({}).then(() => {
                     console.log("Cleared archived jobs collection");
-                    _this.mongo_helper = new MongoHelper();
-                    _this.mongo_helper.setCollections(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
-                        _this.db.collection(Constants.EAE_COLLECTION_JOBS),
-                        _this.db.collection(Constants.EAE_COLLECTION_JOBS_ARCHIVE),
-                        _this.db.collection(Constants.EAE_COLLECTION_FAILED_JOBS_ARCHIVE));
+                    _this.db.collection(Constants.EAE_COLLECTION_STATUS).deleteMany({}).then(() => {
+                        console.log("Cleared status collection");
+                        let node = {
+                            ip: "compute",
+                            port: 80,
+                            status: Constants.EAE_SERVICE_STATUS_IDLE,
+                            computeType: "r",
+                            statusLock: false
+                        };
 
-                    _this.jobsWatchdog = new JobsWatchdog(_this.mongo_helper, null);
+                        _this.db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node).then(() => {
+                            console.log("Added idle worker");
+                            _this.mongo_helper = new MongoHelper();
+                            _this.mongo_helper.setCollections(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
+                                _this.db.collection(Constants.EAE_COLLECTION_JOBS),
+                                _this.db.collection(Constants.EAE_COLLECTION_JOBS_ARCHIVE),
+                                _this.db.collection(Constants.EAE_COLLECTION_FAILED_JOBS_ARCHIVE));
 
-                    console.log("Before all has been resolved");
-                    resolve(true);
+                            _this.jobsWatchdog = new JobsWatchdog(_this.mongo_helper, null);
+
+                            console.log("Before all has been resolved");
+                            resolve(true);
+                        });
+                    });
                 });
             });
         });
