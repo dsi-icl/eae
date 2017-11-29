@@ -98,12 +98,12 @@ JobsWatchdog.prototype._archiveJobs = function(){
                                     // We purge the input and output files from Swift
                                     _this._deleteSwiftFilesAndContainer(inputContainer, job.input);
                                     _this._deleteSwiftFilesAndContainer(outputContainer, job.output);
+                                    resolve('The job has been successfully archived and files removed from swift');
                                 },
                                 function (error){
                                     reject(ErrorHelper('Failed to archive the job: ' + job._id, error));
                                 }
                             );
-                            resolve('The job has been successfully archived and files removed from swift');
                         }else{
                             resolve('The job has already been archived');
                         }},
