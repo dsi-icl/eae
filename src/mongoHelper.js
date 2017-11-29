@@ -20,6 +20,7 @@ function MongoHelper(){
     this.updateJob = MongoHelper.prototype.updateJob.bind(this);
     this.archiveJob = MongoHelper.prototype.archiveJob.bind(this);
     this.retrieveFailedJobs = MongoHelper.prototype.retrieveFailedJobs.bind(this);
+    this.retrieveArchivedJobs = MongoHelper.prototype.retrieveArchivedJobs.bind(this);
     this.archiveFailedJob = MongoHelper.prototype.archiveFailedJob.bind(this);
     this.findAndReserveAvailableWorker = MongoHelper.prototype.findAndReserveAvailableWorker.bind(this);
 }
@@ -171,7 +172,7 @@ MongoHelper.prototype.archiveJob = function(jobId){
         let filter = { _id:  jobId };
 
         _this._jobsCollection.findOne(filter).then(function(job) {
-                delete job._id;
+                // delete job._id;
                 _this._jobsArchiveCollection.insert(job).then(function(success) {
                         if (success.insertedCount === 1) {
                             _this._jobsCollection.deleteOne(filter).then(function(){
@@ -214,6 +215,31 @@ MongoHelper.prototype.retrieveFailedJobs = function(filter, projection = {}){
         }
 
         _this._failedJobsArchiveCollection.find(filter, projection).toArray().then(function(docs) {
+                resolve(docs);
+            },function(error) {
+                reject(ErrorHelper('Retrieve failed Jobs has failed', error));
+            }
+        );
+    });
+};
+
+/**
+ * @fn retrieveArchivedJobs
+ * @desc Retrieves the list of archived Jobs
+ * @param filter MongoDB filter for the query
+ * @param projection MongoDB projection
+ * @return {Promise} returns an array with all the jobs matching the desired status
+ */
+MongoHelper.prototype.retrieveArchivedJobs = function(filter, projection = {}){
+    let _this = this;
+
+    return new Promise(function(resolve, reject) {
+        if (null === _this._jobsArchiveCollection || undefined === _this._jobsArchiveCollection) {
+            reject(ErrorHelper('No MongoDB collection to retrieve the failed jobs against'));
+            return;
+        }
+
+        _this._jobsArchiveCollection.find(filter, projection).toArray().then(function(docs) {
                 resolve(docs);
             },function(error) {
                 reject(ErrorHelper('Retrieve failed Jobs has failed', error));

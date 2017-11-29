@@ -69,7 +69,12 @@ JobsSchedulerTestServer.prototype.shutdown = function() {
 };
 
 JobsSchedulerTestServer.prototype.insertJob = function(job) {
-    return this.db.collection(Constants.EAE_COLLECTION_JOBS).insertOne(job);
+    let _this = this;
+    return new Promise(function(resolve, reject) {
+        _this.db.collection(Constants.EAE_COLLECTION_JOBS).insertOne(job).then(function(document) {
+            resolve(document);
+        });
+    });
 };
 
 JobsSchedulerTestServer.prototype.insertNode = function(node) {

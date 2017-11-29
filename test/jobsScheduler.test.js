@@ -99,7 +99,7 @@ test('_queued_jobs: A queued non-spark job gets scheduled', async () => {
     await jobsSchedulerTestServer.jobsScheduler._queuedJobs();
 
     let jobs = await jobsSchedulerTestServer.mongo_helper.retrieveJobs({_id: job._id});
-    expect(jobs[0].status).toEqual([Constants.EAE_JOB_STATUS_SCHEDULED, Constants.EAE_JOB_STATUS_QUEUED]);
+    expect(jobs[0].status).toContain(Constants.EAE_JOB_STATUS_SCHEDULED);
 });
 
 test('_queued_jobs: A queued spark job gets scheduled', async () => {
