@@ -173,7 +173,7 @@ JobsScheduler.prototype._queuedJobs = function () {
                                         // Now we can start to schedule the job
                                         let filter = {
                                             status: Constants.EAE_SERVICE_STATUS_IDLE,
-                                            computeType: job.type, // #TODO TO BE VERIFIED!!!!!
+                                            computeType: job.type,
                                             statusLock: false
                                         };
                                         _this._mongoHelper.findAndReserveAvailableWorker(filter).then(
