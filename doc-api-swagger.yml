@@ -29,7 +29,7 @@ paths:
         200:
             description: desc
             schema:
-                $ref: '#definitions/statusModel'
+                $ref: '#/definitions/statusModel'
 
   /job:
     post:
@@ -38,7 +38,7 @@ paths:
         200:
           description: Sends back the job
           schema:
-            $ref: '#definitions/jobModel'
+            $ref: '#/definitions/jobModel'
         401:
             description: The request is not well formed
             schema:
@@ -59,7 +59,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#definitions/jobModel'
+              $ref: '#/definitions/jobModel'
         401:
             description: The request is not well formed
             schema:
@@ -171,7 +171,7 @@ paths:
               type: array
               description: Each items represents a single service in the cluster
               items:
-                $ref: '#definitions/statusModel'
+                $ref: '#/definitions/statusModel'
         401:
             description: The request is not well formed
             schema:
@@ -190,7 +190,7 @@ paths:
         200:
             description: desc
             schema:
-                $ref: '#definitions/userModel'
+                $ref: '#/definitions/userModel'
         401:
             description: The request is not well formed
             schema:
@@ -209,7 +209,7 @@ paths:
         200:
             description: desc
             schema:
-                $ref: '#definitions/userModel'
+                $ref: '#/definitions/userModel'
         401:
             description: The request is not well formed
             schema:
