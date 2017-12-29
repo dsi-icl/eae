@@ -35,27 +35,17 @@ NodesWatchdogTestServer.prototype.setup = function() {
 
             _this.db.collection(Constants.EAE_COLLECTION_STATUS).deleteMany({}).then(() => {
                 console.log("Cleared status collection");
-                let node = {
-                    ip: "compute",
-                    port: 80,
-                    status: Constants.EAE_SERVICE_STATUS_IDLE,
-                    computeType: "r",
-                    statusLock: false
-                };
 
-                _this.db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node).then(() => {
-                    console.log("Added idle worker");
-                    _this.mongo_helper = new MongoHelper();
-                    _this.mongo_helper.setCollections(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
-                        _this.db.collection(Constants.EAE_COLLECTION_JOBS),
-                        _this.db.collection(Constants.EAE_COLLECTION_JOBS_ARCHIVE),
-                        _this.db.collection(Constants.EAE_COLLECTION_FAILED_JOBS_ARCHIVE));
+                _this.mongo_helper = new MongoHelper();
+                _this.mongo_helper.setCollections(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
+                    _this.db.collection(Constants.EAE_COLLECTION_JOBS),
+                    _this.db.collection(Constants.EAE_COLLECTION_JOBS_ARCHIVE),
+                    _this.db.collection(Constants.EAE_COLLECTION_FAILED_JOBS_ARCHIVE));
 
-                    _this.nodesWatchdog = new NodesWatchdog(_this.mongo_helper, null);
+                _this.nodesWatchdog = new NodesWatchdog(_this.mongo_helper, null);
 
-                    console.log("Before all has been resolved");
-                    resolve(true);
-                });
+                console.log("Before all has been resolved");
+                resolve(true);
             });
         });
     });
