@@ -3,7 +3,7 @@ const { ErrorHelper, Constants } =  require('eae-utils');
 
 /**
  * @class NodesWatchdog
- * @desc Compute nodes status watchdog. Use it to track the compute status of he nodes, purge expired status and invalidate dead nodes.
+ * @desc Compute nodes status watchdog. Use it to track the compute status of the nodes, purge expired status and invalidate dead nodes.
  * @param mongoHelper Helper class to interact with Mongo
  * @constructor
  */
