@@ -19,8 +19,7 @@ function NodesWatchdogTestServer() {
 NodesWatchdogTestServer.prototype.setup = function() {
     let _this = this;
     global.eae_scheduler_config = {
-        jobsExpiredStatusTime: 1,
-        jobsTimingoutTime: 1
+        expiredStatusTime: 1,
     };
     return new Promise(function(resolve, reject) {
         // Setup node env to test during test
