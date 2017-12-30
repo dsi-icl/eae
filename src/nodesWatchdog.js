@@ -79,7 +79,6 @@ NodesWatchdog.prototype._purgeExpired = function() {
             }
         };
         _this._mongoHelper.retrieveNodesStatus(filter).then(function (nodes) {
-            console.log(nodes);
             nodes.forEach(function (node) {
                 node.status = Constants.EAE_SERVICE_STATUS_DEAD;
                 node.statusLock = true;
