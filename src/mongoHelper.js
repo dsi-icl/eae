@@ -15,7 +15,6 @@ function MongoHelper(){
     //Bind member functions
     this.setCollections = MongoHelper.prototype.setCollections.bind(this);
     this.retrieveNodesStatus = MongoHelper.prototype.retrieveNodesStatus.bind(this);
-    this.insertNode = MongoHelper.prototype.insertNode.bind(this);
     this.retrieveJobs = MongoHelper.prototype.retrieveJobs.bind(this);
     this.updateNodeStatus = MongoHelper.prototype.updateNodeStatus.bind(this);
     this.updateJob = MongoHelper.prototype.updateJob.bind(this);
@@ -63,17 +62,6 @@ MongoHelper.prototype.retrieveNodesStatus = function(filter, projection = {}){
                 reject(ErrorHelper('Retrieve Nodes Status has failed', error));
             }
         );
-    });
-};
-
-MongoHelper.prototype.insertNode = function(node) {
-    let _this = this;
-    return new Promise(function(resolve, reject) {
-        _this._statusCollection.insertOne(node).then(function(document) {
-            resolve(document);
-        }, function(error) {
-            reject(ErrorHelper('Inserting Nodes has failed', error))
-        });
     });
 };
 
@@ -171,7 +159,7 @@ MongoHelper.prototype.updateJob = function(job){
  * @param jobId id of the job to be transferred to the archive.
  * @return {Promise} Resolve to the old job if the delete Job is successful
  */
-MongoHelper.prototype.archiveJob = function(jobId){
+MongoHelper.prototype.archiveJob = function(job){
     let _this = this;
 
     return new Promise(function(resolve, reject) {
@@ -181,30 +169,30 @@ MongoHelper.prototype.archiveJob = function(jobId){
             return;
         }
 
-        let filter = { _id:  jobId };
+        let filter = { _id:  job._id };
 
         _this._jobsCollection.findOne(filter).then(function(job) {
                 // delete job._id;
                 _this._jobsArchiveCollection.insert(job).then(function(success) {
                         if (success.insertedCount === 1) {
                             _this._jobsCollection.deleteOne(filter).then(function(){
-                                console.log('The job ' + jobId + 'has been successfully archived');// eslint-disable-line no-console
+                                console.log('The job ' + job._id + 'has been successfully archived');// eslint-disable-line no-console
                                 resolve(job);
                             },function(error){
                                 reject(ErrorHelper('The old job could not be deleted properly from jobsCollection. ' +
-                                    'JobID:' + jobId ,error));
+                                    'JobID:' + job._id ,error));
                             });
                         }else{
                             reject(ErrorHelper('The job couldn\'t be inserted properly. The insert count != 1. ' +
-                                'JobID:' + jobId));
+                                'JobID:' + job._id));
                         }
                     },function(error){
                         reject(ErrorHelper('The job couldn\'t be inserted properly. The insert count != 1. ' +
-                            'JobID:' + jobId, error));
+                            'JobID:' + job._id, error));
                     }
                 );
             },function(error){
-                reject(ErrorHelper('The job couldn\'t be found JobID:' + jobId, error));
+                reject(ErrorHelper('The job couldn\'t be found JobID:' + job._id, error));
             }
         );
     });
