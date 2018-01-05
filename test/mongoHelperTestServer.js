@@ -35,15 +35,21 @@ MongoHelperTestServer.prototype.setup = function() {
                 console.log("Cleared jobs collection");
                 _this.db.collection(Constants.EAE_COLLECTION_STATUS).deleteMany({}).then(() => {
                     console.log("Cleared status collection");
+                    _this.db.collection(Constants.EAE_COLLECTION_JOBS).deleteMany({}).then(() => {
+                        _this.db.collection(Constants.EAE_COLLECTION_JOBS_ARCHIVE).deleteMany({}).then(() => {
+                            _this.db.collection(Constants.EAE_COLLECTION_FAILED_JOBS_ARCHIVE).deleteMany({}).then(() => {
 
-                    _this.mongo_helper = new MongoHelper();
-                    _this.mongo_helper.setCollections(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
-                        _this.db.collection(Constants.EAE_COLLECTION_JOBS),
-                        _this.db.collection(Constants.EAE_COLLECTION_JOBS_ARCHIVE),
-                        _this.db.collection(Constants.EAE_COLLECTION_FAILED_JOBS_ARCHIVE));
+                                _this.mongo_helper = new MongoHelper();
+                                _this.mongo_helper.setCollections(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
+                                    _this.db.collection(Constants.EAE_COLLECTION_JOBS),
+                                    _this.db.collection(Constants.EAE_COLLECTION_JOBS_ARCHIVE),
+                                    _this.db.collection(Constants.EAE_COLLECTION_FAILED_JOBS_ARCHIVE));
 
-                    console.log("Before all has been resolved");
-                    resolve(true);
+                                console.log("Before all has been resolved");
+                                resolve(true);
+                            });
+                        });
+                    });
                 });
             });
         });
