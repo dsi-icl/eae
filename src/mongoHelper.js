@@ -15,6 +15,7 @@ function MongoHelper(){
     //Bind member functions
     this.setCollections = MongoHelper.prototype.setCollections.bind(this);
     this.retrieveNodesStatus = MongoHelper.prototype.retrieveNodesStatus.bind(this);
+    this.insertNode = MongoHelper.prototype.insertNode.bind(this);
     this.retrieveJobs = MongoHelper.prototype.retrieveJobs.bind(this);
     this.updateNodeStatus = MongoHelper.prototype.updateNodeStatus.bind(this);
     this.updateJob = MongoHelper.prototype.updateJob.bind(this);
@@ -62,6 +63,17 @@ MongoHelper.prototype.retrieveNodesStatus = function(filter, projection = {}){
                 reject(ErrorHelper('Retrieve Nodes Status has failed', error));
             }
         );
+    });
+};
+
+MongoHelper.prototype.insertNode = function(node) {
+    let _this = this;
+    return new Promise(function(resolve, reject) {
+        _this._statusCollection.insertOne(node).then(function(document) {
+            resolve(document);
+        }, function(error) {
+            reject(ErrorHelper('Inserting Nodes has failed', error))
+        });
     });
 };
 
