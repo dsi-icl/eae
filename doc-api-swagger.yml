@@ -1,11 +1,11 @@
 swagger: '2.0'
 info:
   version: 0.0.1
-  title: Eae-scheduler
+  title: OPAL-scheduler
   license:
     name: MIT
-    url: https://github.com/dsi-icl/eae-scheduler/blob/master/LICENSE
-  description:  eAE Scheduler
+    url: https://github.com/aoehmichen/opal-scheduler/blob/master/LICENSE
+  description:  OPAL Scheduler
 
 paths:
   /status:
@@ -30,7 +30,7 @@ paths:
             description: desc
             schema:
                 $ref: '#/definitions/statusModel'
-      
+
 definitions:
     statusModel:
         description: Model to represent a service status

@@ -68,5 +68,5 @@ typings/
 *.iml
 
 # Config Files
-config/eae.scheduler.config.js
+config/opal.scheduler.config.js
 package-lock.json
