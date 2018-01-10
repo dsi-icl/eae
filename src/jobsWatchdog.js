@@ -94,16 +94,16 @@ JobsWatchdog.prototype._archiveJobs = function(){
                             let inputContainer = job._id + '_input';
                             let outputContainer = job._id + '_output';
                             // We archive the Job
-                            _this._mongoHelper.archiveJob(job._id).then(function(job){
+                            _this._mongoHelper.archiveJob(job).then(function(job){
                                     // We purge the input and output files from Swift
                                     _this._deleteSwiftFilesAndContainer(inputContainer, job.input);
                                     _this._deleteSwiftFilesAndContainer(outputContainer, job.output);
+                                    resolve('The job has been successfully archived and files removed from swift');
                                 },
                                 function (error){
                                     reject(ErrorHelper('Failed to archive the job: ' + job._id, error));
                                 }
                             );
-                            resolve('The job has been successfully archived and files removed from swift');
                         }else{
                             resolve('The job has already been archived');
                         }},
@@ -119,7 +119,7 @@ JobsWatchdog.prototype._archiveJobs = function(){
 
 /**
  * @fn _invalidateTimingOutJobs
- * @desc Inspects currently scheduled and running jobs and it their start date is above the policy threshold
+ * @desc Inspects currently scheduled and running jobs and whether their start date is above the policy threshold
  * @returns {Promise}
  * @private
  */
@@ -146,38 +146,35 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
                 _this._mongoHelper.updateJob(job).then(
                     function (res) {
                         if(res.nModified === 1){
-                            // We send a cancel command the compute node if the job was running
-                            if(job.status[0] === Constants.EAE_JOB_STATUS_RUNNING){
-                                request({
-                                        method: 'POST',
-                                        baseUrl: 'http://' + job.executorIP + ':' + job.executorPort,
-                                        uri:'/cancel'
-                                    },
-                                    function (error, response, _unused__body) {
-                                        if (error !== null) {
-                                            reject(ErrorHelper('The cancel request has failed:', error));
-                                        }
-                                        // eslint-disable-next-line no-console
-                                        console.log('The cancel request sent to host ' + job.executorIP + ':' + job.executorIP
-                                            + ' and the response was ', response.statusCode);
+                            request({
+                                    method: 'POST',
+                                    baseUrl: 'http://' + job.executorIP + ':' + job.executorPort,
+                                    uri:'/cancel'
+                                },
+                                function (error, response, _unused__body) {
+                                    if (error !== null) {
+                                        reject(ErrorHelper('The cancel request has failed:', error));
+                                    }
+                                    // eslint-disable-next-line no-console
+                                    console.log('The cancel request sent to host ' + job.executorIP + ':' + job.executorIP
+                                        + ' and the response was ', response.statusCode);
 
-                                        // We change the job status back to Queued and unlock the job for scheduling
-                                        job.status.unshift(Constants.EAE_JOB_STATUS_QUEUED) ;
-                                        job.statusLock = false;
+                                    // We change the job status back to Queued and unlock the job for scheduling
+                                    job.status.unshift(Constants.EAE_JOB_STATUS_QUEUED) ;
+                                    job.statusLock = false;
 
-                                        _this._mongoHelper.updateJob(job).then(
-                                            function(success_res){
-                                                if(success_res.nModified === 1){
-                                                    resolve('The timed out job has been successfully invalidated and Queued');
-                                                }else{
-                                                    reject(ErrorHelper('Something went terribly wrong when unlocking and Queueing job. JobId: ' + job._id));
-                                                }
-                                            },function(error){
-                                                reject(ErrorHelper('Failed to unlock the job ' + job._id + ' and set it back to Queued', error));
+                                    _this._mongoHelper.updateJob(job).then(
+                                        function(success_res){
+                                            if(success_res.nModified === 1){
+                                                resolve('The timed out job has been successfully invalidated and Queued');
+                                            }else{
+                                                reject(ErrorHelper('Something went terribly wrong when unlocking and Queueing job. JobId: ' + job._id));
                                             }
-                                        );
-                                    });
-                            }
+                                        },function(error){
+                                            reject(ErrorHelper('Failed to unlock the job ' + job._id + ' and set it back to Queued', error));
+                                        }
+                                    );
+                                });
                         }else{
                          resolve('The Job ' + job._id.toString() + ' has already been timed out.');
                         }

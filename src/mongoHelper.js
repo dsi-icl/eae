@@ -20,6 +20,7 @@ function MongoHelper(){
     this.updateJob = MongoHelper.prototype.updateJob.bind(this);
     this.archiveJob = MongoHelper.prototype.archiveJob.bind(this);
     this.retrieveFailedJobs = MongoHelper.prototype.retrieveFailedJobs.bind(this);
+    this.retrieveArchivedJobs = MongoHelper.prototype.retrieveArchivedJobs.bind(this);
     this.archiveFailedJob = MongoHelper.prototype.archiveFailedJob.bind(this);
     this.findAndReserveAvailableWorker = MongoHelper.prototype.findAndReserveAvailableWorker.bind(this);
 }
@@ -158,7 +159,7 @@ MongoHelper.prototype.updateJob = function(job){
  * @param jobId id of the job to be transferred to the archive.
  * @return {Promise} Resolve to the old job if the delete Job is successful
  */
-MongoHelper.prototype.archiveJob = function(jobId){
+MongoHelper.prototype.archiveJob = function(job){
     let _this = this;
 
     return new Promise(function(resolve, reject) {
@@ -168,30 +169,30 @@ MongoHelper.prototype.archiveJob = function(jobId){
             return;
         }
 
-        let filter = { _id:  jobId };
+        let filter = { _id:  job._id };
 
         _this._jobsCollection.findOne(filter).then(function(job) {
-                delete job._id;
+                // delete job._id;
                 _this._jobsArchiveCollection.insert(job).then(function(success) {
                         if (success.insertedCount === 1) {
                             _this._jobsCollection.deleteOne(filter).then(function(){
-                                console.log('The job ' + jobId + 'has been successfully archived');// eslint-disable-line no-console
+                                console.log('The job ' + job._id + 'has been successfully archived');// eslint-disable-line no-console
                                 resolve(job);
                             },function(error){
                                 reject(ErrorHelper('The old job could not be deleted properly from jobsCollection. ' +
-                                    'JobID:' + jobId ,error));
+                                    'JobID:' + job._id ,error));
                             });
                         }else{
                             reject(ErrorHelper('The job couldn\'t be inserted properly. The insert count != 1. ' +
-                                'JobID:' + jobId));
+                                'JobID:' + job._id));
                         }
                     },function(error){
                         reject(ErrorHelper('The job couldn\'t be inserted properly. The insert count != 1. ' +
-                            'JobID:' + jobId, error));
+                            'JobID:' + job._id, error));
                     }
                 );
             },function(error){
-                reject(ErrorHelper('The job couldn\'t be found JobID:' + jobId, error));
+                reject(ErrorHelper('The job couldn\'t be found JobID:' + job._id, error));
             }
         );
     });
@@ -214,6 +215,31 @@ MongoHelper.prototype.retrieveFailedJobs = function(filter, projection = {}){
         }
 
         _this._failedJobsArchiveCollection.find(filter, projection).toArray().then(function(docs) {
+                resolve(docs);
+            },function(error) {
+                reject(ErrorHelper('Retrieve failed Jobs has failed', error));
+            }
+        );
+    });
+};
+
+/**
+ * @fn retrieveArchivedJobs
+ * @desc Retrieves the list of archived Jobs
+ * @param filter MongoDB filter for the query
+ * @param projection MongoDB projection
+ * @return {Promise} returns an array with all the jobs matching the desired status
+ */
+MongoHelper.prototype.retrieveArchivedJobs = function(filter, projection = {}){
+    let _this = this;
+
+    return new Promise(function(resolve, reject) {
+        if (null === _this._jobsArchiveCollection || undefined === _this._jobsArchiveCollection) {
+            reject(ErrorHelper('No MongoDB collection to retrieve the failed jobs against'));
+            return;
+        }
+
+        _this._jobsArchiveCollection.find(filter, projection).toArray().then(function(docs) {
                 resolve(docs);
             },function(error) {
                 reject(ErrorHelper('Retrieve failed Jobs has failed', error));

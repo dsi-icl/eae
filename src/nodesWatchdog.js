@@ -3,7 +3,7 @@ const { ErrorHelper, Constants } =  require('eae-utils');
 
 /**
  * @class NodesWatchdog
- * @desc Compute nodes status watchdog. Use it to track the compute status of he nodes, purge expired status and invalidate dead nodes.
+ * @desc Compute nodes status watchdog. Use it to track the compute status of the nodes, purge expired status and invalidate dead nodes.
  * @param mongoHelper Helper class to interact with Mongo
  * @constructor
  */
@@ -64,40 +64,48 @@ NodesWatchdog.prototype._excludeNodes = function(deadNodes){
  */
 NodesWatchdog.prototype._purgeExpired = function() {
     let _this = this;
-    let statuses = [Constants.EAE_SERVICE_STATUS_BUSY, Constants.EAE_SERVICE_STATUS_LOCKED];
-    let currentTime = new Date();
 
-    let filter = {
-        status: {$in: statuses},
-        statusLock: false,
-        lastUpdate: {
-            '$gte': new Date(0),
-            '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.expiredStatusTime))
-        }
-    };
+    return new Promise(function(resolve, reject) {
+        let statuses = [Constants.EAE_SERVICE_STATUS_BUSY, Constants.EAE_SERVICE_STATUS_LOCKED];
+        let time = new Date();
+        time.setHours(time.getHours() - global.eae_scheduler_config.expiredStatusTime);
 
-    _this._mongoHelper.retrieveNodesStatus(filter).then(function (nodes) {
-        nodes.forEach(function (node) {
+        let filter = {
+            status: {$in: statuses},
+            statusLock: false,
+            lastUpdate: {
+                '$gte': new Date(0),
+                '$lt': time
+            }
+        };
+        _this._mongoHelper.retrieveNodesStatus(filter).then(function (nodes) {
+            nodes.forEach(function (node) {
+                node.status = Constants.EAE_SERVICE_STATUS_DEAD;
+                node.statusLock = true;
 
-            node.status = Constants.EAE_SERVICE_STATUS_DEAD;
-            node.statusLock = true;
-
-            // lock the node
-            _this._mongoHelper.updateNodeStatus(node).then(
-                function (success) {
-                    if(success.nModified === 1){
-                        // eslint-disable-next-line no-console
-                        console.log('The expired node' + node.ip + ':' + node.port + 'has been set to DEAD successfully');
-                    }else{
-                        // eslint-disable-next-line no-console
-                        console.log('The node has already been updated ' + node.ip + ':' + node.port);
-                    }},
-                function (error) {
-                    ErrorHelper('Failed to lock the node and set its status to DEAD. Node: ' + node.ip + ' ' + node.port, error);
-                });
+                // lock the node
+                _this._mongoHelper.updateNodeStatus(node).then(
+                    function (success) {
+                        if (success.nModified === 1) {
+                            // eslint-disable-next-line no-console
+                            console.log('The expired node' + node.ip + ':' + node.port + 'has been set to DEAD successfully');
+                            resolve(success);
+                        } else {
+                            // eslint-disable-next-line no-console
+                            console.log('The node has already been updated ' + node.ip + ':' + node.port);
+                            resolve(success);
+                        }
+                    },
+                    function (error) {
+                        ErrorHelper('Failed to lock the node and set its status to DEAD. Node: ' + node.ip + ' ' + node.port, error);
+                        reject(error);
+                    });
+            });
+            resolve();
+        }, function (error) {
+            ErrorHelper('Failed to retrieve nodes status. Filter:' + filter.toString(), error);
+            reject(error);
         });
-    },function (error){
-        ErrorHelper('Failed to retrieve nodes status. Filter:' + filter.toString(), error);
     });
 };
 
@@ -109,20 +117,27 @@ NodesWatchdog.prototype._purgeExpired = function() {
  */
 NodesWatchdog.prototype._invalidateDead = function() {
     let _this = this;
-    let statuses = [Constants.EAE_SERVICE_STATUS_DEAD];
+    return new Promise(function(resolve, reject) {
+        let statuses = [Constants.EAE_SERVICE_STATUS_DEAD];
 
-    let filter = {
-        status: {$in: statuses},
-        statusLock: false
-    };
+        let filter = {
+            status: {$in: statuses},
+            statusLock: false
+        };
 
-    _this._mongoHelper.retrieveNodesStatus(filter).then(function (deadNodes) {
-        if(deadNodes.length > 0){
-            _this._excludeNodes(deadNodes);
-        }
-    }, function(error) {
-        // eslint-disable-next-line no-console
-        console.log('Failed to retrieve nodes status. Filter:' + filter.toString() , error);
+        _this._mongoHelper.retrieveNodesStatus(filter).then(function (deadNodes) {
+            if (deadNodes.length > 0) {
+                _this._excludeNodes(deadNodes).then(function(success) {
+                    resolve(success);
+                }, function(error) {
+                    reject(error);
+                });
+            }
+        }, function (error) {
+            // eslint-disable-next-line no-console
+            console.log('Failed to retrieve nodes status. Filter:' + filter.toString(), error);
+            reject(error);
+        });
     });
 };
 
