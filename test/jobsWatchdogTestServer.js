@@ -4,7 +4,6 @@ const MongoHelper = require('../src/mongoHelper');
 let JobsWatchdog = require('../src/jobsWatchdog.js');
 
 let mongoURL = 'mongodb://mongodb:27017';
-// let mongoURL = 'mongodb://localhost:27017';
 
 let options = {
     keepAlive: 30000, connectTimeoutMS: 30000,
@@ -29,28 +28,28 @@ JobsWatchdogTestServer.prototype.setup = function() {
 
         mongodb.connect(mongoURL, options, function (err, mongo) {
             if (err !== null) {
-                console.log("Could not connect to mongo: " + err);
-                reject(ErrorHelper("Could not connect to mongo: ", err));
+                console.log('Could not connect to mongo: ' + err);
+                reject(ErrorHelper('Could not connect to mongo: ', err));
             }
             _this.db = mongo;
-            console.log("Connected to Mongo");
+            console.log('Connected to Mongo');
 
             _this.db.collection(Constants.EAE_COLLECTION_JOBS).deleteMany({}).then(() => {
-                console.log("Cleared jobs collection");
+                console.log('Cleared jobs collection');
                 _this.db.collection(Constants.EAE_COLLECTION_JOBS_ARCHIVE).deleteMany({}).then(() => {
-                    console.log("Cleared archived jobs collection");
+                    console.log('Cleared archived jobs collection');
                     _this.db.collection(Constants.EAE_COLLECTION_STATUS).deleteMany({}).then(() => {
-                        console.log("Cleared status collection");
+                        console.log('Cleared status collection');
                         let node = {
-                            ip: "compute",
+                            ip: 'compute',
                             port: 80,
                             status: Constants.EAE_SERVICE_STATUS_IDLE,
-                            computeType: "r",
+                            computeType: 'r',
                             statusLock: false
                         };
 
                         _this.db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node).then(() => {
-                            console.log("Added idle worker");
+                            console.log('Added idle worker');
                             _this.mongo_helper = new MongoHelper();
                             _this.mongo_helper.setCollections(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
                                 _this.db.collection(Constants.EAE_COLLECTION_JOBS),
@@ -59,7 +58,7 @@ JobsWatchdogTestServer.prototype.setup = function() {
 
                             _this.jobsWatchdog = new JobsWatchdog(_this.mongo_helper, null);
 
-                            console.log("Before all has been resolved");
+                            console.log('Before all has been resolved');
                             resolve(true);
                         });
                     });
@@ -73,7 +72,7 @@ JobsWatchdogTestServer.prototype.shutdown = function() {
     let _this = this;
     return new Promise(function (resolve, reject) {
         _this.db.close();
-        console.log("Resolved afterEach()");
+        console.log('Resolved afterEach()');
         resolve(true);
     });
 };
