@@ -94,7 +94,7 @@ JobsWatchdog.prototype._archiveJobs = function(){
                             let inputContainer = job._id + '_input';
                             let outputContainer = job._id + '_output';
                             // We archive the Job
-                            _this._mongoHelper.archiveJob(job._id).then(function(job){
+                            _this._mongoHelper.archiveJob(job).then(function(job){
                                     // We purge the input and output files from Swift
                                     _this._deleteSwiftFilesAndContainer(inputContainer, job.input);
                                     _this._deleteSwiftFilesAndContainer(outputContainer, job.output);
