@@ -22,8 +22,8 @@ function OpalScheduler(config) {
     // Init member attributes
     this.config = config;
     this.app = express();
-    global.eae_scheduler_config = config;
-    global.eae_compute_nodes_status = [];
+    global.opal_scheduler_config = config;
+    global.opal_compute_nodes_status = [];
     this.mongo_helper = new MongoHelper();
     this.swift_helper = null;
 
@@ -58,7 +58,7 @@ function OpalScheduler(config) {
 
 /**
  * @fn start
- * @desc Starts the eae scheduler service
+ * @desc Starts the OPAL scheduler service
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
@@ -115,7 +115,7 @@ OpalScheduler.prototype.start = function() {
 
 /**
  * @fn stop
- * @desc Stop the eae scheduler service
+ * @desc Stop the OPAL scheduler service
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
@@ -165,7 +165,7 @@ OpalScheduler.prototype._setupStatusController = function () {
     let statusOpts = {
         version: package_json.version
     };
-    _this.status_helper = new StatusHelper(Constants.EAE_SERVICE_TYPE_SCHEDULER, global.eae_scheduler_config.port, null, statusOpts);
+    _this.status_helper = new StatusHelper(Constants.EAE_SERVICE_TYPE_SCHEDULER, global.opal_scheduler_config.port, null, statusOpts);
     _this.status_helper.setCollection(_this.db.collection(Constants.EAE_COLLECTION_STATUS));
     _this.status_helper.setStatus(Constants.EAE_SERVICE_STATUS_BUSY);
 

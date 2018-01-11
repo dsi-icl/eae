@@ -77,7 +77,7 @@ JobsWatchdog.prototype._archiveJobs = function(){
             'status.0': {$in: statuses},
             statusLock: false,
             endDate: {
-                '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.jobsExpiredStatusTime))
+                '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.opal_scheduler_config.jobsExpiredStatusTime))
             }
         };
 
@@ -133,7 +133,7 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
             'status.0': {$in: statuses},
             statusLock: false,
             startDate: {
-                '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.jobsTimingoutTime))
+                '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.opal_scheduler_config.jobsTimingoutTime))
             }
         };
 

@@ -16,7 +16,7 @@ function MongoHelperTestServer() {
 
 MongoHelperTestServer.prototype.setup = function() {
     let _this = this;
-    global.eae_scheduler_config = {
+    global.opal_scheduler_config = {
         expiredStatusTime: 1,
     };
     return new Promise(function(resolve, reject) {
@@ -25,16 +25,16 @@ MongoHelperTestServer.prototype.setup = function() {
 
         mongodb.connect(mongoURL, options, function (err, mongo) {
             if (err !== null) {
-                console.log("Could not connect to mongo: " + err);
-                reject(ErrorHelper("Could not connect to mongo: ", err));
+                console.log('Could not connect to mongo: ' + err);
+                reject(ErrorHelper('Could not connect to mongo: ', err));
             }
             _this.db = mongo;
-            console.log("Connected to Mongo");
+            console.log('Connected to Mongo');
 
             _this.db.collection(Constants.EAE_COLLECTION_JOBS).deleteMany({}).then(() => {
-                console.log("Cleared jobs collection");
+                console.log('Cleared jobs collection');
                 _this.db.collection(Constants.EAE_COLLECTION_STATUS).deleteMany({}).then(() => {
-                    console.log("Cleared status collection");
+                    console.log('Cleared status collection');
                     _this.db.collection(Constants.EAE_COLLECTION_JOBS).deleteMany({}).then(() => {
                         _this.db.collection(Constants.EAE_COLLECTION_JOBS_ARCHIVE).deleteMany({}).then(() => {
                             _this.db.collection(Constants.EAE_COLLECTION_FAILED_JOBS_ARCHIVE).deleteMany({}).then(() => {
@@ -45,7 +45,7 @@ MongoHelperTestServer.prototype.setup = function() {
                                     _this.db.collection(Constants.EAE_COLLECTION_JOBS_ARCHIVE),
                                     _this.db.collection(Constants.EAE_COLLECTION_FAILED_JOBS_ARCHIVE));
 
-                                console.log("Before all has been resolved");
+                                console.log('Before all has been resolved');
                                 resolve(true);
                             });
                         });
@@ -60,7 +60,7 @@ MongoHelperTestServer.prototype.shutdown = function() {
     let _this = this;
     return new Promise(function (resolve, reject) {
         _this.db.close();
-        console.log("Resolved afterEach()");
+        console.log('Resolved afterEach()');
         resolve(true);
     });
 };
