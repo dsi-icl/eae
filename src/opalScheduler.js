@@ -13,12 +13,12 @@ const JobsWatchdog = require('./jobsWatchdog');
 const NodesWatchdog = require('./nodesWatchdog');
 
 /**
- * @class EaeScheduler
+ * @class OpalScheduler
  * @desc Core class of the scheduler microservice
  * @param config Configurations for the scheduler
  * @constructor
  */
-function EaeScheduler(config) {
+function OpalScheduler(config) {
     // Init member attributes
     this.config = config;
     this.app = express();
@@ -28,16 +28,16 @@ function EaeScheduler(config) {
     this.swift_helper = null;
 
     // Bind public member functions
-    this.start = EaeScheduler.prototype.start.bind(this);
-    this.stop = EaeScheduler.prototype.stop.bind(this);
+    this.start = OpalScheduler.prototype.start.bind(this);
+    this.stop = OpalScheduler.prototype.stop.bind(this);
 
     // Bind private member functions
-    this._connectDb = EaeScheduler.prototype._connectDb.bind(this);
-    this._setupStatusController = EaeScheduler.prototype._setupStatusController.bind(this);
-    this._setupMongoHelper = EaeScheduler.prototype._setupMongoHelper.bind(this);
-    this._setupSwiftHelper = EaeScheduler.prototype._setupSwiftHelper.bind(this);
-    this._setupNodesWatchdog = EaeScheduler.prototype._setupNodesWatchdog.bind(this);
-    this._setupJobsScheduler = EaeScheduler.prototype._setupJobsScheduler.bind(this);
+    this._connectDb = OpalScheduler.prototype._connectDb.bind(this);
+    this._setupStatusController = OpalScheduler.prototype._setupStatusController.bind(this);
+    this._setupMongoHelper = OpalScheduler.prototype._setupMongoHelper.bind(this);
+    this._setupSwiftHelper = OpalScheduler.prototype._setupSwiftHelper.bind(this);
+    this._setupNodesWatchdog = OpalScheduler.prototype._setupNodesWatchdog.bind(this);
+    this._setupJobsScheduler = OpalScheduler.prototype._setupJobsScheduler.bind(this);
 
     //Remove unwanted express headers
     this.app.set('x-powered-by', false);
@@ -62,7 +62,7 @@ function EaeScheduler(config) {
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
-EaeScheduler.prototype.start = function() {
+OpalScheduler.prototype.start = function() {
     let _this = this;
     return new Promise(function (resolve, reject) {
         _this._connectDb().then(function () {
@@ -119,7 +119,7 @@ EaeScheduler.prototype.start = function() {
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
-EaeScheduler.prototype.stop = function() {
+OpalScheduler.prototype.stop = function() {
     let _this = this;
     return new Promise(function (resolve, reject) {
         // Stop status update
@@ -140,7 +140,7 @@ EaeScheduler.prototype.stop = function() {
  * @return {Promise} Resolves to true on success
  * @private
  */
-EaeScheduler.prototype._connectDb = function () {
+OpalScheduler.prototype._connectDb = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
         mongodb.connect(_this.config.mongoURL, function (err, db) {
@@ -159,7 +159,7 @@ EaeScheduler.prototype._connectDb = function () {
  * @desc Initialize status service routes and controller
  * @private
  */
-EaeScheduler.prototype._setupStatusController = function () {
+OpalScheduler.prototype._setupStatusController = function () {
     let _this = this;
 
     let statusOpts = {
@@ -179,7 +179,7 @@ EaeScheduler.prototype._setupStatusController = function () {
  * @desc Initialize the mongo helper
  * @private
  */
-EaeScheduler.prototype._setupMongoHelper = function () {
+OpalScheduler.prototype._setupMongoHelper = function () {
     let _this = this;
     _this.mongo_helper.setCollections(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
                                       _this.db.collection(Constants.EAE_COLLECTION_JOBS),
@@ -192,7 +192,7 @@ EaeScheduler.prototype._setupMongoHelper = function () {
  * @desc Initialize the helper class to interact with Swift
  * @private
  */
-EaeScheduler.prototype._setupSwiftHelper = function () {
+OpalScheduler.prototype._setupSwiftHelper = function () {
     let _this = this;
     _this.swift_helper = new SwiftHelper({
                 url: _this.config.swiftURL,
@@ -206,7 +206,7 @@ EaeScheduler.prototype._setupSwiftHelper = function () {
  * @desc Initialize the periodic monitoring of the compute nodes
  * @private
  */
-EaeScheduler.prototype._setupNodesWatchdog = function () {
+OpalScheduler.prototype._setupNodesWatchdog = function () {
     let _this = this;
     _this.nodes_watchdog = new NodesWatchdog(_this.mongo_helper);
 };
@@ -216,7 +216,7 @@ EaeScheduler.prototype._setupNodesWatchdog = function () {
  * @desc Initialize the periodic monitoring of the Jobs
  * @private
  */
-EaeScheduler.prototype._setupJobsWatchdog = function () {
+OpalScheduler.prototype._setupJobsWatchdog = function () {
     let _this = this;
     _this.jobs_watchdog = new JobsWatchdog(_this.mongo_helper, _this.swift_helper);
 };
@@ -226,10 +226,10 @@ EaeScheduler.prototype._setupJobsWatchdog = function () {
  * @desc Initialize the periodic scheduling of the Jobs
  * @private
  */
-EaeScheduler.prototype._setupJobsScheduler = function () {
+OpalScheduler.prototype._setupJobsScheduler = function () {
     let _this = this;
     _this.jobs_scheduler = new JobsScheduler(_this.mongo_helper);
 };
 
 
-module.exports = EaeScheduler;
+module.exports = OpalScheduler;
