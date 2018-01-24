@@ -82,10 +82,6 @@ UsersController.prototype.getUser = function(req, res){
     }
 };
 
-
-
-
-
 /**
  * @fn getAllUsers
  * @desc Sends back the usernames of all users
@@ -144,10 +140,6 @@ UsersController.prototype.getAllUsers = function(req, res){
         res.json(ErrorHelper('Error occurred', error));
     }
 };
-
-
-
-
 
 /**
  * @fn createUser
