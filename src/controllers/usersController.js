@@ -88,8 +88,6 @@ UsersController.prototype.getUser = function(req, res){
 
 
 
-
-
 /**
  * @fn getAllUsers
  * @desc Sends back the usernames of all users
