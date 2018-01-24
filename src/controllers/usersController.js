@@ -19,6 +19,7 @@ function UsersController(usersCollection, accessLogger) {
     _this.getUser = UsersController.prototype.getUser.bind(this);
     _this.createUser = UsersController.prototype.createUser.bind(this);
     _this.deleteUser = UsersController.prototype.deleteUser.bind(this);
+    _this.getAllUsers = UsersController.prototype.getAllUsers.bind(this);
 }
 
 
@@ -80,6 +81,77 @@ UsersController.prototype.getUser = function(req, res){
         res.json(ErrorHelper('Error occurred', error));
     }
 };
+
+
+
+
+
+
+
+
+
+/**
+ * @fn getAllUsers
+ * @desc Sends back the profile of the requested user
+ * @param req Incoming message
+ * @param res Server Response
+ */
+UsersController.prototype.getAllUsers = function(req, res){
+    let _this = this;
+    let eaeUsername = req.body.eaeUsername;
+    let userToken = req.body.eaeUserToken;
+
+    if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
+        res.status(401);
+        res.json(ErrorHelper('Missing username or token'));
+        return;
+    }
+    try {
+        let filter = {
+            username: eaeUsername,
+            token: userToken
+        };
+        _this._usersCollection.findOne(filter).then(function (user) {
+            if (user === null) {
+                res.status(401);
+                res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
+                // Log unauthorized access
+                _this._accessLogger.logAccess(req);
+                return;
+            }
+            if (user.type === interface_constants.USER_TYPE.admin) {
+                _this._usersCollection.find({},{username: 1, _id:0}).toArray(function(err,user){
+                        if (err){
+                            res.status(500);
+                            res.json(ErrorHelper('Internal Mongo Error', err));
+                            return;
+                        }
+                        if (user === null) {
+                            res.status(401);
+                            res.json('no user exists.');
+                        }else {
+                            res.status(200);
+                            res.json(user);
+                        }
+                    }
+                    );
+            }else{
+                res.status(401);
+                res.json(ErrorHelper('The user is not authorized to access this command'));
+                // Log unauthorized access
+                _this._accessLogger.logAccess(req);
+            }
+        });
+    }
+    catch (error) {
+        res.status(510);
+        res.json(ErrorHelper('Error occurred', error));
+    }
+};
+
+
+
+
 
 /**
  * @fn createUser

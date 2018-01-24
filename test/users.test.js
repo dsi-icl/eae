@@ -182,6 +182,35 @@ test('Create a new user', function(done) {
         });
 });
 
+
+test('Get All Users', function(done) {
+    expect.assertions(4);
+    request(
+        {
+            method: 'POST',
+            baseUrl: 'http://127.0.0.1:' + config.port,
+            uri: '/user/getAll',
+            json: true,
+            body: {
+                eaeUsername: adminUsername,
+                eaeUserToken: adminPassword
+            }
+        },
+        function(error, response, body) {
+            if (error) {
+                done.fail(error.toString());
+            }
+            expect(response).toBeDefined();
+            expect(response.statusCode).toEqual(200);
+            expect(body).toBeDefined();
+            expect(body).toEqual([{username: 'adminUsers'}, {username: 'NotLegit'}]);
+            done();
+        });
+});
+
+
+
+
 test('Delete a user', function(done) {
     expect.assertions(8);
     let userToBeDeleted = 'NotLegit';
