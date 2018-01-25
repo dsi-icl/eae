@@ -162,7 +162,7 @@ test('Get All standard Users (when there is none)', function(done) {
         {
             method: 'POST',
             baseUrl: 'http://127.0.0.1:' + config.port,
-            uri: '/user/getAllOf',
+            uri: '/user/getAll',
             json: true,
             body: {
                 eaeUsername: adminUsername,
@@ -214,7 +214,7 @@ test('Get All Users', function(done) {
         {
             method: 'POST',
             baseUrl: 'http://127.0.0.1:' + config.port,
-            uri: '/user/getAllOf',
+            uri: '/user/getAll',
             json: true,
             body: {
                 eaeUsername: adminUsername,
@@ -240,7 +240,7 @@ test('Get All Admin Users', function(done) {
         {
             method: 'POST',
             baseUrl: 'http://127.0.0.1:' + config.port,
-            uri: '/user/getAllOf',
+            uri: '/user/getAll',
             json: true,
             body: {
                 eaeUsername: adminUsername,
@@ -266,7 +266,7 @@ test('Get All standard Users', function(done) {
         {
             method: 'POST',
             baseUrl: 'http://127.0.0.1:' + config.port,
-            uri: '/user/getAllOf',
+            uri: '/user/getAll',
             json: true,
             body: {
                 eaeUsername: adminUsername,
