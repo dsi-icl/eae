@@ -112,14 +112,14 @@ UsersController.prototype.getAllUsers = function(req, res){
                 _this._accessLogger.logAccess(req);
                 return;
             }
-            if (!(userType === interface_constants.USER_TYPE.admin || userType === interface_constants.USER_TYPE.standard ||userType === 'ALL')){
+            if (!(userType === interface_constants.USER_TYPE.admin || userType === interface_constants.USER_TYPE.standard || userType === 'ALL')){
                 res.status(401);
                 res.json(ErrorHelper('userType not supported. Please use "ADMIN", "STANDARD" OR "ALL"'));
                 _this._accessLogger.logAccess(req);
                 return;
             }
             if (user.type === interface_constants.USER_TYPE.admin) {
-                let querycond = userType === 'ALL'? {}:{type: userType};
+                let querycond = userType === 'ALL'? {} : {type: userType};
                 _this._usersCollection.find(querycond,{username: 1, _id:0}).toArray(function(err,user){
                         if (err){
                             res.status(500);
