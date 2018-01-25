@@ -119,7 +119,7 @@ UsersController.prototype.getAllUsers = function(req, res){
                 return;
             }
             if (user.type === interface_constants.USER_TYPE.admin) {
-                let querycond = userType === 'ALL'? {} : {type: userType};
+                let querycond = userType === 'ALL' ? {} : {type: userType};
                 _this._usersCollection.find(querycond,{username: 1, _id:0}).toArray(function(err,user){
                         if (err){
                             res.status(500);
