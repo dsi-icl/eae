@@ -125,10 +125,6 @@ UsersController.prototype.getAllUsers = function(req, res){
                             res.status(500);
                             res.json(ErrorHelper('Internal Mongo Error', err));
                             return;
-                        }
-                        if (user === null) {
-                            res.status(401);
-                            res.json('No user of such type exists.');
                         }else {
                             res.status(200);
                             res.json(user);

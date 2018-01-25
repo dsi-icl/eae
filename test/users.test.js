@@ -156,6 +156,32 @@ test('Get user that doesn\'t exist', function(done) {
     );
 });
 
+test('Get All standard Users (when there is none)', function(done) {
+    expect.assertions(4);
+    request(
+        {
+            method: 'POST',
+            baseUrl: 'http://127.0.0.1:' + config.port,
+            uri: '/user/getAllOf',
+            json: true,
+            body: {
+                eaeUsername: adminUsername,
+                eaeUserToken: adminPassword,
+                userType: 'STANDARD'
+            }
+        },
+        function(error, response, body) {
+            if (error) {
+                done.fail(error.toString());
+            }
+            expect(response).toBeDefined();
+            expect(response.statusCode).toEqual(200);
+            expect(body).toBeDefined();
+            expect(body).toEqual([]);
+            done();
+        });
+});
+
 test('Create a new user', function(done) {
     expect.assertions(3);
     let newUser = JSON.stringify({"username": "NotLegit"});
