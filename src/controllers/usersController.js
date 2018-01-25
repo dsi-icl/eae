@@ -84,7 +84,7 @@ UsersController.prototype.getUser = function(req, res){
 
 /**
  * @fn getAllUsers
- * @desc Sends back the usernames of all users
+ * @desc Sends back the profile of the requested user
  * @param req Incoming message
  * @param res Server Response
  */
@@ -92,6 +92,7 @@ UsersController.prototype.getAllUsers = function(req, res){
     let _this = this;
     let eaeUsername = req.body.eaeUsername;
     let userToken = req.body.eaeUserToken;
+    let userType = req.body.userType.toUpperCase();
 
     if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
@@ -111,8 +112,15 @@ UsersController.prototype.getAllUsers = function(req, res){
                 _this._accessLogger.logAccess(req);
                 return;
             }
+            if (!(userType === interface_constants.USER_TYPE.admin || userType === interface_constants.USER_TYPE.standard ||userType === 'ALL')){
+                res.status(401);
+                res.json(ErrorHelper('userType not supported. Please use "ADMIN", "STANDARD" OR "ALL"'));
+                _this._accessLogger.logAccess(req);
+                return;
+            }
             if (user.type === interface_constants.USER_TYPE.admin) {
-                _this._usersCollection.find({},{username: 1, _id:0}).toArray(function(err,user){
+                let querycond = userType === 'ALL'? {}:{type: userType};
+                _this._usersCollection.find(querycond,{username: 1, _id:0}).toArray(function(err,user){
                         if (err){
                             res.status(500);
                             res.json(ErrorHelper('Internal Mongo Error', err));
@@ -120,7 +128,7 @@ UsersController.prototype.getAllUsers = function(req, res){
                         }
                         if (user === null) {
                             res.status(401);
-                            res.json('no user exists.');
+                            res.json('No user of such type exists.');
                         }else {
                             res.status(200);
                             res.json(user);

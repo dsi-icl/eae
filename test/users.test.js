@@ -182,18 +182,18 @@ test('Create a new user', function(done) {
         });
 });
 
-
 test('Get All Users', function(done) {
     expect.assertions(4);
     request(
         {
             method: 'POST',
             baseUrl: 'http://127.0.0.1:' + config.port,
-            uri: '/user/getAll',
+            uri: '/user/getAllOf',
             json: true,
             body: {
                 eaeUsername: adminUsername,
-                eaeUserToken: adminPassword
+                eaeUserToken: adminPassword,
+                userType: 'all'
             }
         },
         function(error, response, body) {
@@ -203,13 +203,62 @@ test('Get All Users', function(done) {
             expect(response).toBeDefined();
             expect(response.statusCode).toEqual(200);
             expect(body).toBeDefined();
-            expect(body).toEqual([{username: 'adminUsers'}, {username: 'NotLegit'}]);
+            expect(body).toEqual([{username: 'adminUsers'},{username: 'NotLegit'}]);
             done();
         });
 });
 
+test('Get All Admin Users', function(done) {
+    expect.assertions(4);
+    request(
+        {
+            method: 'POST',
+            baseUrl: 'http://127.0.0.1:' + config.port,
+            uri: '/user/getAllOf',
+            json: true,
+            body: {
+                eaeUsername: adminUsername,
+                eaeUserToken: adminPassword,
+                userType: 'admin'
+            }
+        },
+        function(error, response, body) {
+            if (error) {
+                done.fail(error.toString());
+            }
+            expect(response).toBeDefined();
+            expect(response.statusCode).toEqual(200);
+            expect(body).toBeDefined();
+            expect(body).toEqual([{username: 'adminUsers'}]);
+            done();
+        });
+});
 
-
+test('Get All standard Users', function(done) {
+    expect.assertions(4);
+    request(
+        {
+            method: 'POST',
+            baseUrl: 'http://127.0.0.1:' + config.port,
+            uri: '/user/getAllOf',
+            json: true,
+            body: {
+                eaeUsername: adminUsername,
+                eaeUserToken: adminPassword,
+                userType: 'STANDARD'
+            }
+        },
+        function(error, response, body) {
+            if (error) {
+                done.fail(error.toString());
+            }
+            expect(response).toBeDefined();
+            expect(response.statusCode).toEqual(200);
+            expect(body).toBeDefined();
+            expect(body).toEqual([{username: 'NotLegit'}]);
+            done();
+        });
+});
 
 test('Delete a user', function(done) {
     expect.assertions(8);
