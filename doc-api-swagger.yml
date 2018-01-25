@@ -367,7 +367,7 @@ paths:
             type: object
             description: eAE ErrorStack tracking the error origin
             
-  /user/getAllOf:
+  /user/getAll:
     post:
       description: Sends back the name of all users of specified type. By admin only
       consumes: 
