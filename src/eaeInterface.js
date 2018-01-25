@@ -180,7 +180,7 @@ EaeInterface.prototype._setupInterfaceControllers = function() {
     // Manage the users who have access to the platform - Admin only
     _this.app.post('/user/', _this.usersController.getUser)
         .post('/user/create', _this.usersController.createUser)
-        .post('/user/getAllOf', _this.usersController.getAllUsers)
+        .post('/user/getAll', _this.usersController.getAllUsers)
         .delete('/user/delete', _this.usersController.deleteUser);
 
     // :)
