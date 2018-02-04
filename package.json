@@ -1,31 +1,30 @@
 {
-  "name": "eae-interface",
-  "version": "0.0.2",
-  "description": "eAE - Interface micro-service",
-  "main": "./src/eaeInterface.js",
+  "name": "opal-interface",
+  "version": "0.0.1",
+  "description": "OPAL - Interface micro-service",
+  "main": "./src/opalInterface.js",
   "scripts": {
     "start": "node ./src/index.js",
     "lint": "eslint src",
     "test": "jest --runInBand --verbose --useStderr --forceExit"
   },
   "keywords": [
-    "eae",
+    "opal",
     "interface"
   ],
   "contributors": [
-    "Axel Oehmichen <axelfrancois.oehmichen11@imperial.ac.uk>",
-    "Florian Guitton <f.guitton@imperial.ac.uk>"
+    "Axel Oehmichen <axelfrancois.oehmichen11@imperial.ac.uk>"
   ],
   "license": "MIT",
   "readme": "README.md",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dsi-icl/eae-interface.git"
+    "url": "git+https://github.com/opal-project/opal-interface.git"
   },
   "bugs": {
-    "url": "https://github.com/dsi-icl/eae-interface/issues"
+    "url": "https://github.com/opal-project/opal-interface/issues"
   },
-  "homepage": "https://github.com/dsi-icl/eae-interface#readme",
+  "homepage": "https://github.com/opal-project/opal-interface#readme",
   "devDependencies": {
     "babel-core": "6.26.0",
     "babel-eslint": "8.0.1",
@@ -39,7 +38,7 @@
   "dependencies": {
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "body-parser": "^1.18.2",
-    "eae-utils": "git+https://github.com/dsi-icl/eae-utils.git",
+    "eae-utils": "git+https://github.com/opal-project/opal-utils.git",
     "express": "^4.16.2",
     "fs-extra": "^5.0.0",
     "mongodb": "^2.2.34"

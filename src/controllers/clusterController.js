@@ -28,17 +28,17 @@ function ClusterController(statusCollection, usersCollection, accessLogger) {
  */
 ClusterController.prototype.getServicesStatus = function(req, res){
     let _this = this;
-    let eaeUsername = req.body.eaeUsername;
-    let userToken = req.body.eaeUserToken;
+    let opalUsername = req.body.opalUsername;
+    let userToken = req.body.opalUserToken;
 
-    if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
+    if (opalUsername === null || opalUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
         res.json(ErrorHelper('Missing username or token'));
         return;
     }
     try {
         let filter = {
-            username: eaeUsername,
+            username: opalUsername,
             token: userToken
         };
         _this._usersCollection.findOne(filter).then(function (user) {

@@ -1,6 +1,5 @@
 const request = require('request');
-const eaeutils = require('eae-utils');
-let config = require('../config/eae.interface.test.config.js');
+let config = require('../config/opal.interface.test.config.js');
 let TestServer = require('./testserver.js');
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;// 20 seconds
@@ -31,8 +30,8 @@ test('Get user Missing Credentials Username', function(done) {
             uri: '/user',
             json: true,
             body: {
-                eaeUsername: null,
-                eaeUserToken: 'wrongpassword'
+                opalUsername: null,
+                opalUserToken: 'wrongpassword'
             }
         },
         function(error, response, body) {
@@ -57,8 +56,8 @@ test('Get user Missing Credentials Token', function(done) {
             uri: '/user',
             json: true,
             body: {
-                eaeUsername: 'test',
-                eaeUserToken: null
+                opalUsername: 'test',
+                opalUserToken: null
             }
         },
         function(error, response, body) {
@@ -83,8 +82,8 @@ test('Get user Invalid Credentials', function(done) {
             uri: '/user',
             json: true,
             body: {
-                eaeUsername: 'test',
-                eaeUserToken: 'wrongpassword'
+                opalUsername: 'test',
+                opalUserToken: 'wrongpassword'
             }
         },
         function(error, response, body) {
@@ -109,8 +108,8 @@ test('Get user Admin previously created', function(done) {
             uri: '/user',
             json: true,
             body: {
-                eaeUsername: adminUsername,
-                eaeUserToken: adminPassword,
+                opalUsername: adminUsername,
+                opalUserToken: adminPassword,
                 requestedUsername: adminUsername
             }
         },
@@ -138,8 +137,8 @@ test('Get user that doesn\'t exist', function(done) {
             uri: '/user',
             json: true,
             body: {
-                eaeUsername: adminUsername,
-                eaeUserToken: adminPassword,
+                opalUsername: adminUsername,
+                opalUserToken: adminPassword,
                 requestedUsername: requestedUsername
             }
         },
@@ -166,8 +165,8 @@ test('Create a new user', function(done) {
             uri: '/user/create',
             json: true,
             body: {
-                eaeUsername: adminUsername,
-                eaeUserToken: adminPassword,
+                opalUsername: adminUsername,
+                opalUserToken: adminPassword,
                 newUser: newUser
             }
         },
@@ -192,8 +191,8 @@ test('Delete a user', function(done) {
             uri: '/user/delete',
             json: true,
             body: {
-                eaeUsername: adminUsername,
-                eaeUserToken: adminPassword,
+                opalUsername: adminUsername,
+                opalUserToken: adminPassword,
                 userToBeDeleted: userToBeDeleted
             }
         },
@@ -212,8 +211,8 @@ test('Delete a user', function(done) {
                     uri: '/user',
                     json: true,
                     body: {
-                        eaeUsername: adminUsername,
-                        eaeUserToken: adminPassword,
+                        opalUsername: adminUsername,
+                        opalUserToken: adminPassword,
                         requestedUsername: userToBeDeleted
                     }
                 },

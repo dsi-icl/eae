@@ -2,16 +2,16 @@ let express = require('express');
 let os = require('os');
 let app = express();
 
-let config = require('../config/eae.interface.config.js');
-let EaeInterface = require('./eaeInterface.js');
+let config = require('../config/opal.interface.config.js');
+let OpalInterface = require('./opalInterface.js');
 
 //Remove unwanted express headers
 app.set('x-powered-by', false);
 
 let options = Object.assign({}, config);
-let eaeInterface = new EaeInterface(options);
+let opalInterface = new OpalInterface(options);
 
-eaeInterface.start().then(function(interface_router) {
+opalInterface.start().then(function(interface_router) {
     app.use(interface_router);
     app.listen(config.port, function (error) {
         if (error) {
