@@ -10,13 +10,13 @@ WORKDIR /usr/app
 
 # Install app dependencies
 COPY ./package.json /usr/app/
-# Install eae-interface npm dependencies
+# Install opal-interface npm dependencies
 RUN npm install --silent; exit 0;
 RUN cat /root/.npm/_logs/*; exit 0;
 
 # Bundle app
 COPY ./src /usr/app/src
-COPY ./config/eae.interface.config.js /usr/app/config/eae.interface.config.js
+COPY ./config/opal.interface.config.js /usr/app/config/opal.interface.config.js
 
 # Run compute service
 EXPOSE 80

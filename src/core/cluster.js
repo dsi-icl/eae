@@ -2,7 +2,7 @@ const { ErrorHelper } = require('eae-utils');
 
 /**
  * @fn Cluster
- * @desc Service that enables to manipulate the eAE cluster
+ * @desc Service that enables to manipulate the OPAL cluster
  * @param statusCollection A Plain JS object describing the swift object storage endpoint
  * @constructor
  */
@@ -16,7 +16,7 @@ function Cluster(statusCollection){
 
 /**
  * @fn getStatuses
- * @desc The method sends back all the current statuses of the eAE services
+ * @desc The method sends back all the current statuses of the OPAL services
  * @returns {Promise}
  */
 Cluster.prototype.getStatuses = function(){
