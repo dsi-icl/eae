@@ -10,7 +10,7 @@ OPAL - Interface micro-service
 The OPAL-interface provides the API to interact with the opal eco-system. The core function of the API is first and
 foremost to enable authorized users to submit jobs to OPAL. The two other features that the Interface manages are the
 management of users(creation, deletion and providing information about them) and providing the current statuses of all the 
-services in the environment. The currently managed services are Interface, Carrier, Scheduler and Compute.
+services in the environment. The currently managed services are Interface, Cache, Privacy, Scheduler and Compute.
 
 We provide the [API documentation](doc-api-swagger.yml) in swagger 2.0 format. You can paste the content in the 
 [swagger editor](http://editor.swagger.io/) to render the API documentation. 

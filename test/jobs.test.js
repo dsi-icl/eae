@@ -130,7 +130,7 @@ test('Create a Job with a nonsupported compute type', function(done) {
 
 
 test('Create a Job and subsequently get it', function(done) {
-    expect.assertions(15);
+    expect.assertions(14);
     let job = JSON.stringify({"type": eaeutils.Constants.EAE_COMPUTE_TYPE_PYTHON2, "main": "hello.py", "params": [], "input": ["input1.txt", "input2.txt"]});
     request(
         {
@@ -153,7 +153,6 @@ test('Create a Job and subsequently get it', function(done) {
             expect(body).toBeDefined();
             expect(body.status).toEqual('OK');
             expect(body.jobID).toBeDefined();
-            expect(body.carriers).toEqual(config.carriers);
             request(
                 {
                     method: 'POST',
@@ -185,7 +184,7 @@ test('Create a Job and subsequently get it', function(done) {
 });
 
 test('Create a Job and subsequently cancel it', function(done) {
-    expect.assertions(11);
+    expect.assertions(10);
     let job = JSON.stringify({"type": eaeutils.Constants.EAE_COMPUTE_TYPE_PYTHON2, "main": "hello.py", "params": [], "input": ["input1.txt", "input2.txt"]});
     request(
         {
@@ -208,7 +207,6 @@ test('Create a Job and subsequently cancel it', function(done) {
             expect(body).toBeDefined();
             expect(body.status).toEqual('OK');
             expect(body.jobID).toBeDefined();
-            expect(body.carriers).toEqual(config.carriers);
             let jobID = body.jobID;
             request(
                 {
