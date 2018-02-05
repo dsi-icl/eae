@@ -1,5 +1,5 @@
 # OPAL-scheduler
-[![Dim Sums](https://img.shields.io/badge/made-with_Dim_Sums-4da3ff.svg?style=flat-square)](https://eae.doc.ic.ac.uk)
+[![Dim Sums](https://img.shields.io/badge/made-with_Dim_Sums-4da3ff.svg?style=flat-square)](https://www.opalproject.org)
 [![Travis branch](https://img.shields.io/travis/OPAL-Project/OPAL-Scheduler/master.svg?style=flat-square)](https://travis-ci.org/OPAL-Project/OPAL-Scheduler) 
 [![David](https://img.shields.io/david/dsi-icl/eae-scheduler.svg?style=flat-square)](https://david-dm.org/dsi-icl/eae-scheduler) 
 [![David](https://img.shields.io/david/dev/dsi-icl/eae-scheduler.svg?style=flat-square)](https://david-dm.org/dsi-icl/eae-scheduler?type=dev) 
@@ -16,7 +16,7 @@ We provide the [API documentation](doc-api-swagger.yml) in swagger 2.0 format. Y
 
 ## Configuration
 At its construction, the `opalScheduler` server receives a configuration object that MUST respect the following schema:
- * [Example configuration](config/eae.scheduler.sample.config.js)
+ * [Example configuration](config/opal.scheduler.sample.config.js)
  
 
 ### Supported Job States
