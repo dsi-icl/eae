@@ -8,7 +8,7 @@ RUN apt-get update -q && apt-get upgrade -y --no-install-recommends
 RUN mkdir -p /usr/app/config
 WORKDIR /root
 
-# We download the eae compute
+# We download the eae interface
 RUN git clone -b master https://github.com/dsi-icl/eae-interface
 
 WORKDIR /root/eae-interface
@@ -19,10 +19,10 @@ RUN cp package.json /usr/app/ \
 
 WORKDIR /usr/app
 
-# Install eae-compute npm dependencies
+# Install eae-interface npm dependencies
 RUN npm install --silent; exit 0;
 RUN cat /root/.npm/_logs/*; exit 0;
 
-# Run compute service
+# Run interface service
 EXPOSE 80
 CMD [ "npm", "start" ]
