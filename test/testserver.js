@@ -22,7 +22,7 @@ TestServer.prototype.run = function() {
         process.env.TEST = 1;
         let oldMongoConfig = config.mongoURL;
         config.mongoURL = oldMongoConfig + uuidv4().toString().replace(/-/g, "");
-        // Create eae compute server
+        // Create eae interface server
         _this.eae_interface = new EaeInterface(config);
 
         // Start server

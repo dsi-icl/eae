@@ -51,7 +51,7 @@ function EaeInterface(config) {
 
 /**
  * @fn start
- * @desc Starts the eae scheduler service
+ * @desc Starts the eae interface service
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
@@ -77,7 +77,7 @@ EaeInterface.prototype.start = function() {
 
 /**
  * @fn stop
- * @desc Stop the eae compute service
+ * @desc Stop the eae interface service
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
