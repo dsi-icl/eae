@@ -23,6 +23,6 @@ WORKDIR /usr/app
 RUN npm install --silent; exit 0;
 RUN cat /root/.npm/_logs/*; exit 0;
 
-# Run compute service
+# Run interface service
 EXPOSE 80
 CMD [ "npm", "start" ]

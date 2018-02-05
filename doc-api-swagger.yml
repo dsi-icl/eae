@@ -158,16 +158,9 @@ paths:
               jobID:
                 type: string
                 description: Contains the id of the job
-              carriers:
-                type: array
-                description: Contains the list of carriers to transfer to
-                items:
-                  type: string
-                  description: 'Address (IP:Port or DNS Name) of the carrier'
             example:
               status: OK
               jobID: jkfj32twkl423fj1ru
-              carriers: carrier:3000
 
         '401':
           description: The request is not well formed
@@ -243,8 +236,7 @@ paths:
   /job/results:
     post:
       description: >-
-        Retrieve the results for a specific job by sending back the carriers
-        where they are available.
+        Retrieve the results for a specific job when they are available.
       consumes:
         - application/json
         - application/x-www-form-urlencoded
@@ -270,10 +262,9 @@ paths:
               jobID: jhfwd8u210ujfdsasfd
       responses:
         '200':
-          description: Sends back an access to the carriers to download the results from
+          description: Sends back the results
           schema:
             type: object
-            description: TODO
         '401':
           description: The request is not well formed
           schema:
@@ -699,34 +690,6 @@ definitions:
         token: y1r9iufhoeq2ur9u192f
         type: ADMIN
         created: '2018-01-16T12:09:37.416Z'
-  carrierJobModel:
-    type: object
-    properties:
-      jobId:
-        type: string
-        description: Id of the associated job located in the eAE job collection
-      type:
-        type: string
-        description: Defines if it is an upload to the eAE or download from it
-      files:
-        type: array
-        description: List of files to be transfer
-        items:
-          type: string
-          description: Name of the file
-      requester:
-        type: string
-        description: Username of the requester
-      numberOfTransferredFiles:
-        type: integer
-        description: Track the number of files transfered
-      numberOfFilesToTransfer:
-        type: integer
-        description: Number of files to transfer to the eAE through the carriers
-      created:
-        type: string
-        format: dateTime
-        description: Timestamp of the creation of the job
   unauthorizedAccess:
     type: object
     properties:

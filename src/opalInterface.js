@@ -145,10 +145,8 @@ OpalInterface.prototype._setupInterfaceControllers = function() {
     let _this = this;
 
     _this.accessLogger = new AccessLogger(_this.db.collection(Constants.EAE_COLLECTION_ACCESS_LOG));
-    _this.jobsController = new JobsControllerModule(_this.config.carriers,
-                                                    _this.db.collection(Constants.EAE_COLLECTION_JOBS),
+    _this.jobsController = new JobsControllerModule(_this.db.collection(Constants.EAE_COLLECTION_JOBS),
                                                     _this.db.collection(Constants.EAE_COLLECTION_USERS),
-                                                    _this.db.collection(Constants.EAE_COLLECTION_CARRIER),
                                                     _this.accessLogger);
     _this.usersController = new UsersControllerModule(_this.db.collection(Constants.EAE_COLLECTION_USERS),
                                                       _this.accessLogger);
@@ -173,9 +171,6 @@ OpalInterface.prototype._setupInterfaceControllers = function() {
 
     // Status of the services in the opal - Admin only
     _this.app.post('/servicesStatus', _this.clusterController.getServicesStatus);
-
-    // Sends back a list of available carriers for data transfer
-    // _this.app.get('/carriers', _this.carrierController.getCarriers);
 
     // Manage the users who have access to the platform - Admin only
     _this.app.post('/user/', _this.usersController.getUser)
