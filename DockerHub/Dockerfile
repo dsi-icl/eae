@@ -8,10 +8,10 @@ RUN apt-get update -q && apt-get upgrade -y --no-install-recommends
 RUN mkdir -p /usr/app/config
 WORKDIR /root
 
-# We download the eae compute
-RUN git clone -b master https://github.com/dsi-icl/eae-interface
+# We download the opal interface
+RUN git clone -b master https://github.com/opal-project/opal-interface
 
-WORKDIR /root/eae-interface
+WORKDIR /root/opal-interface
 
 # Bundle app
 RUN cp package.json /usr/app/ \
@@ -19,10 +19,10 @@ RUN cp package.json /usr/app/ \
 
 WORKDIR /usr/app
 
-# Install eae-compute npm dependencies
+# Install opal-interface npm dependencies
 RUN npm install --silent; exit 0;
 RUN cat /root/.npm/_logs/*; exit 0;
 
-# Run compute service
+# Run interface service
 EXPOSE 80
 CMD [ "npm", "start" ]
