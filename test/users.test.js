@@ -245,6 +245,7 @@ test('Get All Admin Users', function(done) {
                 eaeUsername: adminUsername,
                 eaeUserToken: adminPassword,
                 userType: 'admin'     //the defined usertype is 'ADMIN' but API converts input userType to uppercase automatically
+
             }
         },
         function(error, response, body) {
