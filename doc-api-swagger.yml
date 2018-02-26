@@ -21,6 +21,7 @@ paths:
                 type: string
                 description: MUST be one of EAE_SERVICE_STATUS_XXX
                 example: eae_service_idle
+                
   /specs:
     get:
       description: Detailed status report. Part of the standard API for eae components
@@ -29,9 +30,6 @@ paths:
           description: desc
           schema:
             $ref: '#/definitions/statusModel'
-
-
-
 
   /job:
     post:
@@ -75,7 +73,6 @@ paths:
             type: object
             description: eAE ErrorStack tracking the error origin
 
-
   /job/getAll:
     post:
       description: Get all jobs not archieved. Admin only
@@ -115,9 +112,6 @@ paths:
           schema:
             type: object
             description: eAE ErrorStack tracking the error origin
-
-
-
 
   /job/create:
     post:
@@ -178,9 +172,6 @@ paths:
             type: object
             description: eAE ErrorStack tracking the error origin
 
-
-
-
   /job/cancel:
     post:
       description: Cancels a job. Check that user requesting is owner of the job or Admin
@@ -232,7 +223,6 @@ paths:
             type: object
             description: eAE ErrorStack tracking the error origin
 
-
   /job/results:
     post:
       description: >-
@@ -280,6 +270,7 @@ paths:
           schema:
             type: object
             description: eAE ErrorStack tracking the error origin
+            
   /servicesStatus:
     post:
       description: >-
@@ -322,10 +313,7 @@ paths:
           schema:
             type: object
             description: eAE ErrorStack tracking the error origin
-
-
-
-
+            
   /user:
     post:
       description: Sends back the profile of the requested user. By admin only
@@ -354,8 +342,6 @@ paths:
               opalUserToken: admin
               requestedUsername: chanTaiMan
 
-
-
       responses:
         '200':
           description: User object is returned.
@@ -373,7 +359,56 @@ paths:
             type: object
             description: eAE ErrorStack tracking the error origin
 
+  /user/getAll:
+    post:
+      description: Sends back the name of all users of specified type. By admin only
+      consumes: 
+        - application/json
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: request body
+          in: body
+          description: Specifying the type of users to be returned. Supported types are 'ADMIN', 'STANDARD' and 'ALL'. If no users of such type exists, an empty array is returned.
+          schema:
+            type: object
+            required:
 
+              - eaeUsername
+              - eaeUserToken
+              - userType
+            properties:
+              opalUsername:
+                type: string
+              opalUserToken:
+                type: string
+              userType:
+                type: string
+            example:
+
+              eaeUsername: admin
+              eaeUserToken: admin
+              userType: STANDARD
+      responses:
+        '200':
+          description: Array of users of specified type is returned.
+          schema:
+            type: array
+            items:
+              type: object
+            example:
+              - {username: 'admin'}
+              - {username: 'chanTaiMan'}
+        '401':
+          description: The request is not well formed
+          schema:
+            type: object
+            description: eAE ErrorStack tracking the error origin
+        '500':
+          description: Internal mongo or server error.
+          schema:
+            type: object
+            description: eAE ErrorStack tracking the error origin
+  
   /user/create:
     post:
       description: Create a new user to get access to the platform. By admin only
@@ -416,8 +451,6 @@ paths:
           schema:
             type: object
             description: eAE ErrorStack tracking the error origin
-
-
 
   /user/delete:
     delete:
@@ -463,26 +496,12 @@ paths:
             type: object
             description: eAE ErrorStack tracking the error origin
 
-
-
-
-
-
-
   /whoareyou:
     get:
       description: Implementation of the Hyper Text Coffee Pot Control Protocol
       responses:
         '418':
           description: I am a teapot
-
-
-
-
-
-
-
-
 
 
 definitions:
@@ -579,10 +598,6 @@ definitions:
       type: eae_api
       version: 0.0.x
 
-
-
-
-
   jobModel:
     type: object
     properties:
@@ -664,10 +679,6 @@ definitions:
       statusLock: false
       executorIP: 127.0.0.1
       executorPort: '9876'
-
-
-
-
 
   userModel:
     type: object
