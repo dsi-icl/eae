@@ -372,7 +372,6 @@ paths:
           schema:
             type: object
             required:
-
               - eaeUsername
               - eaeUserToken
               - userType
@@ -384,7 +383,6 @@ paths:
               userType:
                 type: string
             example:
-
               eaeUsername: admin
               eaeUserToken: admin
               userType: STANDARD
