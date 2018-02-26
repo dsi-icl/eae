@@ -1,15 +1,15 @@
 swagger: '2.0'
 info:
   version: 0.0.2
-  title: Eae-interface
+  title: Opal-interface
   license:
     name: MIT
-    url: 'https://github.com/dsi-icl/eae-interface/blob/master/LICENSE'
-  description: eAE interface
+    url: 'https://github.com/opal-project/opal-interface/blob/master/LICENSE'
+  description: OPAL interface
 paths:
   /status:
     get:
-      description: Status report. Part of the standard API for all the eae components
+      description: Status report. Part of the standard API for all the opal components
       responses:
         '200':
           description: 'Status report is active, replies the current status'
@@ -34,7 +34,7 @@ paths:
   /job:
     post:
       description: Get a specific job
-      consumes: 
+      consumes:
         - application/json
         - application/x-www-form-urlencoded
       parameters:
@@ -43,19 +43,19 @@ paths:
           schema:
             type: object
             required:
-              - eaeUsername
-              - eaeUserToken
+              - opalUsername
+              - opalUserToken
               - jobID
             properties:
-              eaeUsername:
+              opalUsername:
                 type: string
-              eaeUserToken:
+              opalUserToken:
                 type: string
               jobID:
                 type: string
             example:
-              eaeUsername: admin
-              eaeUserToken: admin
+              opalUsername: admin
+              opalUserToken: admin
               jobID: jhfwd8u210ujfdsasfd
       responses:
         '200':
@@ -76,7 +76,7 @@ paths:
   /job/getAll:
     post:
       description: Get all jobs not archieved. Admin only
-      consumes: 
+      consumes:
         - application/json
         - application/x-www-form-urlencoded
       parameters:
@@ -85,16 +85,16 @@ paths:
           schema:
             type: object
             required:
-              - eaeUsername
-              - eaeUserToken
+              - opalUsername
+              - opalUserToken
             properties:
-              eaeUsername:
+              opalUsername:
                 type: string
-              eaeUserToken:
+              opalUserToken:
                 type: string
             example:
-              eaeUsername: admin
-              eaeUserToken: admin
+              opalUsername: admin
+              opalUserToken: admin
       responses:
         '200':
           description: Sends back an array of jobs
@@ -116,29 +116,29 @@ paths:
   /job/create:
     post:
       description: Creates a new job to be computed on the eAE
-      consumes: 
+      consumes:
         - application/json
         - application/x-www-form-urlencoded
       parameters:
         - name: request body
           in: body
-          description: Create new job. Job object is passed as JSON string obligatorily contained the following fields - type, main, params, input. Value of type can be one of the following - python2, spark, r, tensorflow. 
+          description: Create new job. Job object is passed as JSON string obligatorily contained the following fields - type, main, params, input. Value of type can be one of the following - python2, spark, r, tensorflow.
           schema:
             type: object
             required:
-              - eaeUsername
-              - eaeUserToken
+              - opalUsername
+              - opalUserToken
               - job
             properties:
-              eaeUsername:
+              opalUsername:
                 type: string
-              eaeUserToken:
+              opalUserToken:
                 type: string
               job:
                 type: string
             example:
-              eaeUsername: admin
-              eaeUserToken: admin
+              opalUsername: admin
+              opalUserToken: admin
               job: '{"type":"python2","main":"test.py","params":["Vi_Veri_Veniversum_Vivus_Vici"],"input":["test.py","faust.txt"]}'
       responses:
         '200':
@@ -162,7 +162,7 @@ paths:
               status: OK
               jobID: jkfj32twkl423fj1ru
               carriers: carrier:3000
-              
+
         '401':
           description: The request is not well formed
           schema:
@@ -182,7 +182,7 @@ paths:
   /job/cancel:
     post:
       description: Cancels a job. Check that user requesting is owner of the job or Admin
-      consumes: 
+      consumes:
         - application/json
         - application/x-www-form-urlencoded
       parameters:
@@ -191,19 +191,19 @@ paths:
           schema:
             type: object
             required:
-              - eaeUsername
-              - eaeUserToken
+              - opalUsername
+              - opalUserToken
               - jobID
             properties:
-              eaeUsername:
+              opalUsername:
                 type: string
-              eaeUserToken:
+              opalUserToken:
                 type: string
               jobID:
                 type: string
             example:
-              eaeUsername: admin
-              eaeUserToken: admin
+              opalUsername: admin
+              opalUserToken: admin
               jobID: jhfwd8u210ujfdsasfd
       responses:
         '200':
@@ -235,7 +235,7 @@ paths:
       description: >-
         Retrieve the results for a specific job by sending back the carriers
         where they are available.
-      consumes: 
+      consumes:
         - application/json
         - application/x-www-form-urlencoded
       parameters:
@@ -244,19 +244,19 @@ paths:
           schema:
             type: object
             required:
-              - eaeUsername
-              - eaeUserToken
+              - opalUsername
+              - opalUserToken
               - jobID
             properties:
-              eaeUsername:
+              opalUsername:
                 type: string
-              eaeUserToken:
+              opalUserToken:
                 type: string
               jobID:
                 type: string
             example:
-              eaeUsername: admin
-              eaeUserToken: admin
+              opalUsername: admin
+              opalUserToken: admin
               jobID: jhfwd8u210ujfdsasfd
       responses:
         '200':
@@ -285,7 +285,7 @@ paths:
       description: >-
         Checks that the request is coming from an Admin and sends back the
         statuses of all the services in the cluster.
-      consumes: 
+      consumes:
         - application/json
         - application/x-www-form-urlencoded
       parameters:
@@ -294,16 +294,16 @@ paths:
           schema:
             type: object
             required:
-              - eaeUsername
-              - eaeUserToken
+              - opalUsername
+              - opalUserToken
             properties:
-              eaeUsername:
+              opalUsername:
                 type: string
-              eaeUserToken:
+              opalUserToken:
                 type: string
             example:
-              eaeUsername: admin
-              eaeUserToken: admin
+              opalUsername: admin
+              opalUserToken: admin
       responses:
         '200':
           description: desc
@@ -326,7 +326,7 @@ paths:
   /user:
     post:
       description: Sends back the profile of the requested user. By admin only
-      consumes: 
+      consumes:
         - application/json
         - application/x-www-form-urlencoded
       parameters:
@@ -336,26 +336,26 @@ paths:
           schema:
             type: object
             required:
-              - eaeUsername
-              - eaeUserToken
+              - opalUsername
+              - opalUserToken
               - requestedUsername
             properties:
-              eaeUsername:
+              opalUsername:
                 type: string
-              eaeUserToken:
+              opalUserToken:
                 type: string
               requestedUsername:
                 type: string
             example:
-              eaeUsername: admin
-              eaeUserToken: admin
+              opalUsername: admin
+              opalUserToken: admin
               requestedUsername: chanTaiMan
       responses:
         '200':
           description: User object is returned.
           schema:
             $ref: '#/definitions/userModel'
-              
+
         '401':
           description: The request is not well formed
           schema:
@@ -418,7 +418,7 @@ paths:
   /user/create:
     post:
       description: Create a new user to get access to the platform. By admin only
-      consumes: 
+      consumes:
         - application/json
         - application/x-www-form-urlencoded
       parameters:
@@ -428,19 +428,19 @@ paths:
           schema:
             type: object
             required:
-              - eaeUsername
-              - eaeUserToken
+              - opalUsername
+              - opalUserToken
               - newUser
             properties:
-              eaeUsername:
+              opalUsername:
                 type: string
-              eaeUserToken:
+              opalUserToken:
                 type: string
               newUser:
                 type: string
             example:
-              eaeUsername: admin
-              eaeUserToken: admin
+              opalUsername: admin
+              opalUserToken: admin
               newUser: '{"username": "chanTaiMan","type": "STANDARD"}'
       responses:
         '200':
@@ -461,7 +461,7 @@ paths:
   /user/delete:
     delete:
       description: Delete an existing user and remove their access to the platform.
-      consumes: 
+      consumes:
         - application/json
         - application/x-www-form-urlencoded
       parameters:
@@ -471,19 +471,19 @@ paths:
           schema:
             type: object
             required:
-              - eaeUsername
-              - eaeUserToken
+              - opalUsername
+              - opalUserToken
               - userToBeDeleted
             properties:
-              eaeUsername:
+              opalUsername:
                 type: string
-              eaeUserToken:
+              opalUserToken:
                 type: string
               userToBeDeleted:
                 type: string
             example:
-              eaeUsername: admin
-              eaeUserToken: admin
+              opalUsername: admin
+              opalUserToken: admin
               userToBeDeleted: chanTaiMan
       responses:
         '200':
@@ -578,7 +578,7 @@ definitions:
           free:
             type: string
             description: Available memory on the system. Unit is provided in the value
-    example: 
+    example:
       ip: 172.0.0.1
       port: 8000
       computeType: []

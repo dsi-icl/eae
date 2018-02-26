@@ -27,7 +27,7 @@ function JobsManagement(carrierCollection, jobsCollection, delay = Constants.STA
 /**
  * @fn createJobManifestForCarriers
  * @desc Creates a manifest for the carriers to know which files to expect.
- * @param newJob eae job containing the username of the requester and the filesArray
+ * @param newJob opal job containing the username of the requester and the filesArray
  * @param jobID id of the job
  * @return {Promise}
  */

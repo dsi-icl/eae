@@ -1,6 +1,6 @@
 const request = require('request');
 const eaeutils = require('eae-utils');
-let config = require('../config/eae.interface.test.config.js');
+let config = require('../config/opal.interface.test.config.js');
 let TestServer = require('./testserver.js');
 
 let ts = new TestServer();
@@ -29,8 +29,8 @@ test('Get Job Missing Credentials Username', function(done) {
             uri: '/job',
             json: true,
             body: {
-                eaeUsername: null,
-                eaeUserToken: 'wrongpassword'
+                opalUsername: null,
+                opalUserToken: 'wrongpassword'
             }
         },
         function(error, response, body) {
@@ -55,8 +55,8 @@ test('Get Job Missing Credentials token', function(done) {
             uri: '/job',
             json: true,
             body: {
-                eaeUsername: 'test',
-                eaeUserToken: null
+                opalUsername: 'test',
+                opalUserToken: null
             }
         },
         function(error, response, body) {
@@ -81,8 +81,8 @@ test('Get Job No jobID', function(done) {
             uri: '/job',
             json: true,
             body: {
-                eaeUsername: 'test',
-                eaeUserToken: 'wrongpassword'
+                opalUsername: 'test',
+                opalUserToken: 'wrongpassword'
             }
         },
         function(error, response, body) {
@@ -108,8 +108,8 @@ test('Create a Job with a nonsupported compute type', function(done) {
             uri: '/job/create',
             json: true,
             body: {
-                eaeUsername: adminUsername,
-                eaeUserToken: adminPassword,
+                opalUsername: adminUsername,
+                opalUserToken: adminPassword,
                 job: job
             }
         },
@@ -139,8 +139,8 @@ test('Create a Job and subsequently get it', function(done) {
             uri: '/job/create',
             json: true,
             body: {
-                eaeUsername: adminUsername,
-                eaeUserToken: adminPassword,
+                opalUsername: adminUsername,
+                opalUserToken: adminPassword,
                 job: job
             }
         },
@@ -161,8 +161,8 @@ test('Create a Job and subsequently get it', function(done) {
                     uri: '/job',
                     json: true,
                     body: {
-                        eaeUsername: adminUsername,
-                        eaeUserToken: adminPassword,
+                        opalUsername: adminUsername,
+                        opalUserToken: adminPassword,
                         jobID: body.jobID
                     }
                 }, function(error, response, body) {
@@ -194,8 +194,8 @@ test('Create a Job and subsequently cancel it', function(done) {
             uri: '/job/create',
             json: true,
             body: {
-                eaeUsername: adminUsername,
-                eaeUserToken: adminPassword,
+                opalUsername: adminUsername,
+                opalUserToken: adminPassword,
                 job: job
             }
         },
@@ -217,8 +217,8 @@ test('Create a Job and subsequently cancel it', function(done) {
                     uri: '/job/cancel',
                     json: true,
                     body: {
-                        eaeUsername: adminUsername,
-                        eaeUserToken: adminPassword,
+                        opalUsername: adminUsername,
+                        opalUserToken: adminPassword,
                         jobID: jobID
                     }
                 }, function(error, response, body) {
