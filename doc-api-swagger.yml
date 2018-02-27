@@ -1,16 +1,16 @@
 swagger: '2.0'
 info:
   version: 0.0.1
-  title: Eae-scheduler
+  title: OPAL-scheduler
   license:
     name: MIT
-    url: https://github.com/dsi-icl/eae-scheduler/blob/master/LICENSE
-  description:  eAE Scheduler
+    url: https://github.com/aoehmichen/opal-scheduler/blob/master/LICENSE
+  description:  OPAL Scheduler
 
 paths:
   /status:
     get:
-      description: Status report. Part of the standard API for all the eae components
+      description: Status report. Part of the standard API for all the OPAL components
       responses:
         200:
           description: Status report is active, replies the current status
@@ -20,17 +20,17 @@ paths:
             properties:
               status:
                 type: string
-                description: MUST be oneof EAE_SERVICE_STATUS_XXX
+                description: MUST be one of EAE_SERVICE_STATUS_XXX
 
   /specs:
     get:
-      description: Detailed status report. Part of the standard API for eae components
+      description: Detailed status report. Part of the standard API for OPAL components
       responses:
         200:
             description: desc
             schema:
                 $ref: '#/definitions/statusModel'
-      
+
 definitions:
     statusModel:
         description: Model to represent a service status

@@ -15,7 +15,7 @@ function MongoHelperTestServer() {
 
 MongoHelperTestServer.prototype.setup = function() {
     let _this = this;
-    global.eae_scheduler_config = {
+    global.opal_scheduler_config = {
         expiredStatusTime: 1,
     };
     return new Promise(function(resolve, reject) {
