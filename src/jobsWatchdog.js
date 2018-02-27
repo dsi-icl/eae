@@ -153,7 +153,15 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
                                 },
                                 function (error, response, _unused__body) {
                                     if (error !== null) {
-                                        reject(ErrorHelper('The cancel request has failed:', error));
+                                        job.statusLock = false;
+                                        _this._mongoHelper.updateJob(job).then(
+                                            function(success_res){
+                                                if(success_res.nModified === 1) {
+                                                    reject(ErrorHelper('The cancel request has failed:', error));
+                                                }},function(error){
+                                                    reject(ErrorHelper('Failed to unlock the job and cancel request failed:', error));
+                                            });
+                                        return;
                                     }
                                     // eslint-disable-next-line no-console
                                     console.log('The cancel request sent to host ' + job.executorIP + ':' + job.executorIP
