@@ -33,31 +33,52 @@ function JobsScheduler(mongoHelper) {
  */
 JobsScheduler.prototype._freeComputeResources = function(job){
     let _this = this;
-
-    switch (job.type) {
-        case Constants.EAE_JOB_TYPE_SPARK: {
-            let filter = {
-                ip: job.executorIP,
-                port: job.executorPort
-            };
-            _this._mongoHelper.retrieveNodesStatus(filter).then(
-                function (node) {
-                    let sparkCluster = node[0].clusters.spark;
-                    sparkCluster.forEach(function (node) {
-                        node.status = Constants.EAE_SERVICE_STATUS_IDLE;
-                        node.statusLock = false;
-                        _this._mongoHelper.updateNodeStatus(node);
-                    });
-                },
-                function (error) {
-                    ErrorHelper('Failed to retrieve nodes status. Filter:' + filter.toString(), error);
+    return new Promise(function(resolve, reject) {
+        // Check if the job was running or not
+        if(job.status[1] === Constants.EAE_JOB_STATUS_RUNNING) {
+        request({
+                method: 'POST',
+                baseUrl: 'http://' + job.executorIP + ':' + job.executorPort,
+                uri: '/cancel'
+            },
+            function (error, response, _unused__body) {
+                if (error !== null) {
+                    reject(ErrorHelper('The cancel request has failed:', error));
                 }
-            );
-            break;
-        }
-        default:
-            break;
-    }
+                // eslint-disable-next-line no-console
+                console.log('The cancel request sent to host ' + job.executorIP + ':' + job.executorIP
+                    + ' and the response was ', response.statusCode);
+                switch (job.type) {
+                    case Constants.EAE_JOB_TYPE_SPARK: {
+                        let filter = {
+                            ip: job.executorIP,
+                            port: job.executorPort
+                        };
+                        _this._mongoHelper.retrieveNodesStatus(filter).then(
+                            function (node) {
+                                let sparkCluster = node[0].clusters.spark;
+                                sparkCluster.forEach(function (node) {
+                                    node.status = Constants.EAE_SERVICE_STATUS_IDLE;
+                                    node.statusLock = false;
+                                    _this._mongoHelper.updateNodeStatus(node);
+                                });
+                            },
+                            function (error) {
+                                reject(ErrorHelper('Failed to retrieve nodes status. Filter:' + filter.toString(), error));
+                            }
+                        );
+                        resolve(true);
+                        break;
+                    }
+                    default: {
+                        resolve(true);
+                        break;
+                    }
+                }
+            });
+    }else{
+            resolve(true);
+    }});
 };
 
 /**
@@ -353,7 +374,8 @@ JobsScheduler.prototype._errorJobs = function () {
 
 /**
  * @fn _canceledOrDoneJobs
- * @desc Periodic processing of the Jobs in state cancelled or done. We free all resources and set the jobs to completed.
+ * @desc Periodic processing of the Jobs in state cancelled or done.
+ * We free all resources -- if the job was in RUNNING state -- and set the jobs to completed.
  * @returns {Promise}
  * @private
  */
@@ -374,24 +396,27 @@ JobsScheduler.prototype._canceledOrDoneJobs = function () {
                 // lock the Job
                 _this._mongoHelper.updateJob(job).then(
                     function (res) {
+                        // Check that we successfully locked the record
                         if (res.nModified === 1) {
-                            //  We free all the compute resources
-                            _this._freeComputeResources(job);
-                            job.statusLock = false;
-                            job.status.unshift(Constants.EAE_JOB_STATUS_COMPLETED);
-                            _this._mongoHelper.updateJob(job).then(function(success_res){
-                                if(success_res.nModified === 1){
-                                    resolve('The job in error has been successfully set to completed and all resources freed.');
-                                }else{
-                                    reject(ErrorHelper('Something went terribly wrong when unlocking and setting ' +
-                                        'the job to completed. JobId: ' + job._id));
-                                }
-                            },function(error){
-                                reject(ErrorHelper('Failed to unlock the job ' + job._id + ' and set it back to Queued',
-                                    error));
+                            //  We free all the compute resources allocated to compute job
+                            _this._freeComputeResources(job).then(function (_unused__freed) {
+                                job.statusLock = false;
+                                job.status.unshift(Constants.EAE_JOB_STATUS_COMPLETED);
+                                _this._mongoHelper.updateJob(job).then(function (success_res) {
+                                    if (success_res.nModified === 1) {
+                                        resolve('The job in error has been successfully set to completed and all resources freed.');
+                                    } else {
+                                        reject(ErrorHelper('Something went terribly wrong when unlocking and setting ' +
+                                            'the job to completed. JobId: ' + job._id));
+                                    }
+                                }, function (error) {
+                                    reject(ErrorHelper('Failed to unlock the job ' + job._id + ' and set it back to Queued',
+                                        error));
+                                });
+                            }, function (error) {
+                                reject('Impossible to free all the compute resources', error);
                             });
-                        }
-                    }, function (error) {
+                        }}, function (error) {
                         reject(ErrorHelper('Failed to lock the job. Filter:' + job._id, error));
                     });
             }, function (error) {
