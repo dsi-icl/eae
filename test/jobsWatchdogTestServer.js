@@ -18,7 +18,7 @@ function JobsWatchdogTestServer() {
 
 JobsWatchdogTestServer.prototype.setup = function() {
     let _this = this;
-    global.opal_scheduler_config = {
+    global.eae_scheduler_config = {
         jobsExpiredStatusTime: 1,
         jobsTimingoutTime: 1
     };

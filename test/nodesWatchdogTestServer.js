@@ -17,7 +17,7 @@ function NodesWatchdogTestServer() {
 
 NodesWatchdogTestServer.prototype.setup = function() {
     let _this = this;
-    global.opal_scheduler_config = {
+    global.eae_scheduler_config = {
         expiredStatusTime: 1,
     };
     return new Promise(function(resolve, reject) {

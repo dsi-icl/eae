@@ -28,7 +28,7 @@ services:
         ports:
             - 80:80
         volumes:
-            - ./opal.compute.config.js:/usr/app/config/eae.compute.config.js
+            - ./eae.compute.config.js:/usr/app/config/eae.compute.config.js
 
     tests:
         build:
