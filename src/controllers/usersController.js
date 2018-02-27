@@ -32,17 +32,15 @@ function UsersController(usersCollection, accessLogger) {
 UsersController.prototype.getUser = function(req, res){
     let _this = this;
     let requestedUsername = req.body.requestedUsername;
-    let opalUsername = req.body.opalUsername;
     let userToken = req.body.opalUserToken;
 
-    if (opalUsername === null || opalUsername === undefined || userToken === null || userToken === undefined) {
+    if (userToken === null || userToken === undefined) {
         res.status(401);
-        res.json(ErrorHelper('Missing username or token'));
+        res.json(ErrorHelper('Missing token'));
         return;
     }
     try {
         let filter = {
-            username: opalUsername,
             token: userToken
         };
         _this._usersCollection.findOne(filter).then(function (user) {
@@ -90,18 +88,16 @@ UsersController.prototype.getUser = function(req, res){
  */
 UsersController.prototype.getAllUsers = function(req, res){
     let _this = this;
-    let eaeUsername = req.body.eaeUsername;
     let userToken = req.body.eaeUserToken;
     let userType = req.body.userType.toUpperCase();
 
-    if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
+    if (userToken === null || userToken === undefined) {
         res.status(401);
-        res.json(ErrorHelper('Missing username or token'));
+        res.json(ErrorHelper('Missing token'));
         return;
     }
     try {
         let filter = {
-            username: eaeUsername,
             token: userToken
         };
         _this._usersCollection.findOne(filter).then(function (user) {
@@ -153,19 +149,16 @@ UsersController.prototype.getAllUsers = function(req, res){
  */
 UsersController.prototype.getAllUsers = function(req, res){
     let _this = this;
-    let opalUsername = req.body.opalUsername;
     let userToken = req.body.opalUserToken;
-    let newUser = Object.assign({},interface_models.USER_MODEL, JSON.parse(req.body.newUser));
-    newUser.token = _this.utils.generateUUID();
+    let userType = req.body.userType.toUpperCase();
 
-    if (opalUsername === null || opalUsername === undefined || userToken === null || userToken === undefined) {
+    if (userToken === null || userToken === undefined) {
         res.status(401);
-        res.json(ErrorHelper('Missing username or token'));
+        res.json(ErrorHelper('Missing token'));
         return;
     }
     try {
         let filter = {
-            username: opalUsername,
             token: userToken
         };
         _this._usersCollection.findOne(filter).then(function (user) {
@@ -281,17 +274,15 @@ UsersController.prototype.createUser = function(req, res){
 UsersController.prototype.deleteUser = function(req, res){
     let _this = this;
     let userToBeDeleted = req.body.userToBeDeleted;
-    let opalUsername = req.body.opalUsername;
     let userToken = req.body.opalUserToken;
 
-    if (opalUsername === null || opalUsername === undefined || userToken === null || userToken === undefined) {
+    if ( userToken === null || userToken === undefined) {
         res.status(401);
-        res.json(ErrorHelper('Missing username or token'));
+        res.json(ErrorHelper('Missing token'));
         return;
     }
     try {
         let filter = {
-            username: opalUsername,
             token: userToken
         };
         _this._usersCollection.findOne(filter).then(function (user) {
