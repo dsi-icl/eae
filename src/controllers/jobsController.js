@@ -44,12 +44,12 @@ JobsController.prototype.createNewJob = function(req, res){
     try {
         // Check the validity of the JOB
         let jobRequest = JSON.parse(req.body.job);
-        let requiredJobFields = ['type', 'main', 'params', 'input'];
+        let requiredJobFields = JobsManagement.checkFields(jobRequest);
         let terminateCreation = false;
         requiredJobFields.forEach(function(key){
-            if(jobRequest[key] === null || jobRequest[key] === undefined){
+            if(requiredJobFields[key] === null ){
                 res.status(401);
-                res.json(ErrorHelper('Job request is not well formed. Missing ' + jobRequest[key]));
+                res.json(ErrorHelper('Job request is not well formed. Missing ' + requiredJobFields[key]));
                 terminateCreation = true;
             }
             if(key === 'type'){
@@ -117,7 +117,7 @@ JobsController.prototype.getJob = function(req, res){
     let userToken = req.body.opalUserToken;
     let jobID = req.body.jobID;
 
-    if ( userToken === null || userToken === undefined) {
+    if (userToken === null || userToken === undefined) {
         res.status(401);
         res.json(ErrorHelper('Missing username or token'));
         return;
@@ -178,7 +178,6 @@ JobsController.prototype.getAllJobs = function(req, res){
     let _this = this;
     let userToken = req.body.opalUserToken;
 
-
     if (userToken === null || userToken === undefined) {
         res.status(401);
         res.json(ErrorHelper('Missing username or token'));
@@ -237,7 +236,7 @@ JobsController.prototype.cancelJob = function(req, res) {
     let jobID = req.body.jobID;
 
 
-    if ( userToken === null || userToken === undefined) {
+    if (userToken === null || userToken === undefined) {
         res.status(401);
         res.json(ErrorHelper('Missing username or token'));
         return;
@@ -246,7 +245,7 @@ JobsController.prototype.cancelJob = function(req, res) {
         _this._jobsCollection.findOne({_id: ObjectID(jobID)}).then(function(job) {
                 if (job === null) {
                     res.status(401);
-                    res.json(ErrorHelper('The job request do not exit. The query has been logged.'));
+                    res.json(ErrorHelper('The job request do not exists. The query has been logged.'));
                     // Log unauthorized access
                     _this._accessLogger.logAccess(req);
                     return;
@@ -317,7 +316,7 @@ JobsController.prototype.getJobResults = function(req, res){
     let userToken = req.body.opalUserToken;
     let jobID = req.body.jobID;
 
-    if ( userToken === null || userToken === undefined) {
+    if (userToken === null || userToken === undefined) {
         res.status(401);
         res.json(ErrorHelper('Missing username or token'));
         return;
