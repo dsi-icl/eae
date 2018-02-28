@@ -2,7 +2,7 @@ let crypto = require('crypto');
 // crypto.DEFAULT_ENCODING = 'hex';
 
 /**
- * @fn Utils
+ * @fn InterfaceUtils
  * @desc Utility class
  * @param config
  * @constructor
