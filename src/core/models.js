@@ -5,6 +5,13 @@ const userTypes = {
     standard: 'STANDARD'
 };
 
+const accessLevel = {
+  antenna: 'antenna',
+  level_1: 'aggregation_level_1',
+  level_2: 'aggregation_level_2',
+  cache_only: 'cache_only'
+};
+
 const transferType = {
   upload: 'UPLOAD',
   download: 'DOWNLOAD'
@@ -12,6 +19,8 @@ const transferType = {
 
 const userModel = {
     type: userTypes.standard,
+    defaultAccessLevel: accessLevel.cache_only,
+    authorizedAlgorithms: {},
     username: '',
     token: null,
     created: new Date()
@@ -20,7 +29,7 @@ const userModel = {
 const carrierJobModel = {
     jobId: null,
     type: '',
-    files:[],
+    files: [],
     requester: '',
     numberOfTransferredFiles: 0,
     numberOfFilesToTransfer: 0,
