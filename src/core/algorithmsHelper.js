@@ -1,5 +1,5 @@
 const timer = require('timers');
-
+const { ErrorHelper } = require('eae-utils');
 /**
 * @fn AlgorithmHelper
 * @desc Algorithms manager. Use it to update the available algorithms in OPAL
@@ -27,25 +27,22 @@ AlgorithmHelper.prototype._sync = function() {
     let _this = this;
     return new Promise(function(resolve, reject) {
         if (_this._statusCollection === null || _this._statusCollection === undefined) {
-            reject(defines.errorStacker('No MongoDB collection to sync against'));
+            reject(ErrorHelper('No MongoDB collection to sync against'));
             return;
         }
 
-        let filter = { //Filter is based on ip/port combination
-            ip: _this._data.ip,
-            port: _this._data.port
-        };
-        //Updates model in base, upsert if does not exists
-        _this._statusCollection.findOneAndUpdate(filter,
-            { $set : _this._data },
-            { upsert: true, returnOriginal: false })
-            .then(function(updatedModel) {
-                delete updatedModel.value._id;  //Remove ID field, let MongoDB handle ids
-                _this._data = updatedModel.value;
-                resolve(true);
-            }, function(error) {
-                reject(defines.errorStacker('Update status failed', error));
-            });
+        request({
+            method: 'GET',
+            baseUrl: 'http://127.0.0.1:' + ts.config.port,
+            uri: '/list',
+            json: true
+        }, function (error, response, body) {
+            if (error) {
+                reject(ErrorHelper());
+            }
+
+
+        });
     });
 };
 
