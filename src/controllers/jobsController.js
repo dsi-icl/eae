@@ -47,7 +47,7 @@ JobsController.prototype.createNewJob = function(req, res){
         let requiredJobFields = JobsManagement.checkFields(jobRequest);
         let terminateCreation = false;
         requiredJobFields.forEach(function(key){
-            if(requiredJobFields[key] === null ){
+            if(requiredJobFields[key] === null){
                 res.status(401);
                 res.json(ErrorHelper('Job request is not well formed. Missing ' + requiredJobFields[key]));
                 terminateCreation = true;

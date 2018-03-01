@@ -52,6 +52,7 @@ module.exports = {
     },
     interface_constants: {
         USER_TYPE: userTypes,
+        ACCESS_LEVEL: accessLevel,
         TRANSFER_TYPE: transferType
     }
 };

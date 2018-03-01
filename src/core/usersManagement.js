@@ -1,5 +1,6 @@
 // const { interface_models, interface_constants } = require('../core/models.js');
 const { ErrorHelper, Constants } = require('eae-utils');
+const { interface_constants } = require('../core/models.js');
 const ObjectID = require('mongodb').ObjectID;
 const check = require('check-types');
 
@@ -29,7 +30,18 @@ function UsersManagement(usersCollection) {
 UsersManagement.prototype.validateUserAndInsert = function (newUser){
     let _this = this;
     return new Promise(function (resolve, reject) {
-        //TODO: add verification here
+
+        if(!interface_constants.ACCESS_LEVEL.contains(newUser.defaultAccessLevel)){
+            reject(ErrorHelper('The new user coudln\'t be inserted. The request access level is not supported : ', newUser.defaultAccessLevel));
+        }
+
+        let keys = Object.keys(newUser.authorizedAlgorithms);
+        keys.forEach(function(key){
+           if(!authorized_algorithms.contains(key)){
+               reject(ErrorHelper('The new user contains an unknown algorithm: ', key));
+           }
+        });
+
         _this._usersCollection.insertOne(newUser).then(function(_unused__inserted){
                 resolve(true);
             },
