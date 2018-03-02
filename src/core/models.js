@@ -21,7 +21,7 @@ const userModel = {
     type: userTypes.standard,
     defaultAccessLevel: accessLevel.cache_only,
     authorizedAlgorithms: {},
-    username: '',
+    username: null,
     token: null,
     created: new Date()
 };

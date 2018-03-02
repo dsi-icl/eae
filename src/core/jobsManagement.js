@@ -6,11 +6,14 @@ const check = require('check-types');
 /**
  * @fn Utils
  * @desc Manages the job from the Created status to the Queued status (from which the scheduler takes over)
+ * @param jobsCollection
+ * @param algorithmHelper
  * @constructor
  */
-function JobsManagement(jobsCollection) {
+function JobsManagement(jobsCollection, algorithmHelper) {
     let _this = this;
     _this._jobsCollection = jobsCollection;
+    _this._algoHelper = algorithmHelper;
 
     // Bind member functions
     _this.cancelJob = JobsManagement.prototype.cancelJob.bind(this);
@@ -51,6 +54,12 @@ JobsManagement.prototype.checkFields = function(jobParameters){
     let _this = this;
 
     return new Promise(function(resolve, reject) {
+        // We check
+
+        // We check the core parameters
+
+
+
         resolve(true);
     });
 };

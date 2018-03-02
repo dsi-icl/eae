@@ -8,14 +8,15 @@ const UsersManagement = require('../core/usersManagement.js');
  * @desc Controller to manage the users service
  * @param usersCollection
  * @param accessLogger
+ * @param algorithmHelper
  * @constructor
  */
-function UsersController(usersCollection, accessLogger) {
+function UsersController(usersCollection, accessLogger, algorithmHelper) {
     let _this = this;
     _this._usersCollection = usersCollection;
     _this._accessLogger = accessLogger;
     _this.utils = new InterfaceUtils();
-    _this.usersManagement = new UsersManagement(usersCollection);
+    _this.usersManagement = new UsersManagement(usersCollection, algorithmHelper);
 
     // Bind member functions
     _this.getUser = UsersController.prototype.getUser.bind(this);
@@ -174,6 +175,11 @@ UsersController.prototype.createUser = function(req, res){
                 return;
             }
             if (user.type === interface_constants.USER_TYPE.admin) {
+                if(newUser.username === null || newUser.username === undefined){
+                    res.status(400);
+                    res.json(ErrorHelper('Request not well formed. The new user username cannot be null or undefined'));
+                    return;
+                }
                 //check that user doesn't already exists
                 _this._usersCollection.findOne({username: newUser.username}).then(function (user) {
                     if(user === null){
@@ -215,7 +221,8 @@ UsersController.prototype.createUser = function(req, res){
  */
 UsersController.prototype.updateUser = function(req, res) {
     let _this = this;
-    let userToBeUpdated = Object.assign({}, JSON.parse(req.body.userToBeUpdated));
+    let userToBeUpdated = req.body.userToBeUpdated;
+    let update = req.body.userToBeUpdated;
     let userToken = req.body.opalUserToken;
 
     if (userToken === null || userToken === undefined) {
@@ -237,10 +244,10 @@ UsersController.prototype.updateUser = function(req, res) {
             }
             if (user.type === interface_constants.USER_TYPE.admin) {
                 //check that user already exists
-                _this._usersCollection.findOne({username: userToBeUpdated.username}).then(function (user) {
+                _this._usersCollection.findOne({username: userToBeUpdated}).then(function (user) {
                     if(user !== null){
                         // Delegate the update of the user record to user management service
-                        _this.usersManagement.updateUser(userToBeUpdated).then(function(updatedUser){
+                        _this.usersManagement.updateUser(user, update).then(function(updatedUser){
                             res.status(200);
                             res.json(updatedUser);
                         }, function (error) {

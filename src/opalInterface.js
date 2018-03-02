@@ -10,6 +10,7 @@ const JobsControllerModule = require('./controllers/jobsController.js');
 const UsersControllerModule = require('./controllers/usersController.js');
 const ClusterControllerModule = require('./controllers/clusterController.js');
 const AccessLogger = require('./core/accessLogger.js');
+const AlgoHelper = require('./core/algorithmsHelper');
 
 /**
  * @class OpalInterface
@@ -143,13 +144,13 @@ OpalInterface.prototype._setupStatusController = function () {
  */
 OpalInterface.prototype._setupInterfaceControllers = function() {
     let _this = this;
-
+    _this.algoHelper = new AlgoHelper(global.opal_interface_config.algoServiceURL);
     _this.accessLogger = new AccessLogger(_this.db.collection(Constants.EAE_COLLECTION_ACCESS_LOG));
     _this.jobsController = new JobsControllerModule(_this.db.collection(Constants.EAE_COLLECTION_JOBS),
                                                     _this.db.collection(Constants.EAE_COLLECTION_USERS),
-                                                    _this.accessLogger);
+                                                    _this.accessLogger, _this.algoHelper);
     _this.usersController = new UsersControllerModule(_this.db.collection(Constants.EAE_COLLECTION_USERS),
-                                                      _this.accessLogger);
+                                                      _this.accessLogger, _this.algoHelper);
     _this.clusterController = new ClusterControllerModule(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
                                                           _this.db.collection(Constants.EAE_COLLECTION_USERS),
                                                           _this.accessLogger);
@@ -175,6 +176,7 @@ OpalInterface.prototype._setupInterfaceControllers = function() {
     // Manage the users who have access to the platform - Admin only
     _this.app.post('/user/', _this.usersController.getUser)
         .post('/user/create', _this.usersController.createUser)
+        .post('/user/update', _this.usersController.updateUser)
         .post('/user/getAll', _this.usersController.getAllUsers)
         .delete('/user/delete', _this.usersController.deleteUser);
 
