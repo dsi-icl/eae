@@ -23,21 +23,23 @@ function AlgorithmHelper(algoServiceURL) {
  */
 AlgorithmHelper.prototype.getListOfAlgos = function() {
     let _this = this;
-    return new Promise(function(resolve, reject) {
+    // return new Promise(function(resolve, reject) {
+    //
+    //     request({
+    //         method: 'GET',
+    //         baseUrl: _this._algoServiceURL,
+    //         uri: '/list',
+    //         json: true
+    //     }, function (error, response, body) {
+    //         if (error) {
+    //             reject(ErrorHelper());
+    //         }
+    //
+    //
+    //     });
+    // });
 
-        request({
-            method: 'GET',
-            baseUrl: _this._algoServiceURL,
-            uri: '/list',
-            json: true
-        }, function (error, response, body) {
-            if (error) {
-                reject(ErrorHelper());
-            }
-
-
-        });
-    });
+    return {'pop-density':{version:1}};
 };
 
 

@@ -31,22 +31,27 @@ UsersManagement.prototype.validateUserAndInsert = function (newUser){
     let _this = this;
     return new Promise(function (resolve, reject) {
         // We check that the access type exists
-        if(!interface_constants.ACCESS_LEVEL.contains(newUser.defaultAccessLevel)){
+        if(!interface_constants.ACCESS_LEVELS.hasOwnProperty(newUser.defaultAccessLevel)){
             reject(ErrorHelper('The new user coudln\'t be inserted. The request access level is not supported : ', newUser.defaultAccessLevel));
+            return;
         }
         // we check that the user type exists
-        if(!interface_constants.USER_TYPE.contains(newUser.type)){
+        if(!interface_constants.USER_TYPE.hasOwnProperty(newUser.type.toLowerCase())){
             reject(ErrorHelper('The new user coudln\'t be inserted. The request type is not supported : ', newUser.type));
+            return;
         }
         // we check that all algorithms of the user exist
         let authorized_algorithms = _this._algoHelper.getListOfAlgos();
         let keys = Object.keys(newUser.authorizedAlgorithms);
+        let error = false;
         keys.forEach(function(key){
-           if(!authorized_algorithms.contains(key)){
-               reject(ErrorHelper('The new user contains an unknown algorithm: ', key));
+           if(!authorized_algorithms.hasOwnProperty(key)){
+               reject(ErrorHelper('The new user contains an unknown algorithm: ' + key));
+               error = true;
            }
         });
 
+        if(!error){
         // All checks have passed we insert the user
         _this._usersCollection.insertOne(newUser).then(function(_unused__inserted){
                 resolve(true);
@@ -54,7 +59,7 @@ UsersManagement.prototype.validateUserAndInsert = function (newUser){
             function(error){
                 reject(ErrorHelper('The new user coudln\'t be inserted.', error));
             });
-    });
+    }});
 };
 
 /**
