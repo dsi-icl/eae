@@ -23,23 +23,27 @@ function AlgorithmHelper(algoServiceURL) {
  */
 AlgorithmHelper.prototype.getListOfAlgos = function() {
     let _this = this;
-    // return new Promise(function(resolve, reject) {
-    //
-    //     request({
-    //         method: 'GET',
-    //         baseUrl: _this._algoServiceURL,
-    //         uri: '/list',
-    //         json: true
-    //     }, function (error, response, body) {
-    //         if (error) {
-    //             reject(ErrorHelper());
-    //         }
-    //
-    //
-    //     });
-    // });
-
-    return {'pop-density':{version:1}};
+    return new Promise(function(resolve, reject) {
+        request({
+            method: 'GET',
+            baseUrl: _this._algoServiceURL,
+            uri: '/list',
+            json: true
+        }, function (error, response, body) {
+            if (error) {
+                reject(ErrorHelper(error));
+            }
+            if(response.statusCode !== 200){
+                reject(ErrorHelper('The status code is not 200. Status code:' + response.statusCode));
+            }
+            let listOfAlgos = {};
+            body.item.forEach(function(algo){
+                listOfAlgos[algo._id] = {version: algo.version};
+                }
+            );
+            resolve(listOfAlgos);
+        });
+    });
 };
 
 /**
@@ -58,19 +62,22 @@ AlgorithmHelper.prototype.checkAlgorithmListValidity = function(algorithmsList){
             resolve(true);
         }
         // we check that all algorithms of the user exist
-        let authorized_algorithms = _this.getListOfAlgos();
-        let keys = Object.keys(algorithmsList);
-        keys.forEach(function (key) {
-            if (!authorized_algorithms.hasOwnProperty(key)) {
-                error = true;
-                reject(ErrorHelper('The update for user contains an unknown algorithm: ' + key));
-            }
-            if(!interface_constants.ACCESS_LEVELS.hasOwnProperty(algorithmsList[key])){
-                error = true;
-                reject(ErrorHelper('The update for user contains an unknown algorithm access level: ' + algorithmsList[key]));
-            }
+        _this.getListOfAlgos().then(function(authorized_algorithms){
+            let keys = Object.keys(algorithmsList);
+            keys.forEach(function (key) {
+                if (!authorized_algorithms.hasOwnProperty(key)) {
+                    error = true;
+                    reject(ErrorHelper('The update for user contains an unknown algorithm: ' + key));
+                }
+                if(!interface_constants.ACCESS_LEVELS.hasOwnProperty(algorithmsList[key])){
+                    error = true;
+                    reject(ErrorHelper('The update for user contains an unknown algorithm access level: ' + algorithmsList[key]));
+                }
+            });
+            resolve(error);
+        }, function(error){
+            reject(ErrorHelper(error));
         });
-        resolve(error);
     });
 };
 
