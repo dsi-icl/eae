@@ -20,32 +20,6 @@ beforeAll(function() {
     });
 });
 
-test('Get Job Missing Credentials Username', function(done) {
-    expect.assertions(4);
-    request(
-        {
-            method: 'POST',
-            baseUrl: 'http://127.0.0.1:' + config.port,
-            uri: '/job',
-            json: true,
-            body: {
-                opalUsername: null,
-                opalUserToken: 'wrongpassword'
-            }
-        },
-        function(error, response, body) {
-            if (error) {
-                done.fail(error.toString());
-            }
-            expect(response).toBeDefined();
-            expect(response.statusCode).toEqual(401);
-            expect(body).toBeDefined();
-            expect(body).toEqual({error:'Missing username or token'});
-            done();
-        }
-    );
-});
-
 test('Get Job Missing Credentials token', function(done) {
     expect.assertions(4);
     request(
@@ -108,7 +82,6 @@ test('Create a Job with a nonsupported compute type', function(done) {
             uri: '/job/create',
             json: true,
             body: {
-                opalUsername: adminUsername,
                 opalUserToken: adminPassword,
                 job: job
             }

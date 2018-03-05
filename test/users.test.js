@@ -21,31 +21,7 @@ beforeAll(function() {
     });
 });
 
-test('Get user Missing Credentials Username', function(done) {
-    expect.assertions(4);
-    request(
-        {
-            method: 'POST',
-            baseUrl: 'http://127.0.0.1:' + config.port,
-            uri: '/user',
-            json: true,
-            body: {
-                opalUsername: null,
-                opalUserToken: 'wrongpassword'
-            }
-        },
-        function(error, response, body) {
-            if (error) {
-                done.fail(error.toString());
-            }
-            expect(response).toBeDefined();
-            expect(response.statusCode).toEqual(401);
-            expect(body).toBeDefined();
-            expect(body).toEqual({error:'Missing username or token'});
-            done();
-        }
-    );
-});
+
 
 test('Get user Missing Credentials Token', function(done) {
     expect.assertions(4);
@@ -67,7 +43,7 @@ test('Get user Missing Credentials Token', function(done) {
             expect(response).toBeDefined();
             expect(response.statusCode).toEqual(401);
             expect(body).toBeDefined();
-            expect(body).toEqual({error:'Missing username or token'});
+            expect(body).toEqual({error:'Missing token'});
             done();
         }
     );
