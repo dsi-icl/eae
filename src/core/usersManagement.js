@@ -40,26 +40,22 @@ UsersManagement.prototype.validateUserAndInsert = function (newUser){
             reject(ErrorHelper('The new user coudln\'t be inserted. The request type is not supported : ', newUser.type));
             return;
         }
-        // we check that all algorithms of the user exist
-        let authorized_algorithms = _this._algoHelper.getListOfAlgos();
-        let keys = Object.keys(newUser.authorizedAlgorithms);
-        let error = false;
-        keys.forEach(function(key){
-           if(!authorized_algorithms.hasOwnProperty(key)){
-               reject(ErrorHelper('The new user contains an unknown algorithm: ' + key));
-               error = true;
-           }
-        });
 
-        if(!error){
-        // All checks have passed we insert the user
-        _this._usersCollection.insertOne(newUser).then(function(_unused__inserted){
-                resolve(true);
-            },
-            function(error){
-                reject(ErrorHelper('The new user coudln\'t be inserted.', error));
-            });
-    }});
+        _this._algoHelper.checkAlgorithmListValidity(newUser.authorizedAlgorithms).then(function(error){
+            if(!error){
+                // All checks have passed we insert the user
+                _this._usersCollection.insertOne(newUser).then(function(_unused__inserted){
+                        resolve(true);
+                    },
+                    function(error){
+                        reject(ErrorHelper('The new user coudln\'t be inserted.', error));
+                    });
+            }else{
+                reject(ErrorHelper('Error while checking the validity of the users authorized algorithms'));
+            }},function(error){
+            reject(ErrorHelper('Error while checking the validity of the users authorized algorithms', error));
+        });
+    });
 };
 
 /**
@@ -73,17 +69,26 @@ UsersManagement.prototype.updateUser = function (user, update){
     let _this = this;
     return new Promise(function (resolve, reject) {
 
-        let filter = { username : user};
-        let updatedUser =  Object.assign({},user, update);
-        _this._usersCollection.findOneAndUpdate(filter,
-                { $set : updatedUser},
-                { returnOriginal: true, w: 'majority', j: false })
-            .then(function(inserted){
-                resolve(inserted);
-            },
-            function(error){
-                reject(ErrorHelper('The new user coudln\'t be inserted.', error));
-            });
+        let filter = { username : user.username};
+        let updatedUser =  Object.assign({}, user, update);
+
+        _this._algoHelper.checkAlgorithmListValidity(updatedUser.authorizedAlgorithms).then(function(error){
+            if(!error) {
+                _this._usersCollection.findOneAndUpdate(filter,
+                    {$set: updatedUser},
+                    {returnOriginal: true, w: 'majority', j: false})
+                    .then(function (inserted) {
+                            resolve({old:inserted, new:updatedUser});
+                        },
+                        function (error) {
+                            reject(ErrorHelper('The new user coudln\'t be inserted.', error));
+                        });
+            }
+            else{
+                reject(ErrorHelper('Error while checking the validity of the users authorized algorithms'));
+            }},function(error){
+            reject(ErrorHelper('Error while checking the validity of the users authorized algorithms', error));
+        });
     });
 };
 

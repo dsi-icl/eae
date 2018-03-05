@@ -22,6 +22,7 @@ function UsersController(usersCollection, accessLogger, algorithmHelper) {
     _this.getUser = UsersController.prototype.getUser.bind(this);
     _this.getAllUsers = UsersController.prototype.getAllUsers.bind(this);
     _this.createUser = UsersController.prototype.createUser.bind(this);
+    _this.updateUser = UsersController.prototype.updateUser.bind(this);
     _this.deleteUser = UsersController.prototype.deleteUser.bind(this);
     _this.getAllUsers = UsersController.prototype.getAllUsers.bind(this);
 }
@@ -222,7 +223,7 @@ UsersController.prototype.createUser = function(req, res){
 UsersController.prototype.updateUser = function(req, res) {
     let _this = this;
     let userToBeUpdated = req.body.userToBeUpdated;
-    let update = req.body.userToBeUpdated;
+    let update = JSON.parse(req.body.userUpdate);
     let userToken = req.body.opalUserToken;
 
     if (userToken === null || userToken === undefined) {
