@@ -1,7 +1,6 @@
 // const { interface_models, interface_constants } = require('../core/models.js');
 const { ErrorHelper, Constants } = require('eae-utils');
 const ObjectID = require('mongodb').ObjectID;
-const check = require('check-types');
 
 /**
  * @fn Utils
@@ -46,15 +45,16 @@ JobsManagement.prototype.cancelJob = function(job){
 /**
  * @fn checkFields
  * @desc Checks that all mandatory fields and params are valid for the specified algorithm.
- * @param jobParameters
+ * @param jobRequest
  * @returns {Promise}
  */
 
-JobsManagement.prototype.checkFields = function(jobParameters){
+JobsManagement.prototype.checkFields = function(jobRequest){
     let _this = this;
 
     return new Promise(function(resolve, reject) {
-        // We check
+        // We check the core parameters
+
 
         // We check the core parameters
         let terminateCreation = false;

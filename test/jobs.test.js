@@ -40,7 +40,7 @@ test('Get Job Missing Credentials token', function(done) {
             expect(response).toBeDefined();
             expect(response.statusCode).toEqual(401);
             expect(body).toBeDefined();
-            expect(body).toEqual({error:'Missing username or token'});
+            expect(body).toEqual({error:'Missing token'});
             done();
         }
     );

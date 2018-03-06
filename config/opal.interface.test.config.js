@@ -1,7 +1,8 @@
 
 module.exports = {
-    mongoURL: 'mongodb://mongodb/opal',
-    port: 80,
+    mongoURL: 'mongodb://146.169.32.148:27017/eaeservices',
+    port: 800,
     enableCors: true,
-    algoServiceURL: 'http://algoService:80'
+    algoServiceURL: 'http://127.0.0.1:3002',
+    algorithmsDirectory: 'algorithms'
 };

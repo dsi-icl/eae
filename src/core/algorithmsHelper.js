@@ -1,20 +1,25 @@
 const request = require('request');
 const { ErrorHelper } = require('eae-utils');
 const { interface_constants } = require('../core/models.js');
+const fs = require('fs');
+// const ajv = require('ajv');
 
 /**
  * @fn AlgorithmHelper
  * @desc Algorithms manager. Use it to update the available algorithms in OPAL
  * @param algoServiceURL URL of the algorithm service
+ * @param algorithmsSpecsFolder schemas of the algorithms
  * @constructor
 */
-function AlgorithmHelper(algoServiceURL) {
+function AlgorithmHelper(algoServiceURL, algorithmsSpecsFolder) {
     //Init member vars
     this._algoServiceURL = algoServiceURL;
+    this._enabledAlgorithms = this._algorithmsAPIEnabled(algorithmsSpecsFolder);
 
     //Bind member functions
     this.getListOfAlgos = AlgorithmHelper.prototype.getListOfAlgos.bind(this);
     this.checkAlgorithmListValidity = AlgorithmHelper.prototype.checkAlgorithmListValidity.bind(this);
+    this.getEnabledAlgortihms = AlgorithmHelper.prototype.getEnabledAlgortihms.bind(this);
 }
 /**
  * @fn getListOfAlgos
@@ -51,7 +56,6 @@ AlgorithmHelper.prototype.getListOfAlgos = function() {
  * @params algorithmsList
  * @desc Checks that the algorithms list is well formed and the associated access levels are valid.
  * @return {Promise} Resolve to true if the algorithm list is well formed
- * @private
  */
 AlgorithmHelper.prototype.checkAlgorithmListValidity = function(algorithmsList){
     let _this = this;
@@ -79,6 +83,34 @@ AlgorithmHelper.prototype.checkAlgorithmListValidity = function(algorithmsList){
             reject(ErrorHelper(error));
         });
     });
+};
+
+/**
+ * @fn _algorithmsAPIEnabled
+ * @params algorithmsSpecsFolder
+ * @desc Reads all the config files for every algorithms and list of all enabled algorithms and their params fields with
+ * the expected types
+ * @return {list} list of currently enables algorithms and there params
+ * @private
+ */
+AlgorithmHelper.prototype._algorithmsAPIEnabled = function(algorithmsSpecsFolder) {
+    let algoList = [];
+    fs.readdirSync(algorithmsSpecsFolder).forEach(file => {
+        if(file !== 'core'){
+            algoList.concat(file);
+        }
+    });
+    return algoList;
+};
+
+/**
+ * @fn getEnabledAlgortihms
+ * @desc Sends back the list of all enabled algorithms and their params fields with the expected types
+ * @return {list} Sends back the list of currently enables algorithms
+ */
+AlgorithmHelper.prototype.getEnabledAlgortihms = function() {
+    let _this = this;
+    return _this._enabledAlgorithms;
 };
 
 
