@@ -18,6 +18,7 @@ function UsersManagement(usersCollection, algorithmHelper) {
     // Bind member functions
     this.validateUserAndInsert = UsersManagement.prototype.validateUserAndInsert.bind(this);
     this.updateUser = UsersManagement.prototype.updateUser.bind(this);
+    this.resetPassword =  UsersManagement.prototype.resetPassword.bind(this);
 }
 
 /**
@@ -91,5 +92,32 @@ UsersManagement.prototype.updateUser = function (user, update){
         });
     });
 };
+
+
+/**
+ * @fn resetPassword
+ * @desc Resets the password for an existing user.
+ * @param user Current user record
+ * @returns {Promise}
+ */
+UsersManagement.prototype.resetPassword = function (user){
+    let _this = this;
+    return new Promise(function (resolve, reject) {
+        let filter = { username : user.username};
+        let newPassword = _this.utils.generateToken(user);
+        let updatedUser =  Object.assign({}, user, {token: newPassword});
+
+        _this._usersCollection.findOneAndUpdate(filter,
+            {$set: updatedUser},
+            {returnOriginal: false, w: 'majority', j: false})
+            .then(function (_unused__inserted) {
+                    resolve({newPassword: newPassword});
+                },
+                function (error) {
+                    reject(ErrorHelper('The new password coudln\'t be inserted.', error));
+                });
+    });
+};
+
 
 module.exports = UsersManagement;

@@ -177,6 +177,7 @@ OpalInterface.prototype._setupInterfaceControllers = function() {
     _this.app.post('/user/', _this.usersController.getUser)
         .post('/user/create', _this.usersController.createUser)
         .post('/user/update', _this.usersController.updateUser)
+        .post('/user/resetPassword', _this.usersController.resetUserPassword)
         .post('/user/getAll', _this.usersController.getAllUsers)
         .delete('/user/delete', _this.usersController.deleteUser);
 

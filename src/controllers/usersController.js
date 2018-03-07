@@ -224,6 +224,7 @@ UsersController.prototype.updateUser = function(req, res) {
     let _this = this;
     let userToBeUpdated = req.body.userToBeUpdated;
     let update = JSON.parse(req.body.userUpdate);
+    delete update.token; // we prevent any attempt at updating the user's token.
     let userToken = req.body.opalUserToken;
 
     if (userToken === null || userToken === undefined) {
@@ -274,6 +275,68 @@ UsersController.prototype.updateUser = function(req, res) {
             res.status(500);
             res.json(ErrorHelper('Error occurred', error));
         }
+};
+
+
+/**
+ * @fn resetUserPassword
+ * @desc Resets the password for the specified user. ADMIN only
+ * @param req Incoming message
+ * @param res Server Response
+ */
+UsersController.prototype.resetUserPassword = function(req, res) {
+    let _this = this;
+    let userToBeUpdated = req.body.userToBeUpdated;
+    let userToken = req.body.opalUserToken;
+
+    if (userToken === null || userToken === undefined) {
+        res.status(401);
+        res.json(ErrorHelper('Missing token'));
+        return;
+    }
+    try {
+        let filter = {
+            token: userToken
+        };
+        _this._usersCollection.findOne(filter).then(function (user) {
+            if (user === null) {
+                res.status(401);
+                res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
+                // Log unauthorized access
+                _this._accessLogger.logAccess(req);
+                return;
+            }
+            if (user.type === interface_constants.USER_TYPE.admin) {
+                //check that user already exists
+                _this._usersCollection.findOne({username: userToBeUpdated}).then(function (user) {
+                    if(user !== null){
+                        // Delegate the update of the user record to user management service
+                        _this.usersManagement.resetPassword(user).then(function(newPassword){
+                            res.status(200);
+                            res.json(newPassword);
+                        }, function (error) {
+                            res.status(500);
+                            res.json(error);
+                        });
+                    }else{
+                        res.status(409);
+                        res.json('The user ' + userToBeUpdated.username + ' doesn\'t exists. Record not updated.');
+                    }
+                },function(error){
+                    res.status(500);
+                    res.json(ErrorHelper('Internal Mongo Error', error));
+                });
+            }else{
+                res.status(401);
+                res.json(ErrorHelper('The user is not authorized to access this command'));
+                // Log unauthorized access
+                _this._accessLogger.logAccess(req);
+            }
+        });
+    }catch (error) {
+        res.status(500);
+        res.json(ErrorHelper('Error occurred', error));
+    }
 };
 
 /**
