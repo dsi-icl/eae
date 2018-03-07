@@ -3,7 +3,7 @@ const { ErrorHelper } = require('eae-utils');
 const { interface_constants } = require('../core/models.js');
 const fs = require('fs');
 const Ajv = require('ajv');
-const path = require('path')
+const path = require('path');
 
 /**
  * @fn AlgorithmHelper
@@ -15,16 +15,17 @@ const path = require('path')
 function AlgorithmHelper(algoServiceURL, algorithmsSpecsFolder) {
     //Init member vars
     this._algoServiceURL = algoServiceURL;
-    this._requestsFieldsValidators = null;
     this._enabledAlgorithms = null;
+    this._algorithmsSpecsFolder = algorithmsSpecsFolder;
+    this._ajv = new Ajv({allErrors: true});
 
     //Bind member functions
     this.getListOfAlgos = AlgorithmHelper.prototype.getListOfAlgos.bind(this);
     this.checkAlgorithmListValidity = AlgorithmHelper.prototype.checkAlgorithmListValidity.bind(this);
     this.getEnabledAlgorithms = AlgorithmHelper.prototype.getEnabledAlgorithms.bind(this);
-    this.getFieldsValidators = AlgorithmHelper.prototype.getFieldsValidators.bind(this);
+    this.validate = AlgorithmHelper.prototype.validate.bind(this);
 
-    this._setAlgorithmsAPIEnabled(algorithmsSpecsFolder);
+    this._setAlgorithmsAPIEnabled(this._algorithmsSpecsFolder);
 }
 /**
  * @fn getListOfAlgos
@@ -92,28 +93,22 @@ AlgorithmHelper.prototype.checkAlgorithmListValidity = function(algorithmsList){
 
 /**
  * @fn _setAlgorithmsAPIEnabled
- * @params algorithmsSpecsFolder
  * @desc Reads all the config files for every algorithms and list of all enabled algorithms and their params fields with
  * the expected types
  * @private
  */
-AlgorithmHelper.prototype._setAlgorithmsAPIEnabled = function(algorithmsSpecsFolder) {
+AlgorithmHelper.prototype._setAlgorithmsAPIEnabled = function() {
     let _this = this;
     let algoList = {};
-    let validators = {};
-    let schema = {};
     let filename = null;
-    let ajv = new Ajv({allErrors: true});
-    fs.readdirSync(algorithmsSpecsFolder).forEach(file => {
-        schema = require(algorithmsSpecsFolder + '/' + file);
+
+    fs.readdirSync(_this._algorithmsSpecsFolder).forEach(file => {
         filename = path.basename(file, path.extname(file));
-        validators[filename] = ajv.compile(schema);
         if(filename !== 'core'){
             algoList[filename] = 'OK';
         }
     });
     _this._enabledAlgorithms = algoList;
-    _this._requestsFieldsValidators = validators;
 };
 
 /**
@@ -128,13 +123,22 @@ AlgorithmHelper.prototype.getEnabledAlgorithms = function() {
 
 
 /**
- * @fn getFieldsValidators
- * @desc Sends back the validators of all enabled algorithms and the core parameters
- * @return {json} Sends back the validators for currently enables algorithms
+ * @fn validate
+ * @desc Sends back the validation for either the core parameters or the params for the specified algorithm
+ * @return {Promise} Resolve to true if the fields are valid
  */
-AlgorithmHelper.prototype.getFieldsValidators = function() {
+AlgorithmHelper.prototype.validate = function(fields, algo) {
     let _this = this;
-    return _this._requestsFieldsValidators;
+
+    return new Promise(function (resolve, reject) {
+        let schema = require(_this._algorithmsSpecsFolder + '/' + algo + '.json');
+        let valid = _this._ajv.validate(schema, fields);
+        if (valid) {
+            resolve(valid);
+        }else{
+            reject(ErrorHelper('The validation of the fields for ' + algo + ' has failed.', _this._ajv.errorsText()));
+        }
+    });
 };
 
 module.exports = AlgorithmHelper;

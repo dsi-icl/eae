@@ -59,7 +59,7 @@ JobsController.prototype.createNewJob = function(req, res){
                     _this._accessLogger.logAccess(req);
                     return;
                 }
-                // Prevent the model from being updated
+                // Build the job to be inserted for the scheduler
                 let eaeJobModel = JSON.parse(JSON.stringify(DataModels.EAE_JOB_MODEL));
                 let newJob = Object.assign({}, eaeJobModel, jobRequest, {_id: new ObjectID()});
                 // In opal there is no data transfer step so we move directly to queued
@@ -70,6 +70,7 @@ JobsController.prototype.createNewJob = function(req, res){
 
                 //TODO: replace create manifest by sending the request to cache if not found to scheduler
                 _this._jobsCollection.insertOne(newJob).then(function (_unused__result) {
+                    //TODO; add the job position to the reply
                     res.status(200);
                     res.json({status: 'OK', jobID: newJob._id.toString()});
                 },function(error){

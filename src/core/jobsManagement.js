@@ -57,19 +57,18 @@ JobsManagement.prototype.checkFields = function(jobRequest){
         let params = jobRequest.params;
         delete jobRequest.params;
         let coreFields = jobRequest;
-        let validators = _this._algoHelper.getFieldsValidators();
         let enabledAlgorithms = _this._algoHelper.getEnabledAlgorithms();
 
-        validators['core'].validate(coreFields).then(function() {
+        _this._algoHelper.validate(coreFields, 'core').then(function() {
             if (!enabledAlgorithms.hasOwnProperty(coreFields.algorithm)) {
                 reject(ErrorHelper('The selected algorithm' + coreFields.algorithm + 'is not enabled'));
                 return;
             }
-            validators['params'].validate(params).then(function(){
+            _this._algoHelper.validate(params, coreFields.algorithm).then(function(){
                 _this._algoHelper.getListOfAlgos().then(function(authorized_algorithms) {
                     if (!authorized_algorithms.hasOwnProperty(coreFields.algorithm)) {
                         reject(ErrorHelper('The algorithm service do not contain the requested algorithm: ' + coreFields.algorithm +
-                        'Please contact admin to add it.'));
+                        '. Please contact the admin to add it.'));
                     }
                     resolve(true);
                 });
