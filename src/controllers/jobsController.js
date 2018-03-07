@@ -47,13 +47,6 @@ JobsController.prototype.createNewJob = function(req, res){
         // Check the validity of the JOB
         let jobRequest = JSON.parse(req.body.job);
         _this._jobsManagement.checkFields(jobRequest).then(function(_unused__check) {
-            // Prevent the model from being updated
-            let eaeJobModel = JSON.parse(JSON.stringify(DataModels.EAE_JOB_MODEL));
-            let newJob = Object.assign({}, eaeJobModel, jobRequest, {_id: new ObjectID()});
-            // In opal there is no data transfer step so we move directly to queued
-            newJob.status.unshift(Constants.EAE_JOB_STATUS_TRANSFERRING_DATA);
-            newJob.status.unshift(Constants.EAE_JOB_STATUS_QUEUED);
-            newJob.requester = opalUsername;
             let filter = {
                 token: userToken
             };
@@ -66,6 +59,13 @@ JobsController.prototype.createNewJob = function(req, res){
                     _this._accessLogger.logAccess(req);
                     return;
                 }
+                // Prevent the model from being updated
+                let eaeJobModel = JSON.parse(JSON.stringify(DataModels.EAE_JOB_MODEL));
+                let newJob = Object.assign({}, eaeJobModel, jobRequest, {_id: new ObjectID()});
+                // In opal there is no data transfer step so we move directly to queued
+                newJob.status.unshift(Constants.EAE_JOB_STATUS_TRANSFERRING_DATA);
+                newJob.status.unshift(Constants.EAE_JOB_STATUS_QUEUED);
+                newJob.requester = user.username;
                 //TODO: Check users rights to execute the request
 
                 //TODO: replace create manifest by sending the request to cache if not found to scheduler
