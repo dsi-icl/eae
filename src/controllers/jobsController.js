@@ -46,7 +46,7 @@ JobsController.prototype.createNewJob = function(req, res){
     try {
         // Check the validity of the JOB
         let jobRequest = JSON.parse(req.body.job);
-        _this._jobsManagement.checkFields(jobRequest).then(function(check) {
+        _this._jobsManagement.checkFields(jobRequest).then(function(_unused__check) {
             // Prevent the model from being updated
             let eaeJobModel = JSON.parse(JSON.stringify(DataModels.EAE_JOB_MODEL));
             let newJob = Object.assign({}, eaeJobModel, jobRequest, {_id: new ObjectID()});

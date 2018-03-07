@@ -3,6 +3,7 @@ const { ErrorHelper } = require('eae-utils');
 const { interface_constants } = require('../core/models.js');
 const fs = require('fs');
 const Ajv = require('ajv');
+const path = require('path')
 
 /**
  * @fn AlgorithmHelper
@@ -21,6 +22,7 @@ function AlgorithmHelper(algoServiceURL, algorithmsSpecsFolder) {
     this.getListOfAlgos = AlgorithmHelper.prototype.getListOfAlgos.bind(this);
     this.checkAlgorithmListValidity = AlgorithmHelper.prototype.checkAlgorithmListValidity.bind(this);
     this.getEnabledAlgorithms = AlgorithmHelper.prototype.getEnabledAlgorithms.bind(this);
+    this.getFieldsValidators = AlgorithmHelper.prototype.getFieldsValidators.bind(this);
 
     this._setAlgorithmsAPIEnabled(algorithmsSpecsFolder);
 }
@@ -97,15 +99,17 @@ AlgorithmHelper.prototype.checkAlgorithmListValidity = function(algorithmsList){
  */
 AlgorithmHelper.prototype._setAlgorithmsAPIEnabled = function(algorithmsSpecsFolder) {
     let _this = this;
-    let algoList = [];
+    let algoList = {};
     let validators = {};
     let schema = {};
+    let filename = null;
     let ajv = new Ajv({allErrors: true});
     fs.readdirSync(algorithmsSpecsFolder).forEach(file => {
         schema = require(algorithmsSpecsFolder + '/' + file);
-        validators[file] = ajv.compile(schema);
-        if(file !== 'core'){
-            algoList.concat(file);
+        filename = path.basename(file, path.extname(file));
+        validators[filename] = ajv.compile(schema);
+        if(filename !== 'core'){
+            algoList[filename] = 'OK';
         }
     });
     _this._enabledAlgorithms = algoList;
@@ -120,6 +124,17 @@ AlgorithmHelper.prototype._setAlgorithmsAPIEnabled = function(algorithmsSpecsFol
 AlgorithmHelper.prototype.getEnabledAlgorithms = function() {
     let _this = this;
     return _this._enabledAlgorithms;
+};
+
+
+/**
+ * @fn getFieldsValidators
+ * @desc Sends back the validators of all enabled algorithms and the core parameters
+ * @return {json} Sends back the validators for currently enables algorithms
+ */
+AlgorithmHelper.prototype.getFieldsValidators = function() {
+    let _this = this;
+    return _this._requestsFieldsValidators;
 };
 
 module.exports = AlgorithmHelper;

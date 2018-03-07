@@ -54,29 +54,31 @@ JobsManagement.prototype.checkFields = function(jobRequest){
 
     return new Promise(function(resolve, reject) {
         // We check the core parameters
+        let params = jobRequest.params;
+        delete jobRequest.params;
+        let coreFields = jobRequest;
+        let validators = _this._algoHelper.getFieldsValidators();
+        let enabledAlgorithms = _this._algoHelper.getEnabledAlgorithms();
 
-
-        // We check the core parameters
-        let terminateCreation = false;
-        requiredJobFields.forEach(function(key){
-            if(requiredJobFields[key] === null){
-                res.status(401);
-                res.json(ErrorHelper('Job request is not well formed. Missing ' + requiredJobFields[key]));
-                terminateCreation = true;
+        validators['core'].validate(coreFields).then(function() {
+            if (!enabledAlgorithms.hasOwnProperty(coreFields.algorithm)) {
+                reject(ErrorHelper('The selected algorithm' + coreFields.algorithm + 'is not enabled'));
+                return;
             }
-            if(key === 'type'){
-                let listOfSupportedComputations = [Constants.EAE_COMPUTE_TYPE_PYTHON2, Constants.EAE_COMPUTE_TYPE_R,
-                    Constants.EAE_COMPUTE_TYPE_TENSORFLOW, Constants.EAE_COMPUTE_TYPE_SPARK];
-                if(!(listOfSupportedComputations.includes(jobRequest[key]))) {
-                    res.status(405);
-                    res.json(ErrorHelper('The requested compute type is currently not supported. The list of supported computations: ' +
-                        Constants.EAE_COMPUTE_TYPE_PYTHON2 + ', ' + Constants.EAE_COMPUTE_TYPE_SPARK + ', ' + Constants.EAE_COMPUTE_TYPE_R + ', ' +
-                        Constants.EAE_COMPUTE_TYPE_TENSORFLOW));
-                    terminateCreation = true;
-                }
-            }
+            validators['params'].validate(params).then(function(){
+                _this._algoHelper.getListOfAlgos().then(function(authorized_algorithms) {
+                    if (!authorized_algorithms.hasOwnProperty(coreFields.algorithm)) {
+                        reject(ErrorHelper('The algorithm service do not contain the requested algorithm: ' + coreFields.algorithm +
+                        'Please contact admin to add it.'));
+                    }
+                    resolve(true);
+                });
+            }).catch(function (error) {
+                reject(ErrorHelper('Invalid params for selected algorithm.', error));
+            });
+        }).catch(function (error) {
+            reject(ErrorHelper('Invalid core parameters.', error));
         });
-        resolve(true);
     });
 };
 
