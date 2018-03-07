@@ -2,7 +2,7 @@ const request = require('request');
 const { ErrorHelper } = require('eae-utils');
 const { interface_constants } = require('../core/models.js');
 const fs = require('fs');
-// const ajv = require('ajv');
+const Ajv = require('ajv');
 
 /**
  * @fn AlgorithmHelper
@@ -14,12 +14,15 @@ const fs = require('fs');
 function AlgorithmHelper(algoServiceURL, algorithmsSpecsFolder) {
     //Init member vars
     this._algoServiceURL = algoServiceURL;
-    this._enabledAlgorithms = this._algorithmsAPIEnabled(algorithmsSpecsFolder);
+    this._requestsFieldsValidators = null;
+    this._enabledAlgorithms = null;
 
     //Bind member functions
     this.getListOfAlgos = AlgorithmHelper.prototype.getListOfAlgos.bind(this);
     this.checkAlgorithmListValidity = AlgorithmHelper.prototype.checkAlgorithmListValidity.bind(this);
-    this.getEnabledAlgortihms = AlgorithmHelper.prototype.getEnabledAlgortihms.bind(this);
+    this.getEnabledAlgorithms = AlgorithmHelper.prototype.getEnabledAlgorithms.bind(this);
+
+    this._setAlgorithmsAPIEnabled(algorithmsSpecsFolder);
 }
 /**
  * @fn getListOfAlgos
@@ -86,32 +89,37 @@ AlgorithmHelper.prototype.checkAlgorithmListValidity = function(algorithmsList){
 };
 
 /**
- * @fn _algorithmsAPIEnabled
+ * @fn _setAlgorithmsAPIEnabled
  * @params algorithmsSpecsFolder
  * @desc Reads all the config files for every algorithms and list of all enabled algorithms and their params fields with
  * the expected types
- * @return {list} list of currently enables algorithms and there params
  * @private
  */
-AlgorithmHelper.prototype._algorithmsAPIEnabled = function(algorithmsSpecsFolder) {
+AlgorithmHelper.prototype._setAlgorithmsAPIEnabled = function(algorithmsSpecsFolder) {
+    let _this = this;
     let algoList = [];
+    let validators = {};
+    let schema = {};
+    let ajv = new Ajv({allErrors: true});
     fs.readdirSync(algorithmsSpecsFolder).forEach(file => {
+        schema = require(algorithmsSpecsFolder + '/' + file);
+        validators[file] = ajv.compile(schema);
         if(file !== 'core'){
             algoList.concat(file);
         }
     });
-    return algoList;
+    _this._enabledAlgorithms = algoList;
+    _this._requestsFieldsValidators = validators;
 };
 
 /**
- * @fn getEnabledAlgortihms
+ * @fn getEnabledAlgorithms
  * @desc Sends back the list of all enabled algorithms and their params fields with the expected types
  * @return {list} Sends back the list of currently enables algorithms
  */
-AlgorithmHelper.prototype.getEnabledAlgortihms = function() {
+AlgorithmHelper.prototype.getEnabledAlgorithms = function() {
     let _this = this;
     return _this._enabledAlgorithms;
 };
-
 
 module.exports = AlgorithmHelper;

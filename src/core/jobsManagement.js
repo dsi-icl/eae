@@ -75,7 +75,7 @@ JobsManagement.prototype.checkFields = function(jobRequest){
                     terminateCreation = true;
                 }
             }
-        })
+        });
         resolve(true);
     });
 };
