@@ -11,7 +11,7 @@ WORKDIR /usr/app
 
 # Install app dependencies
 COPY ./package.json /usr/app/
-# Install opal-interface npm dependencies
+# Install eae-interface npm dependencies
 RUN npm install --silent; exit 0;
 RUN cat /root/.npm/_logs/*; exit 0;
 
@@ -19,6 +19,6 @@ RUN cat /root/.npm/_logs/*; exit 0;
 COPY ./src /usr/app/src
 COPY ./.eslintrc /usr/app/.eslintrc
 COPY ./test/*.js /usr/app/test/
-COPY ./config/opal.interface.test.config.js /usr/app/config/opal.interface.test.config.js
+COPY ./config/eae.interface.test.config.js /usr/app/config/eae.interface.test.config.js
 
 EXPOSE 80

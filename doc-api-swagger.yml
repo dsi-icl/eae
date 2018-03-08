@@ -1,15 +1,15 @@
 swagger: '2.0'
 info:
   version: 0.0.2
-  title: Opal-interface
+  title: Eae-interface
   license:
     name: MIT
-    url: 'https://github.com/opal-project/opal-interface/blob/master/LICENSE'
-  description: OPAL interface
+    url: 'https://github.com/dsi-icl/eae-interface/blob/master/LICENSE'
+  description: eAE interface
 paths:
   /status:
     get:
-      description: Status report. Part of the standard API for all the opal components
+      description: Status report. Part of the standard API for all the eae components
       responses:
         '200':
           description: 'Status report is active, replies the current status'
@@ -30,11 +30,11 @@ paths:
           description: desc
           schema:
             $ref: '#/definitions/statusModel'
-
+            
   /job:
     post:
       description: Get a specific job
-      consumes:
+      consumes: 
         - application/json
         - application/x-www-form-urlencoded
       parameters:
@@ -43,19 +43,19 @@ paths:
           schema:
             type: object
             required:
-              - opalUsername
-              - opalUserToken
+              - eaeUsername
+              - eaeUserToken
               - jobID
             properties:
-              opalUsername:
+              eaeUsername:
                 type: string
-              opalUserToken:
+              eaeUserToken:
                 type: string
               jobID:
                 type: string
             example:
-              opalUsername: admin
-              opalUserToken: admin
+              eaeUsername: admin
+              eaeUserToken: admin
               jobID: jhfwd8u210ujfdsasfd
       responses:
         '200':
@@ -72,11 +72,11 @@ paths:
           schema:
             type: object
             description: eAE ErrorStack tracking the error origin
-
+            
   /job/getAll:
     post:
       description: Get all jobs not archieved. Admin only
-      consumes:
+      consumes: 
         - application/json
         - application/x-www-form-urlencoded
       parameters:
@@ -85,16 +85,16 @@ paths:
           schema:
             type: object
             required:
-              - opalUsername
-              - opalUserToken
+              - eaeUsername
+              - eaeUserToken
             properties:
-              opalUsername:
+              eaeUsername:
                 type: string
-              opalUserToken:
+              eaeUserToken:
                 type: string
             example:
-              opalUsername: admin
-              opalUserToken: admin
+              eaeUsername: admin
+              eaeUserToken: admin
       responses:
         '200':
           description: Sends back an array of jobs
@@ -112,33 +112,33 @@ paths:
           schema:
             type: object
             description: eAE ErrorStack tracking the error origin
-
+            
   /job/create:
     post:
       description: Creates a new job to be computed on the eAE
-      consumes:
+      consumes: 
         - application/json
         - application/x-www-form-urlencoded
       parameters:
         - name: request body
           in: body
-          description: Create new job. Job object is passed as JSON string obligatorily contained the following fields - type, main, params, input. Value of type can be one of the following - python2, spark, r, tensorflow.
+          description: Create new job. Job object is passed as JSON string obligatorily contained the following fields - type, main, params, input. Value of type can be one of the following - python2, spark, r, tensorflow. 
           schema:
             type: object
             required:
-              - opalUsername
-              - opalUserToken
+              - eaeUsername
+              - eaeUserToken
               - job
             properties:
-              opalUsername:
+              eaeUsername:
                 type: string
-              opalUserToken:
+              eaeUserToken:
                 type: string
               job:
                 type: string
             example:
-              opalUsername: admin
-              opalUserToken: admin
+              eaeUsername: admin
+              eaeUserToken: admin
               job: '{"type":"python2","main":"test.py","params":["Vi_Veri_Veniversum_Vivus_Vici"],"input":["test.py","faust.txt"]}'
       responses:
         '200':
@@ -152,10 +152,17 @@ paths:
               jobID:
                 type: string
                 description: Contains the id of the job
+              carriers:
+                type: array
+                description: Contains the list of carriers to transfer to
+                items:
+                  type: string
+                  description: 'Address (IP:Port or DNS Name) of the carrier'
             example:
               status: OK
               jobID: jkfj32twkl423fj1ru
-
+              carriers: carrier:3000
+              
         '401':
           description: The request is not well formed
           schema:
@@ -175,7 +182,7 @@ paths:
   /job/cancel:
     post:
       description: Cancels a job. Check that user requesting is owner of the job or Admin
-      consumes:
+      consumes: 
         - application/json
         - application/x-www-form-urlencoded
       parameters:
@@ -184,19 +191,19 @@ paths:
           schema:
             type: object
             required:
-              - opalUsername
-              - opalUserToken
+              - eaeUsername
+              - eaeUserToken
               - jobID
             properties:
-              opalUsername:
+              eaeUsername:
                 type: string
-              opalUserToken:
+              eaeUserToken:
                 type: string
               jobID:
                 type: string
             example:
-              opalUsername: admin
-              opalUserToken: admin
+              eaeUsername: admin
+              eaeUserToken: admin
               jobID: jhfwd8u210ujfdsasfd
       responses:
         '200':
@@ -222,12 +229,13 @@ paths:
           schema:
             type: object
             description: eAE ErrorStack tracking the error origin
-
+            
   /job/results:
     post:
       description: >-
-        Retrieve the results for a specific job when they are available.
-      consumes:
+        Retrieve the results for a specific job by sending back the carriers
+        where they are available.
+      consumes: 
         - application/json
         - application/x-www-form-urlencoded
       parameters:
@@ -236,25 +244,26 @@ paths:
           schema:
             type: object
             required:
-              - opalUsername
-              - opalUserToken
+              - eaeUsername
+              - eaeUserToken
               - jobID
             properties:
-              opalUsername:
+              eaeUsername:
                 type: string
-              opalUserToken:
+              eaeUserToken:
                 type: string
               jobID:
                 type: string
             example:
-              opalUsername: admin
-              opalUserToken: admin
+              eaeUsername: admin
+              eaeUserToken: admin
               jobID: jhfwd8u210ujfdsasfd
       responses:
         '200':
-          description: Sends back the results
+          description: Sends back an access to the carriers to download the results from
           schema:
             type: object
+            description: TODO
         '401':
           description: The request is not well formed
           schema:
@@ -276,7 +285,7 @@ paths:
       description: >-
         Checks that the request is coming from an Admin and sends back the
         statuses of all the services in the cluster.
-      consumes:
+      consumes: 
         - application/json
         - application/x-www-form-urlencoded
       parameters:
@@ -285,16 +294,16 @@ paths:
           schema:
             type: object
             required:
-              - opalUsername
-              - opalUserToken
+              - eaeUsername
+              - eaeUserToken
             properties:
-              opalUsername:
+              eaeUsername:
                 type: string
-              opalUserToken:
+              eaeUserToken:
                 type: string
             example:
-              opalUsername: admin
-              opalUserToken: admin
+              eaeUsername: admin
+              eaeUserToken: admin
       responses:
         '200':
           description: desc
@@ -317,7 +326,7 @@ paths:
   /user:
     post:
       description: Sends back the profile of the requested user. By admin only
-      consumes:
+      consumes: 
         - application/json
         - application/x-www-form-urlencoded
       parameters:
@@ -327,27 +336,26 @@ paths:
           schema:
             type: object
             required:
-              - opalUsername
-              - opalUserToken
+              - eaeUsername
+              - eaeUserToken
               - requestedUsername
             properties:
-              opalUsername:
+              eaeUsername:
                 type: string
-              opalUserToken:
+              eaeUserToken:
                 type: string
               requestedUsername:
                 type: string
             example:
-              opalUsername: admin
-              opalUserToken: admin
+              eaeUsername: admin
+              eaeUserToken: admin
               requestedUsername: chanTaiMan
-
       responses:
         '200':
           description: User object is returned.
           schema:
             $ref: '#/definitions/userModel'
-
+              
         '401':
           description: The request is not well formed
           schema:
@@ -358,7 +366,7 @@ paths:
           schema:
             type: object
             description: eAE ErrorStack tracking the error origin
-
+            
   /user/getAll:
     post:
       description: Sends back the name of all users of specified type. By admin only
@@ -376,9 +384,9 @@ paths:
               - eaeUserToken
               - userType
             properties:
-              opalUsername:
+              eaeUsername:
                 type: string
-              opalUserToken:
+              eaeUserToken:
                 type: string
               userType:
                 type: string
@@ -410,7 +418,7 @@ paths:
   /user/create:
     post:
       description: Create a new user to get access to the platform. By admin only
-      consumes:
+      consumes: 
         - application/json
         - application/x-www-form-urlencoded
       parameters:
@@ -420,19 +428,19 @@ paths:
           schema:
             type: object
             required:
-              - opalUsername
-              - opalUserToken
+              - eaeUsername
+              - eaeUserToken
               - newUser
             properties:
-              opalUsername:
+              eaeUsername:
                 type: string
-              opalUserToken:
+              eaeUserToken:
                 type: string
               newUser:
                 type: string
             example:
-              opalUsername: admin
-              opalUserToken: admin
+              eaeUsername: admin
+              eaeUserToken: admin
               newUser: '{"username": "chanTaiMan","type": "STANDARD"}'
       responses:
         '200':
@@ -449,11 +457,11 @@ paths:
           schema:
             type: object
             description: eAE ErrorStack tracking the error origin
-
+            
   /user/delete:
     delete:
       description: Delete an existing user and remove their access to the platform.
-      consumes:
+      consumes: 
         - application/json
         - application/x-www-form-urlencoded
       parameters:
@@ -463,19 +471,19 @@ paths:
           schema:
             type: object
             required:
-              - opalUsername
-              - opalUserToken
+              - eaeUsername
+              - eaeUserToken
               - userToBeDeleted
             properties:
-              opalUsername:
+              eaeUsername:
                 type: string
-              opalUserToken:
+              eaeUserToken:
                 type: string
               userToBeDeleted:
                 type: string
             example:
-              opalUsername: admin
-              opalUserToken: admin
+              eaeUsername: admin
+              eaeUserToken: admin
               userToBeDeleted: chanTaiMan
       responses:
         '200':
@@ -493,14 +501,16 @@ paths:
           schema:
             type: object
             description: eAE ErrorStack tracking the error origin
-
+            
   /whoareyou:
     get:
       description: Implementation of the Hyper Text Coffee Pot Control Protocol
       responses:
         '418':
           description: I am a teapot
-
+          
+          
+          
 
 definitions:
   statusModel:
@@ -568,7 +578,7 @@ definitions:
           free:
             type: string
             description: Available memory on the system. Unit is provided in the value
-    example:
+    example: 
       ip: 172.0.0.1
       port: 8000
       computeType: []
@@ -677,7 +687,7 @@ definitions:
       statusLock: false
       executorIP: 127.0.0.1
       executorPort: '9876'
-
+      
   userModel:
     type: object
     properties:
@@ -699,6 +709,34 @@ definitions:
         token: y1r9iufhoeq2ur9u192f
         type: ADMIN
         created: '2018-01-16T12:09:37.416Z'
+  carrierJobModel:
+    type: object
+    properties:
+      jobId:
+        type: string
+        description: Id of the associated job located in the eAE job collection
+      type:
+        type: string
+        description: Defines if it is an upload to the eAE or download from it
+      files:
+        type: array
+        description: List of files to be transfer
+        items:
+          type: string
+          description: Name of the file
+      requester:
+        type: string
+        description: Username of the requester
+      numberOfTransferredFiles:
+        type: integer
+        description: Track the number of files transfered
+      numberOfFilesToTransfer:
+        type: integer
+        description: Number of files to transfer to the eAE through the carriers
+      created:
+        type: string
+        format: dateTime
+        description: Timestamp of the creation of the job
   unauthorizedAccess:
     type: object
     properties:

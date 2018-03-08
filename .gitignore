@@ -68,5 +68,5 @@ typings/
 *.iml
 
 # Config Files
-config/opal.interface.config.js
+config/eae.interface.config.js
 package-lock.json

@@ -6,18 +6,21 @@ const JobsManagement = require('../core/jobsManagement.js');
 /**
  * @fn JobsController
  * @desc Controller to manage the jobs service
+ * @param carriers
  * @param jobsCollection
+ * @param carrierCollection
  * @param usersCollection
  * @param accessLogger
- * @param algoHelper
  * @constructor
  */
-function JobsController(jobsCollection, usersCollection, accessLogger, algoHelper) {
+function JobsController(carriers, jobsCollection, usersCollection, carrierCollection, accessLogger) {
     let _this = this;
     _this._jobsCollection = jobsCollection;
     _this._usersCollection = usersCollection;
+    _this._carrierCollection = carrierCollection;
     _this._accessLogger = accessLogger;
-    _this._jobsManagement = new JobsManagement(_this._jobsCollection, algoHelper);
+    _this._carriers = carriers;
+    _this._jobsManagement = new JobsManagement(_this._carrierCollection, _this._jobsCollection, 5000);
 
     // Bind member functions
     _this.createNewJob = JobsController.prototype.createNewJob.bind(this);
@@ -29,73 +32,86 @@ function JobsController(jobsCollection, usersCollection, accessLogger, algoHelpe
 
 /**
  * @fn postNewJob
- * @desc Create a job request. Sends back the current number of jobs pending and/or running.
+ * @desc Create a job request. Sends back the list of carriers available for uploading the data.
  * @param req Incoming message
  * @param res Server Response
  */
 JobsController.prototype.createNewJob = function(req, res){
     let _this = this;
-    let userToken = req.body.opalUserToken;
+    let eaeUsername = req.body.eaeUsername;
+    let userToken = req.body.eaeUserToken;
 
-    if (userToken === null || userToken === undefined) {
+    if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
-        res.json(ErrorHelper('Missing token'));
+        res.json(ErrorHelper('Missing username or token'));
         return;
     }
-
     try {
         // Check the validity of the JOB
         let jobRequest = JSON.parse(req.body.job);
-        _this._jobsManagement.checkFields(jobRequest).then(function(_unused__check) {
-            let filter = {
-                token: userToken
-            };
-
-            _this._usersCollection.findOne(filter).then(function (user) {
-                if (user === null) {
-                    res.status(401);
-                    res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
-                    // Log unauthorized access
-                    _this._accessLogger.logAccess(req);
-                    return;
+        let requiredJobFields = ['type', 'main', 'params', 'input'];
+        let terminateCreation = false;
+        requiredJobFields.forEach(function(key){
+            if(jobRequest[key] === null || jobRequest[key] === undefined){
+                res.status(401);
+                res.json(ErrorHelper('Job request is not well formed. Missing ' + jobRequest[key]));
+                terminateCreation = true;
+            }
+            if(key === 'type'){
+                let listOfSupportedComputations = [Constants.EAE_COMPUTE_TYPE_PYTHON2, Constants.EAE_COMPUTE_TYPE_R,
+                    Constants.EAE_COMPUTE_TYPE_TENSORFLOW, Constants.EAE_COMPUTE_TYPE_SPARK];
+                if(!(listOfSupportedComputations.includes(jobRequest[key]))) {
+                    res.status(405);
+                    res.json(ErrorHelper('The requested compute type is currently not supported. The list of supported computations: ' +
+                        Constants.EAE_COMPUTE_TYPE_PYTHON2 + ', ' + Constants.EAE_COMPUTE_TYPE_SPARK + ', ' + Constants.EAE_COMPUTE_TYPE_R + ', ' +
+                        Constants.EAE_COMPUTE_TYPE_TENSORFLOW));
+                    terminateCreation = true;
                 }
-                // Build the job to be inserted for the scheduler
-                let eaeJobModel = JSON.parse(JSON.stringify(DataModels.EAE_JOB_MODEL));
+            }
+        });
+        // we cannot stop the foreach without throwing an error so it is a bad workaround
+        if(terminateCreation) return;
 
-                // We need to reformat the OPAL job request to feat the eAE's one
-                let opalRequest = {params: jobRequest, requester: user.username};
+        // Prevent the model from being updated
+        let eaeJobModel = JSON.parse(JSON.stringify(DataModels.EAE_JOB_MODEL));
+        let newJob = Object.assign({}, eaeJobModel, jobRequest, {_id: new ObjectID()});
+        newJob.requester = eaeUsername;
+        let filter = {
+            username: eaeUsername,
+            token: userToken
+        };
 
-                // We merge all those parameters to make the final job
-                let newJob = Object.assign({}, eaeJobModel, opalRequest, {_id: new ObjectID(), type: Constants.EAE_JOB_TYPE_PYTHON2});
-                // In opal there is no data transfer step so we move directly to queued
-                newJob.status.unshift(Constants.EAE_JOB_STATUS_TRANSFERRING_DATA);
-                newJob.status.unshift(Constants.EAE_JOB_STATUS_QUEUED);
-                // Check users rights to execute the request
-                _this._jobsManagement.authorizeRequest(user, jobRequest).then(function(_unused__accessgranted) {
-                    //TODO: --EMANUELE-- request to cache if not found then schedule job
-                    _this._jobsCollection.insertOne(newJob).then(function (_unused__result) {
-                        _this._jobsCollection.count().then(function(count) {
-                            res.status(200);
-                            res.json({status: 'OK', jobID: newJob._id.toString(), jobPosition: count});
-                        },function(error){
-                            res.status(500);
-                            res.json(ErrorHelper('Job queued but couldn\'t assert the job\'s position for computation', error));
-                        });
-                    },function(error){
-                        res.status(500);
-                        res.json(ErrorHelper('Couldn\'t insert the job for computation', error));
+        _this._usersCollection.findOne(filter).then(function (user) {
+            if (user === null) {
+                res.status(401);
+                res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
+                // Log unauthorized access
+                _this._accessLogger.logAccess(req);
+                return;
+            }
+
+            _this._jobsCollection.insertOne(newJob).then(function (_unused__result) {
+                // We create a manifest for the carriers to work against
+                _this._jobsManagement.createJobManifestForCarriers(newJob, newJob._id.toString()).then(function(_unused__result) {
+                    res.status(200);
+                    res.json({status: 'OK', jobID: newJob._id.toString(), carriers: _this._carriers});
+                    // This will monitor the data transfer status
+                    _this._jobsManagement.startJobMonitoring(newJob,  newJob._id.toString()).then(function (_unused__updated) {
+                        // if(updated.updatedExisting)
+                    }, function (error) {
+                        ErrorHelper('Couldn\'t start the monitoring of the transfer', error);
                     });
-                }, function(error){
-                    res.status(401);
-                    res.json(ErrorHelper('The requested level exceeds the user\'s rights.', error));
+                },function(error){
+                    res.status(500);
+                    res.json(ErrorHelper('Couldn\'t create the manifest for the carriers to transfer the files', error));
                 });
             },function(error) {
                 res.status(500);
                 res.json(ErrorHelper('Internal Mongo Error', error));
             });
-        }, function(error){
-            res.status(401);
-            res.json(ErrorHelper('The field check failed.', error));
+        },function(error){
+            res.status(500);
+            res.json(ErrorHelper('Internal Mongo Error', error));
         });
     }
     catch (error) {
@@ -112,10 +128,11 @@ JobsController.prototype.createNewJob = function(req, res){
  */
 JobsController.prototype.getJob = function(req, res){
     let _this = this;
-    let userToken = req.body.opalUserToken;
+    let eaeUsername = req.body.eaeUsername;
+    let userToken = req.body.eaeUserToken;
     let jobID = req.body.jobID;
 
-    if (userToken === null || userToken === undefined) {
+    if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
         res.json(ErrorHelper('Missing username or token'));
         return;
@@ -130,6 +147,7 @@ JobsController.prototype.getJob = function(req, res){
                 return;
             }else{
                 let filter = {
+                    username: eaeUsername,
                     token: userToken
                 };
                 _this._usersCollection.findOne(filter).then(function (user) {
@@ -174,15 +192,18 @@ JobsController.prototype.getJob = function(req, res){
  */
 JobsController.prototype.getAllJobs = function(req, res){
     let _this = this;
-    let userToken = req.body.opalUserToken;
+    let eaeUsername = req.body.eaeUsername;
+    let userToken = req.body.eaeUserToken;
 
-    if (userToken === null || userToken === undefined) {
+
+    if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
         res.json(ErrorHelper('Missing username or token'));
         return;
     }
     try {
         let filter = {
+            username: eaeUsername,
             token: userToken
         };
 
@@ -230,11 +251,12 @@ JobsController.prototype.getAllJobs = function(req, res){
  */
 JobsController.prototype.cancelJob = function(req, res) {
     let _this = this;
-    let userToken = req.body.opalUserToken;
+    let eaeUsername = req.body.eaeUsername;
+    let userToken = req.body.eaeUserToken;
     let jobID = req.body.jobID;
 
 
-    if (userToken === null || userToken === undefined) {
+    if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
         res.json(ErrorHelper('Missing username or token'));
         return;
@@ -243,7 +265,7 @@ JobsController.prototype.cancelJob = function(req, res) {
         _this._jobsCollection.findOne({_id: ObjectID(jobID)}).then(function(job) {
                 if (job === null) {
                     res.status(401);
-                    res.json(ErrorHelper('The job request do not exists. The query has been logged.'));
+                    res.json(ErrorHelper('The job request do not exit. The query has been logged.'));
                     // Log unauthorized access
                     _this._accessLogger.logAccess(req);
                     return;
@@ -255,6 +277,7 @@ JobsController.prototype.cancelJob = function(req, res) {
                         job.status[0] === Constants.EAE_JOB_STATUS_ERROR
                     ){
                         let filter = {
+                            username: eaeUsername,
                             token: userToken
                         };
                         _this._usersCollection.findOne(filter).then(function (user) {
@@ -304,17 +327,18 @@ JobsController.prototype.cancelJob = function(req, res) {
 
 /**
  * @fn getJobResults
- * @desc Retrieve the results for a specific job.
+ * @desc Retrieve the results for a specific job by sending back the carriers where they are available.
  * Check that user requesting is owner of the job or Admin
  * @param req Incoming message
  * @param res Server Response
  */
 JobsController.prototype.getJobResults = function(req, res){
     let _this = this;
-    let userToken = req.body.opalUserToken;
+    let eaeUsername = req.body.eaeUsername;
+    let userToken = req.body.eaeUserToken;
     let jobID = req.body.jobID;
 
-    if (userToken === null || userToken === undefined) {
+    if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
         res.status(401);
         res.json(ErrorHelper('Missing username or token'));
         return;
@@ -330,6 +354,7 @@ JobsController.prototype.getJobResults = function(req, res){
             }else{
                 if(job.status[0] === Constants.EAE_JOB_STATUS_COMPLETED){
                     let filter = {
+                        username: eaeUsername,
                         token: userToken
                     };
                     _this._usersCollection.findOne(filter).then(function (user) {
@@ -341,9 +366,10 @@ JobsController.prototype.getJobResults = function(req, res){
                             return;
                         }
                         if(user.type === interface_constants.USER_TYPE.admin || job.requester === user.username){
-                                //TODO: replace create manifest by sending back the results
+                            _this._jobsManagement.createDownloadManifestForCarriers(job).then(function(outputFiles) {
                                 res.status(200);
-                                res.json({status: 'OK'});
+                                res.json({status: 'OK', carriers: _this._carriers, output: outputFiles});
+                            });
                         }else{
                             res.status(401);
                             res.json(ErrorHelper('The user is not authorized to access this job.'));

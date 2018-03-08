@@ -1,6 +1,6 @@
 const request = require('request');
 const eaeutils = require('eae-utils');
-let config = require('../config/opal.interface.test.config.js');
+let config = require('../config/eae.interface.test.config.js');
 let TestServer = require('./testserver.js');
 
 let ts = new TestServer();
@@ -20,7 +20,7 @@ beforeAll(function() {
     });
 });
 
-test('Get Job Missing Credentials token', function(done) {
+test('Get Job Missing Credentials Username', function(done) {
     expect.assertions(4);
     request(
         {
@@ -29,8 +29,8 @@ test('Get Job Missing Credentials token', function(done) {
             uri: '/job',
             json: true,
             body: {
-                opalUsername: 'test',
-                opalUserToken: null
+                eaeUsername: null,
+                eaeUserToken: 'wrongpassword'
             }
         },
         function(error, response, body) {
@@ -40,7 +40,33 @@ test('Get Job Missing Credentials token', function(done) {
             expect(response).toBeDefined();
             expect(response.statusCode).toEqual(401);
             expect(body).toBeDefined();
-            expect(body).toEqual({error:'Missing token'});
+            expect(body).toEqual({error:'Missing username or token'});
+            done();
+        }
+    );
+});
+
+test('Get Job Missing Credentials token', function(done) {
+    expect.assertions(4);
+    request(
+        {
+            method: 'POST',
+            baseUrl: 'http://127.0.0.1:' + config.port,
+            uri: '/job',
+            json: true,
+            body: {
+                eaeUsername: 'test',
+                eaeUserToken: null
+            }
+        },
+        function(error, response, body) {
+            if (error) {
+                done.fail(error.toString());
+            }
+            expect(response).toBeDefined();
+            expect(response.statusCode).toEqual(401);
+            expect(body).toBeDefined();
+            expect(body).toEqual({error:'Missing username or token'});
             done();
         }
     );
@@ -55,8 +81,8 @@ test('Get Job No jobID', function(done) {
             uri: '/job',
             json: true,
             body: {
-                opalUsername: 'test',
-                opalUserToken: 'wrongpassword'
+                eaeUsername: 'test',
+                eaeUserToken: 'wrongpassword'
             }
         },
         function(error, response, body) {
@@ -82,7 +108,8 @@ test('Create a Job with a nonsupported compute type', function(done) {
             uri: '/job/create',
             json: true,
             body: {
-                opalUserToken: adminPassword,
+                eaeUsername: adminUsername,
+                eaeUserToken: adminPassword,
                 job: job
             }
         },
@@ -103,7 +130,7 @@ test('Create a Job with a nonsupported compute type', function(done) {
 
 
 test('Create a Job and subsequently get it', function(done) {
-    expect.assertions(14);
+    expect.assertions(15);
     let job = JSON.stringify({"type": eaeutils.Constants.EAE_COMPUTE_TYPE_PYTHON2, "main": "hello.py", "params": [], "input": ["input1.txt", "input2.txt"]});
     request(
         {
@@ -112,8 +139,8 @@ test('Create a Job and subsequently get it', function(done) {
             uri: '/job/create',
             json: true,
             body: {
-                opalUsername: adminUsername,
-                opalUserToken: adminPassword,
+                eaeUsername: adminUsername,
+                eaeUserToken: adminPassword,
                 job: job
             }
         },
@@ -126,6 +153,7 @@ test('Create a Job and subsequently get it', function(done) {
             expect(body).toBeDefined();
             expect(body.status).toEqual('OK');
             expect(body.jobID).toBeDefined();
+            expect(body.carriers).toEqual(config.carriers);
             request(
                 {
                     method: 'POST',
@@ -133,8 +161,8 @@ test('Create a Job and subsequently get it', function(done) {
                     uri: '/job',
                     json: true,
                     body: {
-                        opalUsername: adminUsername,
-                        opalUserToken: adminPassword,
+                        eaeUsername: adminUsername,
+                        eaeUserToken: adminPassword,
                         jobID: body.jobID
                     }
                 }, function(error, response, body) {
@@ -157,7 +185,7 @@ test('Create a Job and subsequently get it', function(done) {
 });
 
 test('Create a Job and subsequently cancel it', function(done) {
-    expect.assertions(10);
+    expect.assertions(11);
     let job = JSON.stringify({"type": eaeutils.Constants.EAE_COMPUTE_TYPE_PYTHON2, "main": "hello.py", "params": [], "input": ["input1.txt", "input2.txt"]});
     request(
         {
@@ -166,8 +194,8 @@ test('Create a Job and subsequently cancel it', function(done) {
             uri: '/job/create',
             json: true,
             body: {
-                opalUsername: adminUsername,
-                opalUserToken: adminPassword,
+                eaeUsername: adminUsername,
+                eaeUserToken: adminPassword,
                 job: job
             }
         },
@@ -180,6 +208,7 @@ test('Create a Job and subsequently cancel it', function(done) {
             expect(body).toBeDefined();
             expect(body.status).toEqual('OK');
             expect(body.jobID).toBeDefined();
+            expect(body.carriers).toEqual(config.carriers);
             let jobID = body.jobID;
             request(
                 {
@@ -188,8 +217,8 @@ test('Create a Job and subsequently cancel it', function(done) {
                     uri: '/job/cancel',
                     json: true,
                     body: {
-                        opalUsername: adminUsername,
-                        opalUserToken: adminPassword,
+                        eaeUsername: adminUsername,
+                        eaeUserToken: adminPassword,
                         jobID: jobID
                     }
                 }, function(error, response, body) {
@@ -200,7 +229,7 @@ test('Create a Job and subsequently cancel it', function(done) {
                     expect(response.statusCode).toEqual(200);
                     expect(body).toBeDefined();
                     expect(body.status).toEqual('Job ' + jobID + ' has been successfully cancelled.');
-                    expect(body.cancelledJob.status).toEqual([eaeutils.Constants.EAE_JOB_STATUS_CANCELLED, eaeutils.Constants.EAE_JOB_STATUS_QUEUED, eaeutils.Constants.EAE_JOB_STATUS_TRANSFERRING_DATA, eaeutils.Constants.EAE_JOB_STATUS_CREATED]);
+                    expect(body.cancelledJob.status).toEqual([eaeutils.Constants.EAE_JOB_STATUS_CANCELLED, eaeutils.Constants.EAE_JOB_STATUS_TRANSFERRING_DATA, eaeutils.Constants.EAE_JOB_STATUS_CREATED]);
                     done();
                 });
         }
