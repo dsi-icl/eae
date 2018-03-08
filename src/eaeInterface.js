@@ -10,28 +10,27 @@ const JobsControllerModule = require('./controllers/jobsController.js');
 const UsersControllerModule = require('./controllers/usersController.js');
 const ClusterControllerModule = require('./controllers/clusterController.js');
 const AccessLogger = require('./core/accessLogger.js');
-const AlgoHelper = require('./core/algorithmsHelper');
 
 /**
- * @class OpalInterface
+ * @class EaeInterface
  * @desc Core class of the interface micro service
  * @param config Configurations for the interface
  * @constructor
  */
-function OpalInterface(config) {
+function EaeInterface(config) {
     // Init member attributes
     this.config = config;
     this.app = express();
-    global.opal_interface_config = config;
+    global.eae_interface_config = config;
 
     // Bind public member functions
-    this.start = OpalInterface.prototype.start.bind(this);
-    this.stop = OpalInterface.prototype.stop.bind(this);
+    this.start = EaeInterface.prototype.start.bind(this);
+    this.stop = EaeInterface.prototype.stop.bind(this);
 
     // Bind private member functions
-    this._connectDb = OpalInterface.prototype._connectDb.bind(this);
-    this._setupStatusController = OpalInterface.prototype._setupStatusController.bind(this);
-    this._setupInterfaceControllers = OpalInterface.prototype._setupInterfaceControllers.bind(this);
+    this._connectDb = EaeInterface.prototype._connectDb.bind(this);
+    this._setupStatusController = EaeInterface.prototype._setupStatusController.bind(this);
+    this._setupInterfaceControllers = EaeInterface.prototype._setupInterfaceControllers.bind(this);
 
     //Remove unwanted express headers
     this.app.set('x-powered-by', false);
@@ -52,11 +51,11 @@ function OpalInterface(config) {
 
 /**
  * @fn start
- * @desc Starts the opal interface service
+ * @desc Starts the eae interface service
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
-OpalInterface.prototype.start = function() {
+EaeInterface.prototype.start = function() {
     let _this = this;
     return new Promise(function (resolve, reject) {
         _this._connectDb().then(function () {
@@ -78,11 +77,11 @@ OpalInterface.prototype.start = function() {
 
 /**
  * @fn stop
- * @desc Stop the opal interface service
+ * @desc Stop the eae interface service
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
-OpalInterface.prototype.stop = function() {
+EaeInterface.prototype.stop = function() {
     let _this = this;
     return new Promise(function (resolve, reject) {
         // Stop status update
@@ -103,7 +102,7 @@ OpalInterface.prototype.stop = function() {
  * @return {Promise} Resolves to true on success
  * @private
  */
-OpalInterface.prototype._connectDb = function () {
+EaeInterface.prototype._connectDb = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
         mongodb.connect(_this.config.mongoURL, function (err, db) {
@@ -122,13 +121,13 @@ OpalInterface.prototype._connectDb = function () {
  * @desc Initialize status service routes and controller
  * @private
  */
-OpalInterface.prototype._setupStatusController = function () {
+EaeInterface.prototype._setupStatusController = function () {
     let _this = this;
 
     let statusOpts = {
         version: package_json.version
     };
-    _this.status_helper = new StatusHelper(Constants.EAE_SERVICE_TYPE_API, global.opal_interface_config.port, null, statusOpts);
+    _this.status_helper = new StatusHelper(Constants.EAE_SERVICE_TYPE_API, global.eae_interface_config.port, null, statusOpts);
     _this.status_helper.setCollection(_this.db.collection(Constants.EAE_COLLECTION_STATUS));
 
     _this.statusController = new StatusController(_this.status_helper);
@@ -142,15 +141,17 @@ OpalInterface.prototype._setupStatusController = function () {
  * @desc Initialize the interface service routes and controller
  * @private
  */
-OpalInterface.prototype._setupInterfaceControllers = function() {
+EaeInterface.prototype._setupInterfaceControllers = function() {
     let _this = this;
-    _this.algoHelper = new AlgoHelper(global.opal_interface_config.algoServiceURL, global.opal_interface_config.algorithmsDirectory);
+
     _this.accessLogger = new AccessLogger(_this.db.collection(Constants.EAE_COLLECTION_ACCESS_LOG));
-    _this.jobsController = new JobsControllerModule(_this.db.collection(Constants.EAE_COLLECTION_JOBS),
+    _this.jobsController = new JobsControllerModule(_this.config.carriers,
+                                                    _this.db.collection(Constants.EAE_COLLECTION_JOBS),
                                                     _this.db.collection(Constants.EAE_COLLECTION_USERS),
-                                                    _this.accessLogger, _this.algoHelper);
+                                                    _this.db.collection(Constants.EAE_COLLECTION_CARRIER),
+                                                    _this.accessLogger);
     _this.usersController = new UsersControllerModule(_this.db.collection(Constants.EAE_COLLECTION_USERS),
-                                                      _this.accessLogger, _this.algoHelper);
+                                                      _this.accessLogger);
     _this.clusterController = new ClusterControllerModule(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
                                                           _this.db.collection(Constants.EAE_COLLECTION_USERS),
                                                           _this.accessLogger);
@@ -170,14 +171,15 @@ OpalInterface.prototype._setupInterfaceControllers = function() {
     // Retrieve the results for a specific job
     _this.app.post('/job/results', _this.jobsController.getJobResults);
 
-    // Status of the services in the opal - Admin only
+    // Status of the services in the eAE - Admin only
     _this.app.post('/servicesStatus', _this.clusterController.getServicesStatus);
+
+    // Sends back a list of available carriers for data transfer
+    // _this.app.get('/carriers', _this.carrierController.getCarriers);
 
     // Manage the users who have access to the platform - Admin only
     _this.app.post('/user/', _this.usersController.getUser)
         .post('/user/create', _this.usersController.createUser)
-        .post('/user/update', _this.usersController.updateUser)
-        .post('/user/resetPassword', _this.usersController.resetUserPassword)
         .post('/user/getAll', _this.usersController.getAllUsers)
         .delete('/user/delete', _this.usersController.deleteUser);
 
@@ -195,4 +197,4 @@ OpalInterface.prototype._setupInterfaceControllers = function() {
 };
 
 
-module.exports = OpalInterface;
+module.exports = EaeInterface;

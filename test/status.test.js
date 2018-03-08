@@ -1,6 +1,6 @@
 const request = require('request');
 const eaeutils = require('eae-utils');
-let config = require('../config/opal.interface.test.config.js');
+let config = require('../config/eae.interface.test.config.js');
 let TestServer = require('./testserver.js');
 
 let ts = new TestServer();

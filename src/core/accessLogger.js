@@ -23,8 +23,8 @@ AccessLogger.prototype.logAccess = function(request){
     let _this = this;
     let unauthorizedAccessModel = interface_models.UNAUTHORIZED_ACCESS_MODEL;
     let unauthorizedAccess = Object.assign({}, unauthorizedAccessModel,
-                                            {username: request.body.opalUsername,
-                                            token: request.body.opalUserToken,
+                                            {username: request.body.eaeUsername,
+                                            token: request.body.eaeUserToken,
                                             headers:  request.headers});
     _this._accessLogCollection.insertOne(unauthorizedAccess);
 };

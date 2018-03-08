@@ -1,25 +1,145 @@
-// const { interface_models, interface_constants } = require('../core/models.js');
+const timer = require('timers');
+const { interface_models, interface_constants } = require('../core/models.js');
 const { ErrorHelper, Constants } = require('eae-utils');
-const { interface_constants } = require('../core/models.js');
 const ObjectID = require('mongodb').ObjectID;
 
 /**
  * @fn Utils
  * @desc Manages the job from the Created status to the Queued status (from which the scheduler takes over)
- * @param jobsCollection
- * @param algorithmHelper
  * @constructor
  */
-function JobsManagement(jobsCollection, algorithmHelper) {
+function JobsManagement(carrierCollection, jobsCollection, delay = Constants.STATUS_DEFAULT_UPDATE_INTERVAL, maximumTimeForFileTransfer = 1000 * 3600 * 12) {
     let _this = this;
+    _this._carrierCollection = carrierCollection;
     _this._jobsCollection = jobsCollection;
-    _this._algoHelper = algorithmHelper;
+    _this._timers = {};
+    _this._delay = delay;
+    _this._maximumTimeForFileTransfer = maximumTimeForFileTransfer;
 
     // Bind member functions
+    _this.createJobManifestForCarriers = JobsManagement.prototype.createJobManifestForCarriers.bind(this);
+    _this.startJobMonitoring = JobsManagement.prototype.startJobMonitoring.bind(this);
     _this.cancelJob = JobsManagement.prototype.cancelJob.bind(this);
-    _this.checkFields = JobsManagement.prototype.checkFields.bind(this);
+    _this.createDownloadManifestForCarriers = JobsManagement.prototype.createDownloadManifestForCarriers.bind(this);
+
 }
 
+/**
+ * @fn createJobManifestForCarriers
+ * @desc Creates a manifest for the carriers to know which files to expect.
+ * @param newJob eae job containing the username of the requester and the filesArray
+ * @param jobID id of the job
+ * @return {Promise}
+ */
+JobsManagement.prototype.createJobManifestForCarriers = function(newJob, jobID){
+    let _this = this;
+
+    return new Promise(function(resolve, reject) {
+        // We build the carrier job
+        let carrierJob = Object.assign({}, interface_models.CARRIER_JOB_MODEL,
+            { files: newJob.input, requester: newJob.requester, type: interface_constants.TRANSFER_TYPE.upload,
+                jobId: jobID ,numberOfFilesToTransfer:  newJob.input.length});
+        delete carrierJob._id;
+        // We insert it for the carriers to work against
+        _this._carrierCollection.insertOne(carrierJob).then(function (_unused__result) {
+            newJob.status.unshift(Constants.EAE_JOB_STATUS_TRANSFERRING_DATA) ;
+            _this._jobsCollection.findOneAndUpdate({_id: ObjectID(jobID)},
+                                                   { $set: newJob},
+                                                   { returnOriginal: false, w: 'majority', j: false })
+                .then(function (res) {
+                    resolve(res);
+            }, function (error){
+                reject(ErrorHelper('Could not insert a new carrier job for the file transfer',error));
+            });
+        }, function (error) {
+            reject(ErrorHelper('Could not insert a new carrier job for the file transfer',error));
+        });
+    });
+};
+
+/**
+ * @fn createDownloadManifestForCarriers
+ * @desc Creates a manifest for the carriers to enable the download of the results by the user.
+ * @param job Completed job with the list of output(s)
+ * @returns {Promise}
+ */
+JobsManagement.prototype.createDownloadManifestForCarriers = function(job) {
+    let _this = this;
+
+    return new Promise(function (resolve, reject) {
+        // We create a download manifest
+        let carrierJob = Object.assign({}, interface_models.CARRIER_JOB_MODEL,
+            { files: job.output, requester: job.requester, type: interface_constants.TRANSFER_TYPE.download,
+                jobId: job._id.toString() ,numberOfFilesToTransfer:  job.input.length});
+        delete carrierJob._id; // Useless?
+        // We insert it for the carriers to work against
+        _this._carrierCollection.insertOne(carrierJob).then(function (_unused__result) {
+            resolve(job.output);
+        }, function (error){
+            reject(ErrorHelper('Could not insert a new carrier job for the file transfer',error));
+        });
+    });
+};
+
+
+/**
+ * @fn jobMonitoring
+ * @desc Monitors the progress of the file transfer. When the file transfer is completed, it changes the status of the
+ * job from data transfer to Queued.
+ * @param newJob
+ * @param jobID
+ * @return {Promise}
+ */
+JobsManagement.prototype.startJobMonitoring =  function(newJob, jobID) {
+    let _this = this;
+
+    return new Promise(function(resolve, reject) {
+        //Start a new interval update
+        _this._timers[jobID] = timer.setInterval(function () {
+            // let currentJob = jobID;
+            _this._carrierCollection.findOne({jobId : jobID}).then(function(carrierJob){
+                // We check if the file transfer is completed
+                if(carrierJob.numberOfTransferredFiles === carrierJob.numberOfFilesToTransfer){
+                    if (_this._timers[jobID] !== null && _this._timers[jobID] !== undefined) {
+                        // We stop the timer
+                        timer.clearInterval(_this._timers[jobID]);
+                        _this._timers[jobID] = null;
+                        // The job is ready for scheduling, we set the status of the job to QUEUED
+                        newJob.status.unshift(Constants.EAE_JOB_STATUS_QUEUED) ;
+                        _this._jobsCollection.findOneAndUpdate({_id: ObjectID(jobID)},
+                            { $set: newJob},
+                            { returnOriginal: false, w: 'majority', j: false }).then(function (res) {
+                            _this._carrierCollection.deleteOne({jobId : jobID});
+                            resolve(res);
+                        },function(error){
+                            reject(ErrorHelper('Internal Mongo Error', error));
+                        });
+                    }}
+                // We check if the file transfer has timed out
+                let currentTime = new Date().getTime();
+                let timeElapsed = currentTime - carrierJob.created.getTime();
+                if(timeElapsed > _this._maximumTimeForFileTransfer){
+                    if (_this._timers[jobID] !== null && _this._timers[jobID] !== undefined) {
+                        // We stop the timer
+                        timer.clearInterval(_this._timers[jobID]);
+                        _this._timers[jobID] = null;
+                        // The job has taken too long to transfer the files, we set the job to DEAD
+                        newJob.status.unshift(Constants.EAE_JOB_STATUS_DEAD) ;
+                        _this._jobsCollection.findOneAndUpdate({_id: ObjectID(jobID)},
+                            {$set: newJob},
+                            {returnOriginal: false, w: 'majority', j: false}).then(function (res) {
+                            resolve(res);
+                        }, function (error) {
+                            reject(ErrorHelper('Internal Mongo Error', error));
+                        });
+                    }
+                }
+            },function(error){
+                reject(ErrorHelper('Internal Mongo Error', error));
+            });
+        }, _this._delay);
+    });
+};
 
 /**
  * @fn cancelJob
@@ -42,76 +162,6 @@ JobsManagement.prototype.cancelJob = function(job){
             });
     });
 };
-
-/**
- * @fn checkFields
- * @desc Checks that all mandatory fields and params are valid for the specified algorithm.
- * @param jobRequest
- * @returns {Promise}
- */
-JobsManagement.prototype.checkFields = function(jobRequest){
-    let _this = this;
-
-    return new Promise(function(resolve, reject) {
-        // We check the core parameters
-        let params = jobRequest.params;
-        delete jobRequest.params;
-        let coreFields = jobRequest;
-        let enabledAlgorithms = _this._algoHelper.getAPIEnabledAlgorithms();
-
-        _this._algoHelper.validate(coreFields, 'core').then(function() {
-            if (!enabledAlgorithms.hasOwnProperty(coreFields.algorithm)) {
-                reject(ErrorHelper('The selected algorithm' + coreFields.algorithm + 'is not enabled'));
-                return;
-            }
-            _this._algoHelper.validate(params, coreFields.algorithm).then(function(){
-                _this._algoHelper.getListOfAlgos().then(function(authorized_algorithms) {
-                    if (!authorized_algorithms.hasOwnProperty(coreFields.algorithm)) {
-                        reject(ErrorHelper('The algorithm service does not contain the requested algorithm: ' +
-                            coreFields.algorithm + ' . Please contact the admin to add it.'));
-                    }
-                    resolve(true);
-                });
-            }).catch(function (error) {
-                reject(ErrorHelper('Invalid params for selected algorithm.', error));
-            });
-        }).catch(function (error) {
-            reject(ErrorHelper('Invalid core parameters.', error));
-        });
-    });
-};
-
-/**
- * @fn checkFields
- * @desc Checks that all mandatory fields and params are valid for the specified algorithm.
- * @param user User profile with the asosciated access rights
- * @param jobRequest job request containing the access level requested by user and the specified algorithm
- * @returns {Promise}
- */
-JobsManagement.prototype.authorizeRequest = function(user, jobRequest) {
-    let requestedAccessLevel = jobRequest.aggregationLevel;
-    let requestedAlgorithm = jobRequest.algorithm;
-
-    return new Promise(function (resolve, reject) {
-        // We first check the more granular rights and exceptions
-        if(user.authorizedAlgorithms.hasOwnProperty(requestedAlgorithm)){
-            if(user.authorizedAlgorithms[requestedAlgorithm].value < interface_constants.ACCESS_LEVELS[requestedAccessLevel].value){
-                reject(ErrorHelper('The request is rejected because the user has insufficient rights. User\'s Access level: '
-                    + user.authorizedAlgorithms[requestedAlgorithm].text));
-            }else{
-             resolve(true);
-            }
-        }else{
-            if(interface_constants.ACCESS_LEVELS[user.defaultAccessLevel].value < interface_constants.ACCESS_LEVELS[requestedAccessLevel].value){
-                reject(ErrorHelper('The request is rejected because the user has insufficient rights. Default access is: '
-                    + interface_constants.ACCESS_LEVELS[requestedAccessLevel].text));
-            }else{
-                resolve(true);
-            }
-        }
-    });
-};
-
 
 
 module.exports = JobsManagement;
