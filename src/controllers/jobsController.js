@@ -61,28 +61,40 @@ JobsController.prototype.createNewJob = function(req, res){
                 }
                 // Build the job to be inserted for the scheduler
                 let eaeJobModel = JSON.parse(JSON.stringify(DataModels.EAE_JOB_MODEL));
-                let newJob = Object.assign({}, eaeJobModel, jobRequest, {_id: new ObjectID()});
+
+                // We need to reformat the OPAL job request to feat the eAE's one
+                let opalRequest = {params: jobRequest, requester: user.username};
+
+                // We merge all those parameters to make the final job
+                let newJob = Object.assign({}, eaeJobModel, opalRequest, {_id: new ObjectID(), type: Constants.EAE_JOB_TYPE_PYTHON2});
                 // In opal there is no data transfer step so we move directly to queued
                 newJob.status.unshift(Constants.EAE_JOB_STATUS_TRANSFERRING_DATA);
                 newJob.status.unshift(Constants.EAE_JOB_STATUS_QUEUED);
-                newJob.requester = user.username;
-                //TODO: Check users rights to execute the request
-
-                //TODO: replace create manifest by sending the request to cache if not found to scheduler
-                _this._jobsCollection.insertOne(newJob).then(function (_unused__result) {
-                    //TODO; add the job position to the reply
-                    res.status(200);
-                    res.json({status: 'OK', jobID: newJob._id.toString()});
-                },function(error){
-                    res.status(500);
-                    res.json(ErrorHelper('Couldn\'t insert the job for computation', error));
+                // Check users rights to execute the request
+                _this._jobsManagement.authorizeRequest(user, jobRequest).then(function(_unused__accessgranted) {
+                    //TODO: --EMANUELE-- request to cache if not found then schedule job
+                    _this._jobsCollection.insertOne(newJob).then(function (_unused__result) {
+                        _this._jobsCollection.count().then(function(count) {
+                            res.status(200);
+                            res.json({status: 'OK', jobID: newJob._id.toString(), jobPosition: count});
+                        },function(error){
+                            res.status(500);
+                            res.json(ErrorHelper('Job queued but couldn\'t assert the job\'s position for computation', error));
+                        });
+                    },function(error){
+                        res.status(500);
+                        res.json(ErrorHelper('Couldn\'t insert the job for computation', error));
+                    });
+                }, function(error){
+                    res.status(401);
+                    res.json(ErrorHelper('The requested level exceeds the user\'s rights.', error));
                 });
             },function(error) {
                 res.status(500);
                 res.json(ErrorHelper('Internal Mongo Error', error));
             });
         }, function(error){
-            res.status(500);
+            res.status(401);
             res.json(ErrorHelper('The field check failed.', error));
         });
     }

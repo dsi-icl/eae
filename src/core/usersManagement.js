@@ -33,7 +33,8 @@ UsersManagement.prototype.validateUserAndInsert = function (newUser){
     return new Promise(function (resolve, reject) {
         // We check that the access type exists
         if(!interface_constants.ACCESS_LEVELS.hasOwnProperty(newUser.defaultAccessLevel)){
-            reject(ErrorHelper('The new user coudln\'t be inserted. The request access level is not supported : ', newUser.defaultAccessLevel));
+            reject(ErrorHelper('The new user coudln\'t be inserted. The request access level is not supported : ',
+                newUser.defaultAccessLevel));
             return;
         }
         // we check that the user type exists

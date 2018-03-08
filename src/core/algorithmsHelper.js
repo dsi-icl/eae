@@ -15,18 +15,16 @@ const path = require('path');
 function AlgorithmHelper(algoServiceURL, algorithmsSpecsFolder) {
     //Init member vars
     this._algoServiceURL = algoServiceURL;
-    this._enabledAlgorithms = null;
     this._algorithmsSpecsFolder = algorithmsSpecsFolder;
     this._ajv = new Ajv({allErrors: true});
 
     //Bind member functions
     this.getListOfAlgos = AlgorithmHelper.prototype.getListOfAlgos.bind(this);
     this.checkAlgorithmListValidity = AlgorithmHelper.prototype.checkAlgorithmListValidity.bind(this);
-    this.getEnabledAlgorithms = AlgorithmHelper.prototype.getEnabledAlgorithms.bind(this);
+    this.getAPIEnabledAlgorithms = AlgorithmHelper.prototype.getAPIEnabledAlgorithms.bind(this);
     this.validate = AlgorithmHelper.prototype.validate.bind(this);
-
-    this._setAlgorithmsAPIEnabled(this._algorithmsSpecsFolder);
 }
+
 /**
  * @fn getListOfAlgos
  * @desc Get the list of algorithms for the AlgoService
@@ -92,12 +90,12 @@ AlgorithmHelper.prototype.checkAlgorithmListValidity = function(algorithmsList){
 };
 
 /**
- * @fn _setAlgorithmsAPIEnabled
+ * @fn getAPIEnabledAlgorithms
  * @desc Reads all the config files for every algorithms and list of all enabled algorithms and their params fields with
  * the expected types
- * @private
+ * @return {list} List of all enabled algorithms
  */
-AlgorithmHelper.prototype._setAlgorithmsAPIEnabled = function() {
+AlgorithmHelper.prototype.getAPIEnabledAlgorithms = function() {
     let _this = this;
     let algoList = {};
     let filename = null;
@@ -108,19 +106,8 @@ AlgorithmHelper.prototype._setAlgorithmsAPIEnabled = function() {
             algoList[filename] = 'OK';
         }
     });
-    _this._enabledAlgorithms = algoList;
+    return algoList;
 };
-
-/**
- * @fn getEnabledAlgorithms
- * @desc Sends back the list of all enabled algorithms and their params fields with the expected types
- * @return {list} Sends back the list of currently enables algorithms
- */
-AlgorithmHelper.prototype.getEnabledAlgorithms = function() {
-    let _this = this;
-    return _this._enabledAlgorithms;
-};
-
 
 /**
  * @fn validate

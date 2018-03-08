@@ -6,11 +6,11 @@ const userTypes = {
 };
 
 const accessLevels = {
-  antenna: 'antenna',
-  aggregation_level_1: 'aggregation_level_1',
-  aggregation_level_2: 'aggregation_level_2',
-  cache_only: 'cache_only',
-  none: 'none'
+  antenna: { text:'antenna' ,value: 4},
+  aggregation_level_1: { text:'aggregation_level_1' ,value: 3},
+  aggregation_level_2: { text:'aggregation_level_2' ,value: 2},
+  cache_only: { text:'cache_only' ,value: 1},
+  none: { text:'none' ,value: 0}
 };
 
 const transferType = {
@@ -20,7 +20,7 @@ const transferType = {
 
 const userModel = {
     type: userTypes.standard,
-    defaultAccessLevel: accessLevels.cache_only,
+    defaultAccessLevel: accessLevels.none.text,
     authorizedAlgorithms: {},
     username: null,
     token: null,
