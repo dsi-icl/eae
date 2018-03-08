@@ -1,6 +1,6 @@
 const request = require('request');
 const { ErrorHelper } = require('eae-utils');
-let config = require('../config/eae.interface.test.config.js');
+let config = require('../config/opal.interface.test.config.js');
 let TestServer = require('./testserver.js');
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;// 20 seconds
@@ -22,31 +22,6 @@ beforeAll(function() {
     });
 });
 
-test('Cluster Status Missing Credentials Username', function(done) {
-    expect.assertions(4);
-    request(
-        {
-            method: 'POST',
-            baseUrl: 'http://127.0.0.1:' + config.port,
-            uri: '/servicesStatus',
-            json: true,
-            body: {
-                eaeUsername: null,
-                eaeUserToken: 'wrongpassword'
-            }
-        },
-        function(error, response, body) {
-            if (error) {
-                done.fail(error.toString());
-            }
-            expect(response).toBeDefined();
-            expect(response.statusCode).toEqual(401);
-            expect(body).toBeDefined();
-            expect(body).toEqual({error:'Missing username or token'});
-            done();
-        }
-    );
-});
 
 test('Cluster Status Missing Credentials Token', function(done) {
     expect.assertions(4);
@@ -57,8 +32,8 @@ test('Cluster Status Missing Credentials Token', function(done) {
             uri: '/servicesStatus',
             json: true,
             body: {
-                eaeUsername: 'test',
-                eaeUserToken: null
+                opalUsername: 'test',
+                opalUserToken: null
             }
         },
         function(error, response, body) {
@@ -83,8 +58,8 @@ test('Cluster Status Invalid Credentials', function(done) {
             uri: '/servicesStatus',
             json: true,
             body: {
-                eaeUsername: 'test',
-                eaeUserToken: 'wrongpassword'
+                opalUsername: 'test',
+                opalUserToken: 'wrongpassword'
             }
         },
         function(error, response, body) {
@@ -110,8 +85,8 @@ test('Cluster Status User Unauthorized Access Attempt', function(done) {
             uri: '/user/create',
             json: true,
             body: {
-                    eaeUsername: adminUsername,
-                    eaeUserToken: adminPassword,
+                    opalUsername: adminUsername,
+                    opalUserToken: adminPassword,
                     newUser: newUser
             }
         },
@@ -132,8 +107,8 @@ test('Cluster Status User Unauthorized Access Attempt', function(done) {
                     uri: '/servicesStatus',
                     json: true,
                     body: {
-                        eaeUsername: 'RandomCluster',
-                        eaeUserToken: newUser.token
+                        opalUsername: 'RandomCluster',
+                        opalUserToken: newUser.token
                     }
                 },
                 function(error, response, body) {
@@ -161,8 +136,8 @@ test('Get Cluster Status', function(done) {
                 uri: '/servicesStatus',
                 json: true,
                 body: {
-                    eaeUsername: adminUsername,
-                    eaeUserToken: adminPassword
+                    opalUsername: adminUsername,
+                    opalUserToken: adminPassword
                 }
             },
             function(error, response, body) {

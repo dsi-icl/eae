@@ -1,6 +1,5 @@
 const request = require('request');
-const eaeutils = require('eae-utils');
-let config = require('../config/eae.interface.test.config.js');
+let config = require('../config/opal.interface.test.config.js');
 let TestServer = require('./testserver.js');
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;// 20 seconds
@@ -22,31 +21,7 @@ beforeAll(function() {
     });
 });
 
-test('Get user Missing Credentials Username', function(done) {
-    expect.assertions(4);
-    request(
-        {
-            method: 'POST',
-            baseUrl: 'http://127.0.0.1:' + config.port,
-            uri: '/user',
-            json: true,
-            body: {
-                eaeUsername: null,
-                eaeUserToken: 'wrongpassword'
-            }
-        },
-        function(error, response, body) {
-            if (error) {
-                done.fail(error.toString());
-            }
-            expect(response).toBeDefined();
-            expect(response.statusCode).toEqual(401);
-            expect(body).toBeDefined();
-            expect(body).toEqual({error:'Missing username or token'});
-            done();
-        }
-    );
-});
+
 
 test('Get user Missing Credentials Token', function(done) {
     expect.assertions(4);
@@ -57,8 +32,8 @@ test('Get user Missing Credentials Token', function(done) {
             uri: '/user',
             json: true,
             body: {
-                eaeUsername: 'test',
-                eaeUserToken: null
+                opalUsername: 'test',
+                opalUserToken: null
             }
         },
         function(error, response, body) {
@@ -68,7 +43,7 @@ test('Get user Missing Credentials Token', function(done) {
             expect(response).toBeDefined();
             expect(response.statusCode).toEqual(401);
             expect(body).toBeDefined();
-            expect(body).toEqual({error:'Missing username or token'});
+            expect(body).toEqual({error:'Missing token'});
             done();
         }
     );
@@ -83,8 +58,8 @@ test('Get user Invalid Credentials', function(done) {
             uri: '/user',
             json: true,
             body: {
-                eaeUsername: 'test',
-                eaeUserToken: 'wrongpassword'
+                opalUsername: 'test',
+                opalUserToken: 'wrongpassword'
             }
         },
         function(error, response, body) {
@@ -109,8 +84,8 @@ test('Get user Admin previously created', function(done) {
             uri: '/user',
             json: true,
             body: {
-                eaeUsername: adminUsername,
-                eaeUserToken: adminPassword,
+                opalUsername: adminUsername,
+                opalUserToken: adminPassword,
                 requestedUsername: adminUsername
             }
         },
@@ -138,8 +113,8 @@ test('Get user that doesn\'t exist', function(done) {
             uri: '/user',
             json: true,
             body: {
-                eaeUsername: adminUsername,
-                eaeUserToken: adminPassword,
+                opalUsername: adminUsername,
+                opalUserToken: adminPassword,
                 requestedUsername: requestedUsername
             }
         },
@@ -192,8 +167,8 @@ test('Create a new user', function(done) {
             uri: '/user/create',
             json: true,
             body: {
-                eaeUsername: adminUsername,
-                eaeUserToken: adminPassword,
+                opalUsername: adminUsername,
+                opalUserToken: adminPassword,
                 newUser: newUser
             }
         },
@@ -246,6 +221,7 @@ test('Get All Admin Users', function(done) {
                 eaeUsername: adminUsername,
                 eaeUserToken: adminPassword,
                 userType: 'admin'     //the defined usertype is 'ADMIN' but API converts input userType to uppercase automatically
+
             }
         },
         function(error, response, body) {
@@ -296,8 +272,8 @@ test('Delete a user', function(done) {
             uri: '/user/delete',
             json: true,
             body: {
-                eaeUsername: adminUsername,
-                eaeUserToken: adminPassword,
+                opalUsername: adminUsername,
+                opalUserToken: adminPassword,
                 userToBeDeleted: userToBeDeleted
             }
         },
@@ -316,8 +292,8 @@ test('Delete a user', function(done) {
                     uri: '/user',
                     json: true,
                     body: {
-                        eaeUsername: adminUsername,
-                        eaeUserToken: adminPassword,
+                        opalUsername: adminUsername,
+                        opalUserToken: adminPassword,
                         requestedUsername: userToBeDeleted
                     }
                 },

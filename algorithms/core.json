@@ -1,0 +1,10 @@
+{
+    "properties": {
+        "startDate": { "type": "string", "format": "date-time", "formatMinimum": "2013-01-01T00:00:00Z", "formatMaximum": "2015-12-31T23:59:59Z"},
+        "endDate": { "type": "string", "format": "date-time", "formatMinimum": "2013-01-01T00:00:00Z", "formatMaximum": "2015-12-31T23:59:59Z"},
+        "algorithm": {"type": "string"},
+        "aggregationLevel": {"type": "string"},
+        "aggregationValues": {"type": "array",  "items": [ {"type": "string"}]},
+        "sample": { "type": "number", "minimum": 0, "maximum": 1 }
+    }
+}
