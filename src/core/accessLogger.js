@@ -11,7 +11,7 @@ function AccessLogger(accessLogCollection) {
     _this._accessLogCollection = accessLogCollection;
 
     // Bind member functions
-    _this.postNewJob = AccessLogger.prototype.logAccess.bind(this);
+    _this.logAccess = AccessLogger.prototype.logAccess.bind(this);
 }
 
 /**

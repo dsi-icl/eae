@@ -347,7 +347,7 @@ JobsController.prototype.getJobResults = function(req, res){
         _this._jobsCollection.findOne({_id: ObjectID(jobID)}).then(function(job){
             if(job === null){
                 res.status(401);
-                res.json(ErrorHelper('The job request do not exit. The query has been logged.'));
+                res.json(ErrorHelper('The job request do not exists. The query has been logged.'));
                 // Log unauthorized access
                 _this._accessLogger.logAccess(req);
                 return;
