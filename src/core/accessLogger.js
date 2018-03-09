@@ -11,15 +11,15 @@ function AccessLogger(accessLogCollection) {
     _this._accessLogCollection = accessLogCollection;
 
     // Bind member functions
-    _this.logAccess = AccessLogger.prototype.logAccess.bind(this);
+    _this.logIllegalAccess = AccessLogger.prototype.logIllegalAccess.bind(this);
 }
 
 /**
- * @fn logAccess
+ * @fn logIllegalAccess
  * @desc Methods that logs illegal accesses
  * @param request Illegal request to be logged
  */
-AccessLogger.prototype.logAccess = function(request){
+AccessLogger.prototype.logIllegalAccess = function(request){
     let _this = this;
     let unauthorizedAccessModel = interface_models.UNAUTHORIZED_ACCESS_MODEL;
     let unauthorizedAccess = Object.assign({}, unauthorizedAccessModel,
