@@ -97,14 +97,12 @@ NodesWatchdog.prototype._purgeExpired = function() {
                         }
                     },
                     function (error) {
-                        ErrorHelper('Failed to lock the node and set its status to DEAD. Node: ' + node.ip + ' ' + node.port, error);
-                        reject(error);
+                        reject(ErrorHelper('Failed to lock the node and set its status to DEAD. Node: ' + node.ip + ' ' + node.port, error));
                     });
             });
             resolve();
         }, function (error) {
-            ErrorHelper('Failed to retrieve nodes status. Filter:' + filter.toString(), error);
-            reject(error);
+            reject(ErrorHelper('Failed to retrieve nodes status. Filter:' + filter.toString(), error));
         });
     });
 };
