@@ -208,7 +208,9 @@ JobsWatchdog.prototype.startPeriodicUpdate = function(delay = Constants.STATUS_D
     _this.stopPeriodicUpdate();
     //Start a new interval update
     _this._intervalTimeout = timer.setInterval(function(){
-        _this._archiveJobs(); // Purge expired jobs
+        if(global.eae_scheduler_config.archivingEnabled) {
+            _this._archiveJobs(); // Purge expired jobs
+        }
         _this._invalidateTimingOutJobs(); // Invalidate jobs which have been for longer than a specified threshold
     }, delay);
 };
