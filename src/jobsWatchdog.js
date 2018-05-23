@@ -127,13 +127,14 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
     let _this = this;
     return new Promise(function(resolve, reject) {
         let statuses = [Constants.EAE_JOB_STATUS_SCHEDULED, Constants.EAE_JOB_STATUS_RUNNING];
-        let currentTime = new Date();
+        let currentTime =  new Date().getTime();
+        let timeOutTime =  new Date(currentTime -  global.opal_scheduler_config.jobsTimingoutTime * 3600000);
 
         let filter = {
             'status.0': {$in: statuses},
             statusLock: false,
             startDate: {
-                '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.jobsTimingoutTime))
+                '$lt': timeOutTime
             }
         };
 
@@ -164,7 +165,7 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
                                         return;
                                     }
                                     // eslint-disable-next-line no-console
-                                    console.log('The cancel request sent to host ' + job.executorIP + ':' + job.executorIP
+                                    console.log('The cancel request sent to host ' + job.executorIP + ':' + job.executorPort
                                         + ' and the response was ', response.statusCode);
 
                                     // We change the job status back to Queued and unlock the job for scheduling

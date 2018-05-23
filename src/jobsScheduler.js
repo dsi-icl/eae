@@ -54,7 +54,7 @@ JobsScheduler.prototype._freeComputeResources = function(job){
                     return;
                 }
                 // eslint-disable-next-line no-console
-                console.log('The cancel request sent to host ' + job.executorIP + ':' + job.executorIP
+                console.log('The cancel request sent to host ' + job.executorIP + ':' + job.executorPort
                     + ' and the response was ', response.statusCode);
                 switch (job.type) {
                     case Constants.EAE_JOB_TYPE_SPARK: {
