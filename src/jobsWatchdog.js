@@ -128,7 +128,7 @@ JobsWatchdog.prototype._invalidateTimingOutJobs = function(){
     return new Promise(function(resolve, reject) {
         let statuses = [Constants.EAE_JOB_STATUS_SCHEDULED, Constants.EAE_JOB_STATUS_RUNNING];
         let currentTime =  new Date().getTime();
-        let timeOutTime =  new Date(currentTime -  global.opal_scheduler_config.jobsTimingoutTime * 3600000);
+        let timeOutTime =  new Date(currentTime -  global.eae_scheduler_config.jobsTimingoutTime * 3600000);
 
         let filter = {
             'status.0': {$in: statuses},
