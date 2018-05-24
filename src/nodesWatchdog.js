@@ -67,15 +67,14 @@ NodesWatchdog.prototype._purgeExpired = function() {
 
     return new Promise(function(resolve, reject) {
         let statuses = [Constants.EAE_SERVICE_STATUS_BUSY, Constants.EAE_SERVICE_STATUS_LOCKED];
-        let time = new Date();
-        time.setHours(time.getHours() - global.eae_scheduler_config.expiredStatusTime);
+        let currentTime = new Date().getTime();
+        let nodesTimeout = new Date(currentTime -  global.opal_scheduler_config.nodesExpiredStatusTime * 3600000);
 
         let filter = {
             status: {$in: statuses},
             statusLock: false,
             lastUpdate: {
-                '$gte': new Date(0),
-                '$lt': time
+                '$lt': nodesTimeout
             }
         };
         _this._mongoHelper.retrieveNodesStatus(filter).then(function (nodes) {

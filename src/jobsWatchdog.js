@@ -71,13 +71,14 @@ JobsWatchdog.prototype._archiveJobs = function(){
     let _this = this;
     return new Promise(function(resolve, reject) {
         let statuses = [Constants.EAE_JOB_STATUS_COMPLETED];
-        let currentTime = new Date();
+        let currentTime = new Date().getTime();
+        let archivingTime =  new Date(currentTime -  global.eae_scheduler_config.jobsExpiredStatusTime * 3600000);
 
         let filter = {
             'status.0': {$in: statuses},
             statusLock: false,
             endDate: {
-                '$lt': new Date(currentTime.setHours(currentTime.getHours() - global.eae_scheduler_config.jobsExpiredStatusTime))
+                '$lt': archivingTime
             }
         };
 
