@@ -41,7 +41,7 @@
     "body-parser": "^1.18.2",
     "eae-utils": "git+https://github.com/dsi-icl/eae-utils.git",
     "express": "^4.16.2",
-    "fs-extra": "^5.0.0",
+    "fs-extra": "^6.0.0",
     "mongodb": "^2.2.34"
   }
 }
