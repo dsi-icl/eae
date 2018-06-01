@@ -199,11 +199,12 @@ function StatusHelperExport(type = 'eae-service', port = 8080, mongoURL = null, 
     let status_helper = new StatusHelper(opts);
 
     if (mongoURL !== null && mongoURL !== undefined) {
-        mongodb.connect(mongoURL, function (err, db) {
+        mongodb.connect(mongoURL, {}, function (err, client) {
             if (err !== null && err !== undefined) {
                 throw defines.errorStacker('Failed to connect to MongoDB', err);
             }
             else {
+                let db = client.db();
                 let statusCollection = db.collection(defines.STATUS_COLLECTION_NAME);
                 status_helper.setCollection(statusCollection);
             }
