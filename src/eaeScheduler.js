@@ -125,7 +125,7 @@ EaeScheduler.prototype.stop = function() {
         // Stop status update
         _this.status_helper.stopPeriodicUpdate();
         // Disconnect DB --force
-        _this.db.close(true).then(function(error) {
+        _this.client.close(true).then(function(error) {
             if (error)
                 reject(ErrorHelper('Closing mongoDB connection failed', error));
             else
@@ -143,12 +143,13 @@ EaeScheduler.prototype.stop = function() {
 EaeScheduler.prototype._connectDb = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
-        mongodb.connect(_this.config.mongoURL, function (err, db) {
+        mongodb.connect(_this.config.mongoURL, {}, function (err, client) {
             if (err !== null && err !== undefined) {
                 reject(ErrorHelper('Failed to connect to mongoDB', err));
                 return;
             }
-            _this.db = db;
+            _this.client = client;
+            _this.db = _this.client.db();
             resolve(true);
         });
     });
