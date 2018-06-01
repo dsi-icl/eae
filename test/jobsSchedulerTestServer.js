@@ -26,7 +26,8 @@ JobsSchedulerTestServer.prototype.setup = function() {
             if (err !== null) {
                 reject(ErrorHelper('Could not connect to mongo: ', err));
             }
-            _this.db = mongo;
+            _this.client = mongo;
+            _this.db = _this.client.db();
             console.log('Connected to Mongo');
 
             _this.db.collection(Constants.EAE_COLLECTION_JOBS).deleteMany({}).then(() => {
@@ -62,7 +63,7 @@ JobsSchedulerTestServer.prototype.setup = function() {
 JobsSchedulerTestServer.prototype.shutdown = function() {
     let _this = this;
     return new Promise(function (resolve, reject) {
-        _this.db.close();
+        _this.client.close();
         console.log('Resolved afterEach()');
         resolve(true);
     });
