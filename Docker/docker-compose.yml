@@ -1,7 +1,7 @@
 version: '3'
 services:
     mongodb:
-        image: mongo:latest
+        image: mongo:latest@sha256:89672f72dde6ec88618fcfa2fd11a45d147cbd7df97573c227ff8d80131c3c53
         environment:
           - MONGO_DATA_DIR=/data/mongodb
           - MONGO_LOG_DIR=/dev/null
@@ -11,19 +11,19 @@ services:
           - 27017:27017
 
     mongodb-initialize:
-        image: aoehmich/eae-mongodb-initialize:latest
+        image: aoehmich/eae-mongodb-initialize:latest@sha256:7f42bcf0b12e039ce54aa9c93f8e0d487704b2fd24416741686e36001ccf4dcb
         depends_on:
           - mongodb
         links:
           - mongodb
 
     swift:
-        image: bouncestorage/swift-aio
+        image: bouncestorage/swift-aio:latest@sha256:089cad2692dd711e52d43c724ac7bd2b5fff4e9566416cdc7cb11412606a49a3
         ports:
           - 8080:8080
 
     compute1:
-        image: aoehmich/eae-compute:latest
+        image: aoehmich/eae-compute:latest@sha256:84554373c551bea39a445e75fe3d27e94c3aaba654473939fcd6b726606fd4a3
         depends_on:
           - mongodb
           - swift
@@ -34,7 +34,7 @@ services:
           - ./eae.compute.config.js:/usr/app/config/eae.compute.config.js
 
     compute2:
-        image: aoehmich/eae-compute:latest
+        image: aoehmich/eae-compute:latest@sha256:84554373c551bea39a445e75fe3d27e94c3aaba654473939fcd6b726606fd4a3
         depends_on:
           - mongodb
           - swift
@@ -45,7 +45,7 @@ services:
           - ./eae.compute.config.js:/usr/app/config/eae.compute.config.js
 
     scheduler:
-        image: aoehmich/eae-scheduler:latest
+        image: aoehmich/eae-scheduler:latest@sha256:53c881645993e17e706a4e6458097eff63a22fa9a7de43ed8088270977198793
         depends_on:
           - compute1
           - compute2
@@ -56,7 +56,7 @@ services:
           - ./eae.scheduler.config.js:/usr/app/config/eae.scheduler.config.js
 
     carrier:
-        image: aoehmich/eae-carrier:latest
+        image: aoehmich/eae-carrier:latest@sha256:4df5c89b9a4ba6dbb7fcd2d329647153c9ede5be0fd2f54c9095d6232bd8329a
         depends_on:
           - scheduler
         links:
@@ -68,7 +68,7 @@ services:
           - ./eae.carrier.config.js:/usr/app/config/eae.carrier.config.js
 
     interface:
-        image: aoehmich/eae-interface:latest
+        image: aoehmich/eae-interface:latest@sha256:b9dbad5130543bce5c2b9e81e9e2439c9ce55155d187b6cb78538b9e76c1e088
         depends_on:
           - carrier
         links:
