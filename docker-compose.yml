@@ -1,7 +1,7 @@
 version: '3'
 services:
     mongodb:
-        image: mongo:latest
+        image: mongo:latest@sha256:89672f72dde6ec88618fcfa2fd11a45d147cbd7df97573c227ff8d80131c3c53
         environment:
             - MONGO_DATA_DIR=/data/mongodb
             - MONGO_LOG_DIR=/dev/null
@@ -11,7 +11,7 @@ services:
             - 27017:27017
 
     lb: # Load balancing
-        image: dockercloud/haproxy
+        image: dockercloud/haproxy:latest@sha256:040d1b321437afd9f8c9ba40e8340200d2b0ae6cf280a929a1e8549698c87d30
         depends_on:
             - compute
         links:
