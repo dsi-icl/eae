@@ -26,10 +26,10 @@
     "eslint": "4.2.0",
     "jest": "21.0.1",
     "request": "2.81.0",
-    "uuid": "^3.1.0"
+    "uuid": "3.2.1"
   },
   "dependencies": {
-    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-plugin-transform-decorators-legacy": "1.3.5",
     "eae-utils": "git+https://github.com/dsi-icl/eae-utils.git",
     "body-parser": "1.18.2",
     "mongodb": "2.2.30"
