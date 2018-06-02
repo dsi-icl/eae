@@ -191,7 +191,9 @@ StatusHelper.prototype.stopPeriodicUpdate = function() {
     if (_this._intervalTimeout !== null && _this._intervalTimeout !== undefined) {
         timer.clearInterval(_this._intervalTimeout);
         _this._intervalTimeout = null;
-        _this._client.close();
+    }
+    if(_this._client !== null && _this._client !== undefined){
+        _this._client.close(true);
     }
 };
 
