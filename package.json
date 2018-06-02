@@ -1,7 +1,7 @@
 {
   "name": "eae-utils",
-  "version": "0.0.1",
-  "description": "Common utilities shared across the EAE Micro-service architecture",
+  "version": "0.0.2",
+  "description": "Common utilities shared across the eAE Micro-service architecture",
   "main": "./src/index.js",
   "scripts": {
     "lint": "eslint src"

@@ -14,6 +14,7 @@ const defines = require('./defines.js');
  */
 function StatusHelper(config = {}) {
     //Init member vars
+    this._client = null;
     this._statusCollection = null;
     this._config = config;
     this._data = Object.assign({}, defines.STATUS_MODEL, this._config);
@@ -24,6 +25,8 @@ function StatusHelper(config = {}) {
     this.getStatus = StatusHelper.prototype.getStatus.bind(this);
     this.setComputeType = StatusHelper.prototype.setComputeType.bind(this);
     this.setStatus = StatusHelper.prototype.setStatus.bind(this);
+    this.setCollection = StatusHelper.prototype.setCollection.bind(this);
+    this.setClient = StatusHelper.prototype.setClient.bind(this);
     this.startPeriodicUpdate = StatusHelper.prototype.startPeriodicUpdate.bind(this);
     this.stopPeriodicUpdate = StatusHelper.prototype.stopPeriodicUpdate.bind(this);
     this._update = StatusHelper.prototype._update.bind(this);
@@ -81,6 +84,15 @@ StatusHelper.prototype.setComputeType = function(computeType) {
  */
 StatusHelper.prototype.setCollection = function(statusCollection) {
     this._statusCollection = statusCollection;
+};
+
+/**
+ * @fn setClient
+ * @desc Setup the mongoDB client to be able to close it when stopping the statusHelper
+ * @param client Initialized mongodb client
+ */
+StatusHelper.prototype.setClient = function(client) {
+    this._client = client;
 };
 
 /**
@@ -179,6 +191,7 @@ StatusHelper.prototype.stopPeriodicUpdate = function() {
     if (_this._intervalTimeout !== null && _this._intervalTimeout !== undefined) {
         timer.clearInterval(_this._intervalTimeout);
         _this._intervalTimeout = null;
+        _this._client.close();
     }
 };
 
@@ -206,6 +219,7 @@ function StatusHelperExport(type = 'eae-service', port = 8080, mongoURL = null, 
             else {
                 let db = client.db();
                 let statusCollection = db.collection(defines.STATUS_COLLECTION_NAME);
+                status_helper.setClient(client);
                 status_helper.setCollection(statusCollection);
             }
         });
