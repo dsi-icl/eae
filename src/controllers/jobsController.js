@@ -24,6 +24,7 @@ function JobsController(carriers, jobsCollection, usersCollection, carrierCollec
 
     // Bind member functions
     _this.createNewJob = JobsController.prototype.createNewJob.bind(this);
+    _this.createNewJobSwift = JobsController.prototype.createNewJobSwift.bind(this);
     _this.getJob = JobsController.prototype.getJob.bind(this);
     _this.getAllJobs = JobsController.prototype.getAllJobs.bind(this);
     _this.cancelJob = JobsController.prototype.cancelJob.bind(this);
@@ -31,7 +32,7 @@ function JobsController(carriers, jobsCollection, usersCollection, carrierCollec
 }
 
 /**
- * @fn postNewJob
+ * @fn createNewJob
  * @desc Create a job request. Sends back the list of carriers available for uploading the data.
  * @param req Incoming message
  * @param res Server Response
@@ -119,6 +120,98 @@ JobsController.prototype.createNewJob = function(req, res){
         res.json(ErrorHelper('Error occurred', error));
     }
 };
+
+
+/**
+ * @fn createNewJobSwift
+ * @desc Create a job request. Sends back an acknowledgement of the request.
+ * @param req Incoming message
+ * @param res Server Response
+ */
+JobsController.prototype.createNewJobSwift = function(req, res){
+    let _this = this;
+    let eaeUsername = req.body.eaeUsername;
+    let userToken = req.body.eaeUserToken;
+
+    if (eaeUsername === null || eaeUsername === undefined || userToken === null || userToken === undefined) {
+        res.status(401);
+        res.json(ErrorHelper('Missing username or token'));
+        return;
+    }
+    try {
+        // Check the validity of the JOB
+        let jobRequest = JSON.parse(req.body.job);
+        let requiredJobFields = ['type', 'main', 'params', 'input', 'swiftId'];
+        let terminateCreation = false;
+        requiredJobFields.forEach(function(key){
+            if(jobRequest[key] === null || jobRequest[key] === undefined){
+                res.status(401);
+                res.json(ErrorHelper('Job request is not well formed. Missing ' + jobRequest[key]));
+                terminateCreation = true;
+            }
+            if(key === 'type'){
+                let listOfSupportedComputations = [Constants.EAE_COMPUTE_TYPE_PYTHON2, Constants.EAE_COMPUTE_TYPE_R,
+                    Constants.EAE_COMPUTE_TYPE_TENSORFLOW, Constants.EAE_COMPUTE_TYPE_SPARK];
+                if(!(listOfSupportedComputations.includes(jobRequest[key]))) {
+                    res.status(405);
+                    res.json(ErrorHelper('The requested compute type is currently not supported. The list of supported computations: ' +
+                        Constants.EAE_COMPUTE_TYPE_PYTHON2 + ', ' + Constants.EAE_COMPUTE_TYPE_SPARK + ', ' + Constants.EAE_COMPUTE_TYPE_R + ', ' +
+                        Constants.EAE_COMPUTE_TYPE_TENSORFLOW));
+                    terminateCreation = true;
+                }
+            }
+        });
+        // we cannot stop the foreach without throwing an error so it is a bad workaround
+        if(terminateCreation) return;
+
+        // Prevent the model from being updated
+        let eaeJobModel = JSON.parse(JSON.stringify(DataModels.EAE_JOB_MODEL));
+        let newJob = Object.assign({}, eaeJobModel, jobRequest, {_id: new ObjectID()});
+        newJob.requester = eaeUsername;
+        let filter = {
+            username: eaeUsername,
+            token: userToken
+        };
+
+        _this._usersCollection.findOne(filter).then(function (user) {
+            if (user === null) {
+                res.status(401);
+                res.json(ErrorHelper('Unauthorized access. The unauthorized access has been logged.'));
+                // Log unauthorized access
+                _this._accessLogger.logIllegalAccess(req);
+                return;
+            }
+
+            _this._jobsCollection.insertOne(newJob).then(function (_unused__result) {
+                // We create a manifest for the carriers to work against
+                _this._jobsManagement.createJobManifestForCarriers(newJob, newJob._id.toString()).then(function(_unused__result) {
+                    res.status(200);
+                    res.json({status: 'OK', jobID: newJob._id.toString(), carriers: _this._carriers});
+                    // This will monitor the data transfer status
+                    _this._jobsManagement.startJobMonitoring(newJob,  newJob._id.toString()).then(function (_unused__updated) {
+                        // if(updated.updatedExisting)
+                    }, function (error) {
+                        ErrorHelper('Couldn\'t start the monitoring of the transfer', error);
+                    });
+                },function(error){
+                    res.status(500);
+                    res.json(ErrorHelper('Couldn\'t create the manifest for the carriers to transfer the files', error));
+                });
+            },function(error) {
+                res.status(500);
+                res.json(ErrorHelper('Internal Mongo Error', error));
+            });
+        },function(error){
+            res.status(500);
+            res.json(ErrorHelper('Internal Mongo Error', error));
+        });
+    }
+    catch (error) {
+        res.status(500);
+        res.json(ErrorHelper('Error occurred', error));
+    }
+};
+
 
 /**
  * @fn getJob
