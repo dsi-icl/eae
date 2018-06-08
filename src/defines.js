@@ -67,6 +67,7 @@ const jobModel = {
     main: 'main.py',
     params: [],
     input: [],
+    swiftData: {},
     endDate: new Date(0),
     exitCode: -1,
     stdout: null,
