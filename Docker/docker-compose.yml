@@ -68,7 +68,7 @@ services:
           - ./eae.carrier.config.js:/usr/app/config/eae.carrier.config.js
 
     interface:
-        image: aoehmich/eae-interface:latest@sha256:beed1dd3c71081f92bd757d8a5f1cb8ef66362de3250e65184fd978338ba9eaa
+        image: aoehmich/eae-interface:latest@sha256:75f66665b32acbe0f89a1c9a0e29d4a5a1803435455b77203c471492699e8493
         depends_on:
           - carrier
         links:
