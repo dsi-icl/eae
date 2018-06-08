@@ -484,7 +484,7 @@ JobsController.prototype.getJobResults = function(req, res){
 
 /**
  * @fn getJobResultsSwift
- * @desc Retrieve the results for a specific job by sending back the locationg of the swift output container and list of files.
+ * @desc Retrieve the results for a specific job by sending back the location of the swift output container and list of files.
  * Check that user requesting is owner of the job or Admin
  * @param req Incoming message
  * @param res Server Response
