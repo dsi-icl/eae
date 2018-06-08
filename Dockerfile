@@ -1,5 +1,5 @@
 # Select source image
-FROM node:wheezy
+FROM node:wheezy@sha256:4e94d7eab2c3c8c59647b534699c32c5cbcdce371e70eb314c2d056922b2a2f1
 
 # Install all dependencies
 RUN apt-get update
