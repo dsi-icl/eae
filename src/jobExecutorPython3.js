@@ -51,9 +51,8 @@ JobExecutorPython3.prototype._preExecution = function() {
         fs.mkdirSync(path.join(_this._tmpDirectory, 'input'));
         let file_transfer_promises = [];
         // We need to check what type of job we are dealing with swift or standard
-        if(!(_this._model.swiftData === null || _this._model.swiftData === undefined)){
-            let containers = [];
-            for(let k in _this._model.swiftData) containers.push(k);
+        if(Object.keys(_this._model.swiftData).length !== 0){
+            let containers = Object.keys(_this._model.swiftData);
             containers.forEach(function (container_id) {
                 // Download each input file in the model from the swift store
                 _this._model.swiftData[container_id].forEach(function (file) {
