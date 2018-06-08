@@ -174,6 +174,9 @@ EaeInterface.prototype._setupInterfaceControllers = function() {
     // Retrieve the results for a specific job
     _this.app.post('/job/results', _this.jobsController.getJobResults);
 
+    // Retrieve the results for a specific job that was a using swift directly
+    _this.app.post('/job/results/swift', _this.jobsController.getJobResultsSwift);
+
     // Status of the services in the eAE - Admin only
     _this.app.post('/servicesStatus', _this.clusterController.getServicesStatus);
 

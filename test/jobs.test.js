@@ -105,7 +105,7 @@ test('Create a Job with a nonsupported compute type', function(done) {
         {
             method: 'POST',
             baseUrl: 'http://127.0.0.1:' + config.port,
-            uri: '/job/create/carrier',
+            uri: '/job/create',
             json: true,
             body: {
                 eaeUsername: adminUsername,
@@ -136,7 +136,7 @@ test('Create a Job and subsequently get it', function(done) {
         {
             method: 'POST',
             baseUrl: 'http://127.0.0.1:' + config.port,
-            uri: '/job/create/carrier',
+            uri: '/job/create',
             json: true,
             body: {
                 eaeUsername: adminUsername,
@@ -191,7 +191,7 @@ test('Create a Job and subsequently cancel it', function(done) {
         {
             method: 'POST',
             baseUrl: 'http://127.0.0.1:' + config.port,
-            uri: '/job/create/carrier',
+            uri: '/job/create',
             json: true,
             body: {
                 eaeUsername: adminUsername,

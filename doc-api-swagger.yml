@@ -113,7 +113,7 @@ paths:
             type: object
             description: eAE ErrorStack tracking the error origin
 
-  /job/create/carrier:
+  /job/create:
     post:
       description: Creates a new job to be computed on the eAE with the data transfer going through the carrier
       consumes:
@@ -122,7 +122,8 @@ paths:
       parameters:
         - name: request body
           in: body
-          description: Create new job. Job object is passed as JSON string obligatorily contained the following fields - type, main, params, input. Value of type can be one of the following - python2, spark, r, tensorflow.
+          description: Create new job. Job object is passed as JSON string obligatorily contained the following fields
+            - type, main, params, input. Value of type can be one of the following - python2, spark, r, tensorflow.
           schema:
             type: object
             required:
@@ -162,6 +163,65 @@ paths:
               status: OK
               jobID: jkfj32twkl423fj1ru
               carriers: carrier:3000
+
+        '401':
+          description: The request is not well formed
+          schema:
+            type: object
+            description: eAE ErrorStack tracking the error origin
+        '405':
+          description: The requested compute type is not supported
+          schema:
+            type: object
+            description: eAE ErrorStack tracking the error origin
+        '500':
+          description: Internal mongo or server error.
+          schema:
+            type: object
+            description: eAE ErrorStack tracking the error origin
+
+  /job/create/swift:
+    post:
+      description: Creates a new job to be computed on the eAE with no data transfer but using Swift
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: request body
+          in: body
+          description: Create new job. Job object is passed as JSON string obligatorily contained the following fields - type, main, params, swiftData. Value of type can be one of the following - python2, spark, r, tensorflow.
+          schema:
+            type: object
+            required:
+              - eaeUsername
+              - eaeUserToken
+              - job
+            properties:
+              eaeUsername:
+                type: string
+              eaeUserToken:
+                type: string
+              job:
+                type: string
+            example:
+              eaeUsername: admin
+              eaeUserToken: admin
+              job: '{"type":"python2","main":"test.py","params":["Vi_Veri_Veniversum_Vivus_Vici"],"swiftData":{"test":["faust.txt","example.txt"]}}'
+      responses:
+        '200':
+          description: Sends back 'OK'
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: Contains 'OK'
+              jobID:
+                type: string
+                description: Contains the id of the job
+            example:
+              status: OK
+              jobID: jkfj32twkl423fj1ru
 
         '401':
           description: The request is not well formed
@@ -263,7 +323,24 @@ paths:
           description: Sends back an access to the carriers to download the results from
           schema:
             type: object
-            description: TODO
+            description: Response containing the status, list of carrriers and output files
+            properties:
+              status:
+                type: string
+                description: Acknowledgement
+              carriers:
+                type: array
+                description: list of available carriers
+                items:
+                    type: string
+                    description: 'Address (IP:Port or DNS Name) of the carrier'
+              output:
+                type: array
+                description: list of output files
+                items:
+                    type: string
+                    description: 'Names of the files'
+
         '401':
           description: The request is not well formed
           schema:
@@ -279,6 +356,69 @@ paths:
           schema:
             type: object
             description: eAE ErrorStack tracking the error origin
+
+  /job/results/swift:
+    post:
+      description: >-
+        Retrieve the results for a specific job by sending back the swift container id.
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: request body
+          in: body
+          schema:
+            type: object
+            required:
+              - eaeUsername
+              - eaeUserToken
+              - jobID
+            properties:
+              eaeUsername:
+                type: string
+              eaeUserToken:
+                type: string
+              jobID:
+                type: string
+            example:
+              eaeUsername: admin
+              eaeUserToken: admin
+              jobID: jhfwd8u210ujfdsasfd
+      responses:
+        '200':
+          description: Sends back the id out the output swift container
+          schema:
+            type: object
+            description: Response containing the status, name of the output swift container and output files
+            properties:
+              status:
+                type: string
+                description: Acknowledgement
+              outputContainer:
+                type: string
+                description: Name of the output container
+              output:
+                type: array
+                description: list of output files
+                items:
+                    type: string
+                    description: 'Names of the files'
+        '401':
+          description: The request is not well formed
+          schema:
+            type: object
+            description: eAE ErrorStack tracking the error origin
+        '412':
+          description: The requested job is not ready for collection
+          schema:
+            type: object
+            description: eAE ErrorStack tracking the error origin
+        '500':
+          description: Internal mongo or server error.
+          schema:
+            type: object
+            description: eAE ErrorStack tracking the error origin
+
 
   /servicesStatus:
     post:
@@ -640,6 +780,10 @@ definitions:
         items:
           type: string
           description: Name of one input file
+      swiftData:
+        type: object
+        description: 'List of Swift containers and the files input for this job, including main script'
+        additionalProperties: true
       endDate:
         type: string
         format: dateTime
