@@ -11,7 +11,7 @@ services:
           - 27017:27017
 
     mongodb-initialize:
-        image: aoehmich/eae-mongodb-initialize:latest@sha256:073080877fb99ab7c6cdb6c6e56626c62ba2c2092efb7f357e2f75e855c16f70
+        image: aoehmich/eae-mongodb-initialize:latest@sha256:751887251e2666d5aac948d3c5eccd9903a2c732f9c6e9d1e401667af0d21e9a
         depends_on:
           - mongodb
         links:
