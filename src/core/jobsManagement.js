@@ -70,7 +70,7 @@ JobsManagement.prototype.createDownloadManifestForCarriers = function(job) {
         // We create a download manifest
         let carrierJob = Object.assign({}, interface_models.CARRIER_JOB_MODEL,
             { files: job.output, requester: job.requester, type: interface_constants.TRANSFER_TYPE.download,
-                jobId: job._id.toString() ,numberOfFilesToTransfer:  job.input.length});
+                jobId: job._id.toString() ,numberOfFilesToTransfer:  job.output.length});
         delete carrierJob._id; // Useless?
         // We insert it for the carriers to work against
         _this._carrierCollection.insertOne(carrierJob).then(function (_unused__result) {

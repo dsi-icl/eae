@@ -163,14 +163,20 @@ EaeInterface.prototype._setupInterfaceControllers = function() {
     // Retrieve all current jobs - Admin only
     _this.app.post('/job/getAll', _this.jobsController.getAllJobs);
 
-    // Create a job request
+    // Create a job request with data transfer through the carrier
     _this.app.post('/job/create', _this.jobsController.createNewJob);
+
+    // Create a job request without data transfer pulling from swift directly
+    _this.app.post('/job/create/swift', _this.jobsController.createNewJobSwift);
 
     // Cancel a Job
     _this.app.post('/job/cancel', _this.jobsController.cancelJob);
 
     // Retrieve the results for a specific job
     _this.app.post('/job/results', _this.jobsController.getJobResults);
+
+    // Retrieve the results for a specific job that was a using swift directly
+    _this.app.post('/job/results/swift', _this.jobsController.getJobResultsSwift);
 
     // Status of the services in the eAE - Admin only
     _this.app.post('/servicesStatus', _this.clusterController.getServicesStatus);
