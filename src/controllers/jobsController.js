@@ -525,7 +525,8 @@ JobsController.prototype.getJobResultsSwift = function(req, res){
                             if(user.type === interface_constants.USER_TYPE.admin || job.requester === user.username){
                                 let outputSwiftContainer = job._id.toString() + '_output';
                                 res.status(200);
-                                res.json({status: 'OK', outputContainer: outputSwiftContainer, output: job.output});
+                                res.json({status: 'OK', outputContainer: outputSwiftContainer, output: job.output,
+                                    jobStatus: job.status, stdout: job.stdout, stderr: job.stderr, exitCode: job.exitCode});
                             }else{
                                 res.status(401);
                                 res.json(ErrorHelper('The user is not authorized to access this job.'));
