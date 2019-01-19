@@ -2,7 +2,7 @@
 Python pip package to interact with the eAE.
 
 
-#### *Try your first eAE script and submit a job*
+#### *Example of an eAE script to submit a job*
 
 ```python
 # We import the eAE package
