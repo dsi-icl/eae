@@ -20,10 +20,10 @@ __all__ = ['eAE']
 
 
 class eAE(object):
-    def __init__(self, username, password, interface_ip, interface_port=80):
+    def __init__(self, username, password, interface_address, interface_port=80):
         self.username = str(username)
         self.password = str(password)
-        self.interface_ip = int(interface_ip)
+        self.interface_ip = interface_address
         self.interface_port = int(interface_port)
         self.connection = client.HTTPSConnection(self.interface_ip, self.interface_port)
 
