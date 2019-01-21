@@ -95,13 +95,22 @@ JobsController.prototype.createNewJob = function(req, res){
             _this._jobsCollection.insertOne(newJob).then(function (_unused__result) {
                 // We create a manifest for the carriers to work against
                 _this._jobsManagement.createJobManifestForCarriers(newJob, newJob._id.toString()).then(function(_unused__result) {
-                    res.status(200);
-                    res.json({status: 'OK', jobID: newJob._id.toString(), carriers: _this._carriers});
-                    // This will monitor the data transfer status
-                    _this._jobsManagement.startJobMonitoring(newJob,  newJob._id.toString()).then(function (_unused__updated) {
-                        // if(updated.updatedExisting)
+                    let statuses = [Constants.EAE_JOB_STATUS_CREATED,Constants.EAE_JOB_STATUS_QUEUED,
+                        Constants.EAE_JOB_STATUS_SCHEDULED, Constants.EAE_JOB_STATUS_TRANSFERRING_DATA,
+                        Constants.EAE_JOB_STATUS_RUNNING];
+                    let filter = {'status.0': {$in: statuses}};
+                    _this._jobsCollection.count(filter).then(function (count) {
+                        res.status(200);
+                        res.json({status: 'OK', jobID: newJob._id.toString(), jobPosition: count, carriers: _this._carriers});
+                        // This will monitor the data transfer status
+                        _this._jobsManagement.startJobMonitoring(newJob,  newJob._id.toString()).then(function (_unused__updated) {
+                            // if(updated.updatedExisting)
+                        }, function (error) {
+                            ErrorHelper('Couldn\'t start the monitoring of the transfer', error);
+                        });
                     }, function (error) {
-                        ErrorHelper('Couldn\'t start the monitoring of the transfer', error);
+                        res.status(500);
+                        res.json(ErrorHelper('Job queued but couldn\'t assert the job\'s position for computation', error));
                     });
                 },function(error){
                     res.status(500);
