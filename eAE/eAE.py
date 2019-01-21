@@ -38,28 +38,28 @@ class eAE(object):
         This method is called when a specific task needs to be computed on a cluster.
         """
 
-        if len(data_files) == len(parameters_set):
-            return "There is a mismatch in the number of data files data files and parameters " \
-                   + str(len(data_files)) + " , " + str(len(parameters_set))
+        # if len(data_files) == len(parameters_set):
+        #     return "There is a mismatch in the number of data files data files and parameters " \
+        #            + str(len(data_files)) + " , " + str(len(parameters_set))
 
         submit_responses = []
         for i in range(len(data_files)):
             job = {"type": computation_type, "main": main_file, "params": parameters_set[i], "input": data_files[i] }
             data = {'eaeUsername': self.username, 'eaeUserToken': self.password, 'job': job}
             data_str = json.dumps(data)
-            self.connection.request('POST', '/job', data_str)
+            self.connection.request('POST', '/job/create', data_str)
             res = self.connection.getresponse()
             submit_responses.append(res.read())
 
         return submit_responses
 
-    def get_job(self):
+    def get_job(self, jobID):
         """
         Retrieves a job currently running on the eAE backend
         """
-        data = {'eaeUsername': self.username, 'eaeUserToken': self.password}
+        data = {'eaeUsername': self.username, 'eaeUserToken': self.password, 'jobID': jobID}
         data_str = json.dumps(data)
-        self.connection.request('POST', '/servicesStatus', data_str)
+        self.connection.request('POST', '/job', data_str)
         res = self.connection.getresponse()
         submit_response = res.read()
 
