@@ -1,8 +1,10 @@
 # We import the eAE package
 from eAE import eAE
 
+directory = ''
+
 # We create the connection to the backend
-eae = eAE.eAE("admin", "admin", "146.169.33.20")
+eae = eAE.eAE("admin", "admin", "127.0.0.1")
 
 # We list the jobs with their associated parameters
 parameters = ["first_analysis_type 0 1"]
@@ -18,7 +20,7 @@ print(answer)
 
 """
     answer = { "status": "OK",
-               "jobID": "5b080d28e9b47700118f0c99",
+               "jobID": "5c47530c6ad68800121c72be",
                "jobPosition": 1,
                "carriers": [
                             "carrier:3000"
@@ -34,9 +36,9 @@ print(status)
 """
     status = {
         'status': ['eae_job_completed', 'eae_job_done', 'eae_job_running', 'eae_job_scheduled', 'eae_job_queued', 'eae_job_transferring_data', 'eae_job_created'], 
-        'startDate': '2019-01-22T17:29:53.983Z', 
+        'startDate': '2018-01-22T17:29:53.983Z', 
         'main': 'job.py', 
-        'endDate': '2019-01-22T17:30:14.077Z', 
+        'endDate': '2018-01-22T17:30:14.077Z', 
         'executorPort': '9000', 
         'executorIP': '127.0.0.1', 
         'stdout': 'Hello World !\n', 
@@ -55,11 +57,9 @@ print(status)
 """
 
 # We download the results
-result = eae.get_job_result(answer['jobID'])
+result = eae.get_job_result(directory, "5c475a5f6ad68800121c72c4")
 
 # We have a look at the computed result
-print(result)
-
 """
 Hello World !
 Hello_this_is_patrick

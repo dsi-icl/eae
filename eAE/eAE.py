@@ -41,34 +41,19 @@ class eAE(object):
 
         This method is called when a specific task needs to be computed on a cluster.
         """
-
-        # if len(data_files) == len(parameters_set):
-        #     return "There is a mismatch in the number of data files data files and parameters " \
-        #            + str(len(data_files)) + " , " + str(len(parameters_set))
-
-        # submit_responses = []
-        #
-        headers = { 'cache-control': 'no-cache',
-                    'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW'}
         job = {'type': computation_type, 'main': main_file, 'params': parameters_set, 'input': data_files}
         data = {'eaeUsername': self.username, 'eaeUserToken': self.password, 'job': json.dumps(job)}
         r = requests.post(self.url_interface + '/job/create', json=data)
         res = r.json()
         for i in range(len(data_files)):
-            # payload = {'fileName': data_files[i], 'jobID': str(res['jobID']), 'eaeUsername': self.username}
-            # files = {'file': (data_files[i], open(data_files[i], 'rb'))}
-
             m = MultipartEncoder(
                 fields={'fileName': data_files[i], 'jobID': str(res['jobID']), 'eaeUsername': self.username,
                         'file': (data_files[i], open(data_files[i], 'rb'), 'text/plain')}
             )
-
             r = requests.post(self.url_carrier + '/file-upload', data=m,
                               headers={'Content-Type': m.content_type})
-
-            # r = requests.post(self.url_carrier + '/file-upload', data=payload, files=files, headers=headers)
-            # submit_responses.append(r.json())
-            print r.json()
+            if(r.text is True):
+                print('The file {} has been successfully uploaded'.format(data_files[i]))
         return res
 
     def get_job(self, jobID):
@@ -98,17 +83,20 @@ class eAE(object):
         submit_response = r.json()
         return submit_response
 
-    def get_job_result(self, job_id):
+    def get_job_result(self, directory,job_id):
         """
         Retrieves the results for a specific job computed on the eAE backend
         """
         data = {'eaeUsername': self.username, 'eaeUserToken': self.password, "jobID": job_id}
-        data_str = json.dumps(data)
-        self.connection.request('POST', '/job/results', data_str)
-        res = self.connection.getresponse()
-        submit_response = res.read()
-
-        return submit_response
+        r = requests.post(self.url_interface + '/job/results', json=data)
+        res = r.json()
+        for i in range(len(res["output"])):
+            file = {'eaeUsername': self.username, 'fileName': res["output"][i], "jobID": job_id}
+            r = requests.post(self.url_carrier + '/file-download', json=file)
+            print('The file {} has been successfully downloaded'.format(res["output"][i]))
+            with open(directory + res["output"][i], 'a') as f:
+                f.write(r.content)
+        return res
 
     def get_user(self, requestedUsername):
         """
