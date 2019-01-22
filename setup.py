@@ -6,7 +6,7 @@ install_requires = [
 
 setup(
     name="eae",
-    version="0.1.1",
+    version="0.1.2",
     include_package_data=True,
     author='Axel Oehmichen',
     author_email='axelfrancois.oehmichen11@imperial.ac.uk',
