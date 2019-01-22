@@ -1,4 +1,6 @@
 # We import the eAE package
+import time
+
 from eAE import eAE
 
 directory = ''
@@ -56,8 +58,11 @@ print(status)
         }
 """
 
+# We wait a bit for the computation to finish
+time.sleep(20)
+
 # We download the results
-result = eae.get_job_result(directory, "5c475a5f6ad68800121c72c4")
+result = eae.get_job_result(directory, answer['jobID'])
 
 # We have a look at the computed result
 """
