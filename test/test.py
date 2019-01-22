@@ -59,7 +59,7 @@ print(status)
 """
 
 # We wait a bit for the computation to finish
-time.sleep(20)
+time.sleep(30)
 
 # We download the results
 result = eae.get_job_result(directory, answer['jobID'])
