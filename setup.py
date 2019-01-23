@@ -8,7 +8,7 @@ long_description = open('README.md').read()
 
 setup(
     name="eae",
-    version="0.1.2",
+    version="0.1.3",
     include_package_data=True,
     author='Axel Oehmichen',
     author_email='axelfrancois.oehmichen11@imperial.ac.uk',
