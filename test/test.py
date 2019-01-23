@@ -6,7 +6,7 @@ from eAE import eAE
 directory = ''
 
 # We create the connection to the backend
-eae = eAE.eAE("admin", "admin", "146.169.33.20")
+eae = eAE.eAE("admin", "admin", "127.0.0.1")
 
 # We list the jobs with their associated parameters
 parameters = ["first_analysis_type 0 1"]
