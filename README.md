@@ -1,8 +1,20 @@
-# eAE-python
+# eAE for python
 Python pip package to interact with the eAE.
 
+# Install
 
-#### *Example of an eAE script to submit a job*
+eAE has two pre-requisites:  requests and requests_toolbelt.
+The simplest way to install eAE is to use the **Py**thon **P**ackage **I**ndex (PyPI):
+
+```bash
+# For a first installation
+pip install  eAE
+
+# For upgrading to the latest release
+pip install --upgrade eAE
+```
+
+## *Example of an eAE script to submit a job*
 
 ```python
 # We import the eAE package

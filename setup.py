@@ -4,6 +4,8 @@ install_requires = [
     'requests', 'requests_toolbelt'
 ]
 
+long_description = open('README.md').read()
+
 setup(
     name="eae",
     version="0.1.2",
@@ -14,14 +16,13 @@ setup(
     license="MIT",
     packages=find_packages(),
     install_requires=install_requires,
+    long_description=long_description,
     classifiers=[
         'Environment :: Plugins',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6+',
     ],
     description="Pip package to interact with the eAE-interface",
     keywords="eAE",
