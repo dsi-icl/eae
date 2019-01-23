@@ -95,7 +95,7 @@ class eAE(object):
             r = requests.post(self.url_carrier + '/file-download', json=file)
             print('The file {} has been successfully downloaded'.format(res["output"][i]))
             with open(directory + res["output"][i], 'a') as f:
-                f.write(str(r.content))
+                f.write(r.content.decode('utf-8'))
         return res
 
     def get_user(self, requestedUsername):
