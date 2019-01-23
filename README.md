@@ -64,7 +64,7 @@ print(status)
 """
 
 # We download the results
-result = eae.get_job_result(directory, "5c475a5f6ad68800121c72c4")
+result = eae.get_job_result(directory, answer['jobID'])
 
 # We have a look at the computed result
 """
@@ -76,6 +76,6 @@ This eBook is for the use of anyone anywhere at no cost and with
 almost no restrictions whatsoever.  You may copy it, give it away or
 re-use it under the terms of the Project Gutenberg License included
 with this eBook or online at www.gutenberg.net
-"""      "jobPosition": 1 }
+"""
 """
 ```
