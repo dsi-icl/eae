@@ -6,7 +6,7 @@ from eAE import eAE
 directory = ''
 
 # We create the connection to the backend
-eae = eAE.eAE("admin", "admin", "127.0.0.1")
+eae = eAE.eAE("admin", "admin", "146.169.33.20")
 
 # We list the jobs with their associated parameters
 parameters = ["first_analysis_type 0 1"]
@@ -67,7 +67,7 @@ result = eae.get_job_result(directory, answer['jobID'])
 # We have a look at the computed result
 """
 Hello World !
-Hello_this_is_patrick
+first_analysis_type
 The Project Gutenberg EBook of Faust, by Johann Wolfgang Von Goethe
 
 This eBook is for the use of anyone anywhere at no cost and with

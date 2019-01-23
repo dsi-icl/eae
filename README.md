@@ -69,7 +69,7 @@ result = eae.get_job_result(directory, "5c475a5f6ad68800121c72c4")
 # We have a look at the computed result
 """
 Hello World !
-Hello_this_is_patrick
+first_analysis_type
 The Project Gutenberg EBook of Faust, by Johann Wolfgang Von Goethe
 
 This eBook is for the use of anyone anywhere at no cost and with
