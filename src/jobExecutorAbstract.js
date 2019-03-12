@@ -33,15 +33,15 @@ function JobExecutorAbstract(jobID, jobCollection, jobModel) {
  * @desc Retrieve the job data model from the MongoDB jobs collection
  * @return {Promise} Resolve to the retrieved data model on success, errorStack on error
  */
-JobExecutorAbstract.prototype.fetchModel = function() {
+JobExecutorAbstract.prototype.fetchModel = function () {
     let _this = this;
 
-    return new Promise(function(resolve, reject) {
-        _this._jobCollection.findOne({ _id : _this._jobID })
-            .then(function(jobModel) {
+    return new Promise(function (resolve, reject) {
+        _this._jobCollection.findOne({ _id: _this._jobID })
+            .then(function (jobModel) {
                 _this._model = jobModel;
                 resolve(jobModel);
-            }, function(error) {
+            }, function (error) {
                 reject(ErrorHelper('Failed to fetch job ' + _this._jobID.toHexString(), error));
             });
     });
@@ -52,16 +52,16 @@ JobExecutorAbstract.prototype.fetchModel = function() {
  * @desc Store the job data model into the MongoDB jobs collection
  * @return {Promise} Resolve to the updated data model on success, errorStack on error
  */
-JobExecutorAbstract.prototype.pushModel = function() {
+JobExecutorAbstract.prototype.pushModel = function () {
     let _this = this;
 
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         let replacementData = _this._model;
         delete replacementData._id; // Cleanup MongoDB managed _id field, if any
-        _this._jobCollection.findOneAndReplace({ _id : _this._jobID }, replacementData, { upsert: true, returnOriginal: false })
-            .then(function(success) {
+        _this._jobCollection.findOneAndReplace({ _id: _this._jobID }, replacementData, { upsert: true, returnOriginal: false })
+            .then(function (success) {
                 resolve(success.value);
-            }, function(error) {
+            }, function (error) {
                 reject(ErrorHelper('Failed to push job ' + _this._jobID.toHexString(), error));
             });
     });
@@ -75,15 +75,15 @@ JobExecutorAbstract.prototype.pushModel = function() {
  * @param options Child process options (env, cwd)
  * @private
  */
-JobExecutorAbstract.prototype._exec = function(command, args, options) {
+JobExecutorAbstract.prototype._exec = function (command, args, options) {
     let _this = this;
 
-    let end_fn = function(status, code, message = '') {
-        let save_fn = function() {
-            _this.pushModel().then(function(success) {
+    let end_fn = function (status, code, message = {}) {
+        let save_fn = function () {
+            _this.pushModel().then(function (success) {
                 if (_this.callback !== null && _this._callback !== undefined)
                     _this._callback(null, success.status);
-            }, function(error) {
+            }, function (error) {
                 if (_this.callback !== null && _this._callback !== undefined)
                     _this._callback(error, null);
             });
@@ -91,7 +91,7 @@ JobExecutorAbstract.prototype._exec = function(command, args, options) {
 
         _this._model.message = message;
         _this._model.endDate = new Date();
-        _this._postExecution().then(function() {
+        _this._postExecution().then(function () {
             _this._model.status.unshift(status);
             _this._model.exitCode = code;
             if (_this._child_process !== undefined) {
@@ -101,7 +101,10 @@ JobExecutorAbstract.prototype._exec = function(command, args, options) {
         }, function (error) {
             _this._model.status.unshift(Constants.EAE_JOB_STATUS_ERROR);
             _this._model.exitCode = 1;
-            _this._model.message = 'Post-exec - ' + error.toString();
+            _this._model.message = {
+                context: 'post-exec',
+                ...error
+            };
             if (_this._child_process !== undefined) {
                 delete _this._child_process;
             }
@@ -109,7 +112,7 @@ JobExecutorAbstract.prototype._exec = function(command, args, options) {
         }); // Post execution error
     }; // end_fn
 
-    _this._preExecution().then(function() {
+    _this._preExecution().then(function () {
         //Fork a process on the machine
         _this._child_process = child_process.spawn(command, args, options);
 
@@ -125,23 +128,35 @@ JobExecutorAbstract.prototype._exec = function(command, args, options) {
 
         //Handle spawn errors
         _this._child_process.on('error', function (error) {
-            end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, 'Spawn - ' + error.toString());
+            end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, {
+                context: 'spawn',
+                ...error
+            });
         });
 
         //Handle child termination
         _this._child_process.on('exit', function (code, signal) {
             if (code !== null) { //Successful run or interruption
-                end_fn(Constants.EAE_JOB_STATUS_DONE, code, 'Exit success');
+                end_fn(Constants.EAE_JOB_STATUS_DONE, code, {
+                    context: 'success'
+                });
             }
             else if (signal === 'SIGTERM') {
-                end_fn(Constants.EAE_JOB_STATUS_CANCELLED, 1, 'Interrupt success');
+                end_fn(Constants.EAE_JOB_STATUS_CANCELLED, 1, {
+                    context: 'interrupt'
+                });
             }
             else {
-                end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, 'Exit error');
+                end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, {
+                    context: 'exit'
+                });
             }
         });
     }, function (error) {
-        end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, 'Pre-exec - ' + error.toString());
+        end_fn(Constants.EAE_JOB_STATUS_ERROR, 1, {
+            context: 'pre-exec',
+            ...error
+        });
     });
 };
 
@@ -150,7 +165,7 @@ JobExecutorAbstract.prototype._exec = function(command, args, options) {
  * @desc Triggers kill signal on the child process, if any
  * @private
  */
-JobExecutorAbstract.prototype._kill = function() {
+JobExecutorAbstract.prototype._kill = function () {
     let _this = this;
 
     if (_this._child_process !== undefined) {
@@ -166,7 +181,7 @@ JobExecutorAbstract.prototype._kill = function() {
  * @private
  * @pure
  */
-JobExecutorAbstract.prototype._preExecution = function() {
+JobExecutorAbstract.prototype._preExecution = function () {
     throw 'Pure method should be implemented in child class';
 };
 
@@ -178,7 +193,7 @@ JobExecutorAbstract.prototype._preExecution = function() {
  * @private
  * @pure
  */
-JobExecutorAbstract.prototype._postExecution = function() {
+JobExecutorAbstract.prototype._postExecution = function () {
     throw 'Pure method should be implemented in child class';
 };
 
@@ -188,7 +203,7 @@ JobExecutorAbstract.prototype._postExecution = function() {
  * @desc Starts the execution of designated job.
  * @pure
  */
-JobExecutorAbstract.prototype.startExecution = function(callback) {
+JobExecutorAbstract.prototype.startExecution = function (callback) {
     this._callback = callback;
     throw 'Pure method should be implemented in child class';
 };
@@ -199,7 +214,7 @@ JobExecutorAbstract.prototype.startExecution = function(callback) {
  * @param callback {Function} Function called after execution. callback(error, status)
  * @pure
  */
-JobExecutorAbstract.prototype.stopExecution = function(callback) {
+JobExecutorAbstract.prototype.stopExecution = function (callback) {
     this._callback = callback;
     throw 'Pure method should be implemented in child class';
 };
