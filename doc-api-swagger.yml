@@ -29,21 +29,99 @@ paths:
         200:
             description: desc
             schema:
-                $ref: '#definitions/statusModel'
+                $ref: 'definitions/statusModel'
+
+  /file-download:
+    post:
+      description: Download files from the eAE platform. The files must be associated with a carrier job created by the interface.
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: request body
+          in: body
+          schema:
+            type: object
+            required:
+              - eaeUsername
+              - jobID
+              - fileName
+            properties:
+              eaeUsername:
+                type: string
+                description: username of the user who created the carrier job
+              jobID:
+                type: string
+                description: carrier job id
+              fileName:
+                type: string
+                description: Name of the file
+      responses:
+        200:
+          description: The write stream of data is available for download and the data can be downloaded to disk
+          schema:
+            type: object
+            description: write Stream
+            properties:
+              file:
+                type: object
+                description: file Read Stream
+        401:
+          description: The proposed file for download is not valid.
+          schema:
+            type: object
+            description: eAE ErrorStack tracking the error origin
+        500:
+          description: Internal mongo or server error.
+          schema:
+            type: object
+            description: eAE ErrorStack tracking the error origin
 
   /file-upload:
     post:
-      description: Upload a file to the eAE platofrm. The file must be associated with a carrier job created by the interface.
-      responses:
-        200:
-          description: Status report is active, replies the current status
+      description: Upload a file to the eAE platform. The file must be associated with a carrier job created by the interface.
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: request body
+          in: body
           schema:
             type: object
-            description: Status report
+            required:
+              - eaeUsername
+              - jobID
+              - fileName
             properties:
-              status:
+              eaeUsername:
                 type: string
-                description: MUST be oneof EAE_SERVICE_STATUS_XXX
+                description: username of the user who created the carrier job
+              jobID:
+                type: string
+                description: carrier job id
+              fileName:
+                type: string
+                description: Name of the file
+      responses:
+        200:
+          description: The read stream of data is available for upload and the data can be uploaded to the platform
+          schema:
+            type: object
+            description: Read Stream
+            properties:
+              file:
+                type: object
+                description: file Read Stream
+        401:
+          description: The proposed file for download is not valid.
+          schema:
+            type: object
+            description: eAE ErrorStack tracking the error origin
+        500:
+          description: Internal mongo or server error.
+          schema:
+            type: object
+            description: eAE ErrorStack tracking the error origin
 
   /whoareyou:
     get:
