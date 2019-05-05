@@ -1,6 +1,6 @@
 {
   "name": "eae-carrier",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "eAE - Carrier micro-service",
   "main": "./src/eaeCarrier.js",
   "scripts": {
