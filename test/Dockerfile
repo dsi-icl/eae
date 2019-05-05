@@ -1,9 +1,5 @@
 # Select source image
-FROM node:latest@sha256:c88ef4f7ca8d52ed50366d821e104d029f43e8686120a29541ce0371f333453f
-
-# Install all dependencies
-RUN apt-get update -q                                   \
-    && apt-get upgrade -y --no-install-recommends
+FROM node:11.10.0-alpine
 
 # Create app directories
 RUN mkdir -p /usr/app && mkdir -p /usr/test
@@ -12,7 +8,7 @@ WORKDIR /usr/app
 # Install app dependencies
 COPY ./package.json /usr/app/
 # Install eae-carrier npm dependencies
-RUN npm install --silent; exit 0;
+RUN npm install --production --silent; exit 0;
 RUN cat /root/.npm/_logs/*; exit 0;
 
 # Bundle app
