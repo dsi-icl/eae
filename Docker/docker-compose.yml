@@ -56,7 +56,7 @@ services:
           - ./eae.scheduler.config.js:/usr/app/config/eae.scheduler.config.js
 
     carrier:
-        image: aoehmich/eae-carrier:latest@sha256:7fba8728aca44ae5889607d2976250ba073b6e84f053a3b806aa72edb1af5f8b
+        image: aoehmich/eae-carrier:latest@sha256:58d607888b0ff12ed6ad998b44aaa9f924bfbf37d8ec85b43eed9bd8a1839ff0
         depends_on:
           - scheduler
         links:
