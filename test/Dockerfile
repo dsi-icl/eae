@@ -1,8 +1,5 @@
 # Select source image
-FROM node:wheezy
-
-# Install all dependencies
-RUN apt-get update
+FROM node:11.10.0-alpine
 
 # Create app directories
 RUN mkdir -p /usr/app
@@ -12,7 +9,7 @@ WORKDIR /usr/app
 COPY ./package.json .
 
 # Install eae-compute npm dependencies
-RUN npm install --silent; exit 0;
+RUN npm install --production --silent; exit 0;
 # RUN cat /root/.npm/_logs/*; exit 0;
 
 # Bundle app
