@@ -27,16 +27,15 @@
   },
   "homepage": "https://github.com/dsi-icl/eae-carrier#readme",
   "devDependencies": {
-    "babel-core": "6.26.3",
+    "@babel/core": "7.4.4",
+    "@babel/preset-env": "7.4.3",
     "babel-eslint": "10.0.1",
-    "babel-preset-env": "1.7.0",
     "eslint": "5.16.0",
     "jest": "24.8.0",
     "request": "2.88.0",
     "uuid": "3.3.2"
   },
   "dependencies": {
-    "babel-plugin-transform-decorators-legacy": "1.3.5",
     "body-parser": "1.19.0",
     "eae-utils": "git+https://github.com/dsi-icl/eae-utils.git",
     "express": "4.16.4",

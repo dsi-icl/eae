@@ -30,7 +30,8 @@
             "templateStrings": true,
             "unicodeCodePointEscapes": true,
             "globalReturn": true,
-            "jsx": true
+            "jsx": true,
+            "legacyDecorators": true
         }
     },
     "rules": {
