@@ -1,6 +1,6 @@
 {
   "name": "eae-deploy",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "eAE - deploy",
   "scripts": {
     "test": "jest --runInBand --verbose --useStderr"
