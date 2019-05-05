@@ -1,6 +1,6 @@
 {
   "name": "eae-utils",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Common utilities shared across the eAE Micro-service architecture",
   "main": "./src/index.js",
   "scripts": {
