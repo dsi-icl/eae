@@ -8,7 +8,7 @@ WORKDIR /usr/app
 # Install app dependencies
 COPY ./package.json /usr/app/
 # Install eae-interface npm dependencies
-RUN npm install --production --silent; exit 0;
+RUN npm install --silent; exit 0;
 RUN cat /root/.npm/_logs/*; exit 0;
 
 # Bundle app

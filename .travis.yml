@@ -1,7 +1,5 @@
 sudo: false
 
-language: node_js
-
 env:
   global:
     - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
@@ -10,7 +8,6 @@ services:
   - docker
 
 install:
-  - docker-compose -f ./test/docker-compose.yml build mongodb
   - docker-compose -f ./test/docker-compose.yml build tests
   - docker-compose -f ./test/docker-compose.yml images
 
