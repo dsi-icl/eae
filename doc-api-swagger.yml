@@ -1,0 +1,224 @@
+swagger: '2.0'
+info:
+  version: 0.0.1
+  title: eAE-carrier
+  license:
+    name: MIT
+    url: https://github.com/dsi-icl/eae-carrier/blob/master/LICENSE
+  description:  eAE Carrier
+
+paths:
+  /status:
+    get:
+      description: Status report. Part of the standard API for all the eae components
+      responses:
+        200:
+          description: Status report is active, replies the current status
+          schema:
+            type: object
+            description: Status report
+            properties:
+              status:
+                type: string
+                description: MUST be oneof EAE_SERVICE_STATUS_XXX
+
+  /specs:
+    get:
+      description: Detailed status report. Part of the standard API for eae components
+      responses:
+        200:
+            description: desc
+            schema:
+                $ref: 'definitions/statusModel'
+
+  /file-download:
+    post:
+      description: Download files from the eAE platform. The files must be associated with a carrier job created by the interface.
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: request body
+          in: body
+          schema:
+            type: object
+            required:
+              - eaeUsername
+              - jobID
+              - fileName
+            properties:
+              eaeUsername:
+                type: string
+                description: username of the user who created the carrier job
+              jobID:
+                type: string
+                description: carrier job id
+              fileName:
+                type: string
+                description: Name of the file
+      responses:
+        200:
+          description: The write stream of data is available for download and the data can be downloaded to disk
+          schema:
+            type: object
+            description: write Stream
+            properties:
+              file:
+                type: object
+                description: file Read Stream
+        401:
+          description: The proposed file for download is not valid.
+          schema:
+            type: object
+            description: eAE ErrorStack tracking the error origin
+        500:
+          description: Internal mongo or server error.
+          schema:
+            type: object
+            description: eAE ErrorStack tracking the error origin
+
+  /file-upload:
+    post:
+      description: Upload a file to the eAE platform. The file must be associated with a carrier job created by the interface.
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: request body
+          in: body
+          schema:
+            type: object
+            required:
+              - eaeUsername
+              - jobID
+              - fileName
+            properties:
+              eaeUsername:
+                type: string
+                description: username of the user who created the carrier job
+              jobID:
+                type: string
+                description: carrier job id
+              fileName:
+                type: string
+                description: Name of the file
+      responses:
+        200:
+          description: The read stream of data is available for upload and the data can be uploaded to the platform
+          schema:
+            type: object
+            description: Read Stream
+            properties:
+              file:
+                type: object
+                description: file Read Stream
+        401:
+          description: The proposed file for download is not valid.
+          schema:
+            type: object
+            description: eAE ErrorStack tracking the error origin
+        500:
+          description: Internal mongo or server error.
+          schema:
+            type: object
+            description: eAE ErrorStack tracking the error origin
+
+  /whoareyou:
+    get:
+      description: Implementation of the Hyper Text Coffee Pot Control Protocol
+      responses:
+        418:
+            description: I am a teapot
+
+definitions:
+    statusModel:
+        description: Model to represent a service status
+        properties:
+            type:
+                type: string
+                description: Type of the eae service
+            status:
+                type: string
+                description: Current status of the service. Defaults to 'eae_service_idle'
+            statusLock:
+                type: boolean
+                description: Lock used to prevent the service status update
+            lastUpdate:
+                type: string
+                format: dateTime
+                description: Timestamp of the last update of this model
+            port:
+                type: integer
+                description: TCP Port the service is listening on
+            ip:
+                type: string
+                description: IPv4 address of the machine
+            hostname:
+                type: string
+                description: Domain name associated with this machine
+            system:
+                type: object
+                description: Hardware speciciafations
+                properties:
+                    arch:
+                        type: string
+                        description: System architecture label
+                    type:
+                        type: string
+                        description: System type label
+                    platform:
+                        type: string
+                        description: Operating system name
+                    version:
+                        type: string
+                        description: Operation system version number
+            cpu:
+                type: object
+                description: Information about the cpu
+                properties:
+                    cores:
+                        type: array
+                        items:
+                            type: object
+                            description: A single core properties list
+                    loadavg:
+                        type: array
+                        description: The load average for the last 1, 5 and 15 minutes
+                        items:
+                            type: number
+            memory:
+                type: object
+                description: Information about the memory
+                properties:
+                    total:
+                        type: string
+                        description: Total memory on the system. Unit is provided in the value
+                    free:
+                        type: string
+                        description: Available memory on the system. Unit is provided in the value
+
+    carrierJobModel:
+        type: object
+        properties:
+            jobId:
+                type: string
+                description: Id of the associated job located in the eAE job collection
+            files:
+                type: array
+                description: List of files to be transfer
+                items:
+                    type: string
+                    description: Name of the file
+            requester:
+                type: string
+                description: Username of the requester
+            numberOfTransferredFiles:
+                type: integer
+                description: Track the number of files transfered
+            numberOfFilesToTransfer:
+                type: integer
+                description: Number of files to transfer to the eAE through the carriers
+            created:
+                type: string
+                format: dateTime
+                description: Timestamp of the creation of the job

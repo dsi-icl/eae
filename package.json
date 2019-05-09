@@ -1,0 +1,46 @@
+{
+  "name": "eae-carrier",
+  "version": "1.0.0",
+  "description": "eAE - Carrier micro-service",
+  "main": "./src/eaeCarrier.js",
+  "scripts": {
+    "start": "node ./src/index.js",
+    "lint": "eslint src",
+    "test": "jest --runInBand --verbose --useStderr --forceExit"
+  },
+  "keywords": [
+    "eae",
+    "carrier"
+  ],
+  "contributors": [
+    "Axel Oehmichen <axelfrancois.oehmichen11@imperial.ac.uk>",
+    "Florian Guitton <f.guitton@imperial.ac.uk>"
+  ],
+  "license": "MIT",
+  "readme": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dsi-icl/eae-carrier.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dsi-icl/eae-carrier/issues"
+  },
+  "homepage": "https://github.com/dsi-icl/eae-carrier#readme",
+  "devDependencies": {
+    "@babel/core": "7.4.4",
+    "babel-eslint": "10.0.1",
+    "eslint": "5.16.0",
+    "jest": "24.8.0",
+    "request": "2.88.0",
+    "uuid": "3.3.2"
+  },
+  "dependencies": {
+    "body-parser": "1.19.0",
+    "eae-utils": "git+https://github.com/dsi-icl/eae-utils.git",
+    "express": "4.16.4",
+    "fs-extra": "7.0.1",
+    "mongodb": "3.2.4",
+    "multer": "1.4.1",
+    "os2": "0.0.13"
+  }
+}
