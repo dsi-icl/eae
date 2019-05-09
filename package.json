@@ -39,7 +39,7 @@
     "eae-utils": "git+https://github.com/dsi-icl/eae-utils.git",
     "express": "4.16.4",
     "fs-extra": "7.0.1",
-    "mongodb": "3.2.3",
+    "mongodb": "3.2.4",
     "multer": "1.4.1",
     "os2": "0.0.13"
   }
