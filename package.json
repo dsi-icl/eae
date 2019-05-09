@@ -1,0 +1,42 @@
+{
+  "name": "eae-utils",
+  "version": "1.0.0",
+  "description": "Common utilities shared across the eAE Micro-service architecture",
+  "main": "./src/index.js",
+  "scripts": {
+    "lint": "eslint src"
+  },
+  "keywords": [
+    "eae",
+    "utility"
+  ],
+  "contributors": [
+    "Jean Grizet <jean.grizet16@imperial.ac.uk>",
+    "Axel Oehmichen <axelfrancois.oehmichen11@imperial.ac.uk>",
+    "Florian Guitton <f.guitton@imperial.ac.uk>"
+  ],
+  "license": "MIT",
+  "readme": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dsi-icl/eae-utils.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dsi-icl/eae-utils/issues"
+  },
+  "homepage": "https://github.com/dsi-icl/eae-utils#readme",
+  "devDependencies": {
+    "@babel/core": "7.4.4",
+    "babel-eslint": "10.0.1",
+    "eslint": "5.16.0",
+    "express": "4.16.4"
+  },
+  "dependencies": {
+    "bytes": "3.1.0",
+    "fs-extra": "7.0.1",
+    "ip": "1.1.5",
+    "memorystream": "0.3.1",
+    "mongodb": "3.2.4",
+    "os2": "0.0.13"
+  }
+}
