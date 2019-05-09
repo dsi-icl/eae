@@ -1,0 +1,32 @@
+version: '3'
+services:
+    mongodb:
+        image: mongo:latest@sha256:02c6031b363fb9a43f6633eb9db405db59c9dfdd0ce726baa4fab973939952a4
+        environment:
+            - MONGO_DATA_DIR=/data/mongodb
+            - MONGO_LOG_DIR=/dev/null
+            - MONGODB_DBNAME=eae
+        command: mongod --smallfiles --logpath=/dev/null # --quiet
+        ports:
+            - 27017:27017
+
+    lb: # Load balancing
+        image: dockercloud/haproxy:latest@sha256:040d1b321437afd9f8c9ba40e8340200d2b0ae6cf280a929a1e8549698c87d30
+        depends_on:
+            - compute
+        links:
+            - compute
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        ports:
+            - 80:80
+
+    interface:
+        build:
+            context: .
+        depends_on:
+            - mongodb
+        links:
+            - mongodb
+        ports:
+            - 80:80

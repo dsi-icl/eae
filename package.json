@@ -1,0 +1,44 @@
+{
+  "name": "eae-interface",
+  "version": "1.0.0",
+  "description": "eAE - Interface micro-service",
+  "main": "./src/eaeInterface.js",
+  "scripts": {
+    "start": "node ./src/index.js",
+    "lint": "./node_modules/.bin/eslint src",
+    "test": "./node_modules/.bin/jest --runInBand --verbose --useStderr --forceExit"
+  },
+  "keywords": [
+    "eae",
+    "interface"
+  ],
+  "contributors": [
+    "Axel Oehmichen <axelfrancois.oehmichen11@imperial.ac.uk>",
+    "Florian Guitton <f.guitton@imperial.ac.uk>"
+  ],
+  "license": "MIT",
+  "readme": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dsi-icl/eae-interface.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dsi-icl/eae-interface/issues"
+  },
+  "homepage": "https://github.com/dsi-icl/eae-interface#readme",
+  "devDependencies": {
+    "@babel/core": "7.4.4",
+    "babel-eslint": "10.0.1",
+    "eslint": "5.16.0",
+    "jest": "24.8.0",
+    "request": "2.88.0",
+    "uuid": "3.3.2"
+  },
+  "dependencies": {
+    "body-parser": "1.19.0",
+    "eae-utils": "https://github.com/dsi-icl/eae-utils.git",
+    "express": "4.16.4",
+    "fs-extra": "7.0.1",
+    "mongodb": "3.2.4"
+  }
+}
