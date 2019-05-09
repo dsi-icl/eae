@@ -23,7 +23,7 @@ services:
           - 8080:8080
 
     compute1:
-        image: aoehmich/eae-compute:latest@sha256:bdf8e7688e6cade867fe02d705bb648893f351747cb2c2cc27de9a1f98238f09
+        image: aoehmich/eae-compute:latest@sha256:67458577b6d391cd1a8b228982efb4191b9febabac4646b95982cc0862335dc8
         depends_on:
           - mongodb
           - swift
@@ -34,7 +34,7 @@ services:
           - ./eae.compute.config.js:/usr/app/config/eae.compute.config.js
 
     compute2:
-        image: aoehmich/eae-compute:latest@sha256:bdf8e7688e6cade867fe02d705bb648893f351747cb2c2cc27de9a1f98238f09
+        image: aoehmich/eae-compute:latest@sha256:67458577b6d391cd1a8b228982efb4191b9febabac4646b95982cc0862335dc8
         depends_on:
           - mongodb
           - swift
