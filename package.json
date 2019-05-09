@@ -1,0 +1,44 @@
+{
+  "name": "eae-compute",
+  "version": "1.0.0",
+  "description": "EAE - Compute micro-service",
+  "main": "./src/eaeCompute.js",
+  "scripts": {
+    "start": "node ./src/index.js",
+    "lint": "eslint src",
+    "test": "jest --runInBand --verbose --useStderr --detectOpenHandles"
+  },
+  "keywords": [
+    "eae",
+    "compute"
+  ],
+  "contributors": [
+    "Jean Grizet <jean.grizet16@imperial.ac.uk>",
+    "Axel Oehmichen <axelfrancois.oehmichen11@imperial.ac.uk>",
+    "Florian Guitton <f.guitton@imperial.ac.uk>"
+  ],
+  "license": "MIT",
+  "readme": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dsi-icl/eae-compute.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dsi-icl/eae-compute/issues"
+  },
+  "homepage": "https://github.com/dsi-icl/eae-compute#readme",
+  "devDependencies": {
+    "@babel/core": "7.4.4",
+    "babel-eslint": "10.0.1",
+    "eslint": "5.16.0",
+    "jest": "24.8.0",
+    "request": "2.88.0"
+  },
+  "dependencies": {
+    "body-parser": "1.19.0",
+    "eae-utils": "git+https://github.com/dsi-icl/eae-utils.git",
+    "express": "4.16.4",
+    "fs-extra": "7.0.1",
+    "mongodb": "3.2.4"
+  }
+}
