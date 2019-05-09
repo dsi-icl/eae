@@ -1,0 +1,37 @@
+{
+  "name": "eae-deploy",
+  "version": "1.0.0",
+  "description": "eAE - deploy",
+  "scripts": {
+    "test": "jest --runInBand --verbose --useStderr"
+  },
+  "keywords": [
+    "eae",
+    "deploy"
+  ],
+  "contributors": [
+    "Axel Oehmichen <axelfrancois.oehmichen11@imperial.ac.uk>",
+    "Florian Guitton <f.guitton@imperial.ac.uk>"
+  ],
+  "license": "MIT",
+  "readme": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dsi-icl/eae-deploy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dsi-icl/eae-deploy/issues"
+  },
+  "homepage": "https://github.com/dsi-icl/eae-deploy#readme",
+  "devDependencies": {
+    "eslint": "5.16.0",
+    "jest": "24.8.0",
+    "request": "2.88.0",
+    "uuid": "3.3.2"
+  },
+  "dependencies": {
+    "eae-utils": "git+https://github.com/dsi-icl/eae-utils.git",
+    "body-parser": "1.19.0",
+    "mongodb": "3.2.4"
+  }
+}

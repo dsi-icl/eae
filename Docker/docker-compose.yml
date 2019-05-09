@@ -1,0 +1,79 @@
+version: '3'
+services:
+    mongodb:
+        image: mongo:latest@sha256:02c6031b363fb9a43f6633eb9db405db59c9dfdd0ce726baa4fab973939952a4
+        environment:
+          - MONGO_DATA_DIR=/data/mongodb
+          - MONGO_LOG_DIR=/dev/null
+          - MONGODB_DBNAME=eae
+        command: mongod --smallfiles --logpath=/dev/null # --quiet
+        ports:
+          - 27017:27017
+
+    mongodb-initialize:
+        image: aoehmich/eae-mongodb-initialize:latest@sha256:c609fb7a4728b52e9c40d3c92c9e1a4cc23cffe30aecaf1ce3173d669882c040
+        depends_on:
+          - mongodb
+        links:
+          - mongodb
+
+    swift:
+        image: bouncestorage/swift-aio:latest@sha256:6ecee031ec8fa152bcdf78d3b1a0027d314ef2df56c78d26e9d2e6a40dde28dd
+        ports:
+          - 8080:8080
+
+    compute1:
+        image: aoehmich/eae-compute:latest@sha256:bdf8e7688e6cade867fe02d705bb648893f351747cb2c2cc27de9a1f98238f09
+        depends_on:
+          - mongodb
+          - swift
+        links:
+          - mongodb
+          - swift
+        volumes:
+          - ./eae.compute.config.js:/usr/app/config/eae.compute.config.js
+
+    compute2:
+        image: aoehmich/eae-compute:latest@sha256:bdf8e7688e6cade867fe02d705bb648893f351747cb2c2cc27de9a1f98238f09
+        depends_on:
+          - mongodb
+          - swift
+        links:
+          - mongodb
+          - swift
+        volumes:
+          - ./eae.compute.config.js:/usr/app/config/eae.compute.config.js
+
+    scheduler:
+        image: aoehmich/eae-scheduler:latest@sha256:12553c7c24b998f81671c06463dc1a054055b1f849fb159200a1dba30ca9de02
+        depends_on:
+          - compute1
+          - compute2
+        links:
+          - mongodb
+          - swift
+        volumes:
+          - ./eae.scheduler.config.js:/usr/app/config/eae.scheduler.config.js
+
+    carrier:
+        image: aoehmich/eae-carrier:latest@sha256:58d607888b0ff12ed6ad998b44aaa9f924bfbf37d8ec85b43eed9bd8a1839ff0
+        depends_on:
+          - scheduler
+        links:
+          - mongodb
+          - swift
+        ports:
+          - 3000:3000
+        volumes:
+          - ./eae.carrier.config.js:/usr/app/config/eae.carrier.config.js
+
+    interface:
+        image: aoehmich/eae-interface:latest@sha256:0a10791afdadb0031aa200564526c1dc186de2add6e86696ea1cf00a7ffbfacd
+        depends_on:
+          - carrier
+        links:
+          - mongodb
+        ports:
+          - 80:80
+        volumes:
+          - ./eae.interface.config.js:/usr/app/config/eae.interface.config.js
