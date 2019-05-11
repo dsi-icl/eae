@@ -45,7 +45,7 @@ services:
           - ./eae.compute.config.js:/usr/app/config/eae.compute.config.js
 
     scheduler:
-        image: aoehmich/eae-scheduler:latest@sha256:8cfbe8f7eaa8a0ed83f3f845dc8de9c0997eea911d853ba6941350b51a9be1a3
+        image: aoehmich/eae-scheduler:latest@sha256:2f4da32415c6bdbb7397111df9fe86d189522a81640ac01e2f42a03a781d6051
         depends_on:
           - compute1
           - compute2
