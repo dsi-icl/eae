@@ -1,7 +1,7 @@
 version: '3'
 services:
     mongodb:
-        image: mongo:latest@sha256:ec1fbbb3f75fdee7c3433ce2d5b8200e7c9916c57902023777bec5754da5e525
+        image: mongo:latest@sha256:968de6d4e8d28de52158d7ff6744422bd94aedd375df4ea93617cd7491329850
         environment:
           - MONGO_DATA_DIR=/data/mongodb
           - MONGO_LOG_DIR=/dev/null
