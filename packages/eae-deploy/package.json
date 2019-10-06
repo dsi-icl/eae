@@ -30,7 +30,7 @@
     "uuid": "3.3.2"
   },
   "dependencies": {
-    "eae-utils": "git+https://github.com/dsi-icl/eae-utils.git",
+    "eae-utils": "1.0.0",
     "body-parser": "1.19.0",
     "mongodb": "3.2.4"
   }
