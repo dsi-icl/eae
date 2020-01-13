@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/dsi-icl/eae-compute#readme",
   "devDependencies": {
-    "@babel/core": "7.7.7",
+    "@babel/core": "7.8.3",
     "babel-eslint": "10.0.3",
     "eslint": "6.8.0",
     "jest": "24.9.0",
