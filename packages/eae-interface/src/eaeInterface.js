@@ -55,7 +55,7 @@ function EaeInterface(config) {
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
-EaeInterface.prototype.start = function() {
+EaeInterface.prototype.start = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
         _this._connectDb().then(function () {
@@ -81,13 +81,13 @@ EaeInterface.prototype.start = function() {
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
-EaeInterface.prototype.stop = function() {
+EaeInterface.prototype.stop = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
         // Stop status update
         _this.status_helper.stopPeriodicUpdate();
         // Disconnect DB --force
-        _this.client.close(true).then(function(error) {
+        _this.client.close(true).then(function (error) {
             if (error)
                 reject(ErrorHelper('Closing mongoDB connection failed', error));
             else
@@ -105,7 +105,9 @@ EaeInterface.prototype.stop = function() {
 EaeInterface.prototype._connectDb = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
-        mongodb.connect(_this.config.mongoURL, {}, function (err, client) {
+        mongodb.connect(_this.config.mongoURL, {
+            useUnifiedTopology: true
+        }, function (err, client) {
             if (err !== null && err !== undefined) {
                 reject(ErrorHelper('Failed to connect to mongoDB', err));
                 return;
@@ -142,20 +144,20 @@ EaeInterface.prototype._setupStatusController = function () {
  * @desc Initialize the interface service routes and controller
  * @private
  */
-EaeInterface.prototype._setupInterfaceControllers = function() {
+EaeInterface.prototype._setupInterfaceControllers = function () {
     let _this = this;
 
     _this.accessLogger = new AccessLogger(_this.db.collection(Constants.EAE_COLLECTION_ACCESS_LOG));
     _this.jobsController = new JobsControllerModule(_this.config.carriers,
-                                                    _this.db.collection(Constants.EAE_COLLECTION_JOBS),
-                                                    _this.db.collection(Constants.EAE_COLLECTION_USERS),
-                                                    _this.db.collection(Constants.EAE_COLLECTION_CARRIER),
-                                                    _this.accessLogger);
+        _this.db.collection(Constants.EAE_COLLECTION_JOBS),
+        _this.db.collection(Constants.EAE_COLLECTION_USERS),
+        _this.db.collection(Constants.EAE_COLLECTION_CARRIER),
+        _this.accessLogger);
     _this.usersController = new UsersControllerModule(_this.db.collection(Constants.EAE_COLLECTION_USERS),
-                                                      _this.accessLogger);
+        _this.accessLogger);
     _this.clusterController = new ClusterControllerModule(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
-                                                          _this.db.collection(Constants.EAE_COLLECTION_USERS),
-                                                          _this.accessLogger);
+        _this.db.collection(Constants.EAE_COLLECTION_USERS),
+        _this.accessLogger);
 
     // Retrieve a specific job - Check that user requesting is owner of the job or Admin
     _this.app.post('/job', _this.jobsController.getJob);

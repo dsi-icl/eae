@@ -38,8 +38,8 @@ function StatusHelper(config = {}) {
  * @desc Getter on status data
  * @return The status model in plain JS object
  */
-StatusHelper.prototype.getDataModel = function() {
-   return this._data;
+StatusHelper.prototype.getDataModel = function () {
+    return this._data;
 };
 
 /**
@@ -47,7 +47,7 @@ StatusHelper.prototype.getDataModel = function() {
  * @desc Getter on node status
  * @return {String} Current status string
  */
-StatusHelper.prototype.getStatus = function() {
+StatusHelper.prototype.getStatus = function () {
     return this._data.status;
 };
 
@@ -57,7 +57,7 @@ StatusHelper.prototype.getStatus = function() {
  * @param status The new status string
  * @return {String} Current status string
  */
-StatusHelper.prototype.setStatus = function(status) {
+StatusHelper.prototype.setStatus = function (status) {
     if (this._data.statusLock === false) {
         this._data.status = status;
     }
@@ -70,7 +70,7 @@ StatusHelper.prototype.setStatus = function(status) {
  * @param {Array} computeType The compute types of the node
  * @return {Array} Current compute types of the node
  */
-StatusHelper.prototype.setComputeType = function(computeType) {
+StatusHelper.prototype.setComputeType = function (computeType) {
     if (this._data.statusLock === false) {
         this._data.computeType = computeType;
     }
@@ -82,7 +82,7 @@ StatusHelper.prototype.setComputeType = function(computeType) {
  * @desc Setup the mongoDB collection to sync against
  * @param statusCollection Initialized mongodb collection to sync against
  */
-StatusHelper.prototype.setCollection = function(statusCollection) {
+StatusHelper.prototype.setCollection = function (statusCollection) {
     this._statusCollection = statusCollection;
 };
 
@@ -91,7 +91,7 @@ StatusHelper.prototype.setCollection = function(statusCollection) {
  * @desc Setup the mongoDB client to be able to close it when stopping the statusHelper
  * @param client Initialized mongodb client
  */
-StatusHelper.prototype.setClient = function(client) {
+StatusHelper.prototype.setClient = function (client) {
     this._client = client;
 };
 
@@ -100,7 +100,7 @@ StatusHelper.prototype.setClient = function(client) {
  * @desc Initialise model from OS information
  * @private
  */
-StatusHelper.prototype._update = function() {
+StatusHelper.prototype._update = function () {
     let _this = this;
 
     //Assign status values
@@ -123,9 +123,9 @@ StatusHelper.prototype._update = function() {
     this._data.cpu.cores = [];
     os.cpus().forEach(function (cpu) {
         _this._data.cpu.cores.push({
-                model: cpu.model,
-                mhz: cpu.speed
-            }
+            model: cpu.model,
+            mhz: cpu.speed
+        }
         );
     });
 };
@@ -137,9 +137,9 @@ StatusHelper.prototype._update = function() {
  * @return {Promise} Resolve to true if update operation has been successful
  * @private
  */
-StatusHelper.prototype._sync = function() {
+StatusHelper.prototype._sync = function () {
     let _this = this;
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         if (_this._statusCollection === null || _this._statusCollection === undefined) {
             reject(defines.errorStacker('No MongoDB collection to sync against'));
             return;
@@ -151,13 +151,13 @@ StatusHelper.prototype._sync = function() {
         };
         //Updates model in base, upsert if does not exists
         _this._statusCollection.findOneAndUpdate(filter,
-                                                 { $set : _this._data },
-                                                 { upsert: true, returnOriginal: false })
-            .then(function(updatedModel) {
+            { $set: _this._data },
+            { upsert: true, returnOriginal: false })
+            .then(function (updatedModel) {
                 delete updatedModel.value._id;  //Remove ID field, let MongoDB handle ids
                 _this._data = updatedModel.value;
                 resolve(true);
-            }, function(error) {
+            }, function (error) {
                 reject(defines.errorStacker('Update status failed', error));
             });
     });
@@ -168,13 +168,13 @@ StatusHelper.prototype._sync = function() {
  * @desc Start an automatic update and synchronisation of the status
  * @param delay The intervals (in milliseconds) on how often to update the status
  */
-StatusHelper.prototype.startPeriodicUpdate = function(delay = defines.STATUS_DEFAULT_UPDATE_INTERVAL) {
+StatusHelper.prototype.startPeriodicUpdate = function (delay = defines.STATUS_DEFAULT_UPDATE_INTERVAL) {
     let _this = this;
 
     //Stop previous interval if any
     _this.stopPeriodicUpdate();
     //Start a new interval update
-    _this._intervalTimeout = timer.setInterval(function(){
+    _this._intervalTimeout = timer.setInterval(function () {
         _this._update(); //Update model
         _this._sync(); //Attempt to sync in base
     }, delay);
@@ -185,14 +185,14 @@ StatusHelper.prototype.startPeriodicUpdate = function(delay = defines.STATUS_DEF
  * @desc Stops the automatic update and synchronisation.
  * Does nothing if the periodic update was not running
  */
-StatusHelper.prototype.stopPeriodicUpdate = function() {
+StatusHelper.prototype.stopPeriodicUpdate = function () {
     let _this = this;
 
     if (_this._intervalTimeout !== null && _this._intervalTimeout !== undefined) {
         timer.clearInterval(_this._intervalTimeout);
         _this._intervalTimeout = null;
     }
-    if(_this._client !== null && _this._client !== undefined){
+    if (_this._client !== null && _this._client !== undefined) {
         _this._client.close(true);
     }
 };
@@ -207,14 +207,16 @@ StatusHelper.prototype.stopPeriodicUpdate = function() {
  */
 function StatusHelperExport(type = 'eae-service', port = 8080, mongoURL = null, options = {}) {
     let opts = Object.assign({}, {
-        type : type,
+        type: type,
         port: port
     }, options);
 
     let status_helper = new StatusHelper(opts);
 
     if (mongoURL !== null && mongoURL !== undefined) {
-        mongodb.connect(mongoURL, {}, function (err, client) {
+        mongodb.connect(mongoURL, {
+            useUnifiedTopology: true
+        }, function (err, client) {
             if (err !== null && err !== undefined) {
                 throw defines.errorStacker('Failed to connect to MongoDB', err);
             }

@@ -1,4 +1,4 @@
-const { Constants, ErrorHelper } =  require('eae-utils');
+const { Constants, ErrorHelper } = require('eae-utils');
 const mongodb = require('mongodb').MongoClient;
 const MongoHelper = require('../src/mongoHelper');
 let JobsScheduler = require('../src/jobsScheduler.js');
@@ -6,6 +6,7 @@ let JobsScheduler = require('../src/jobsScheduler.js');
 let mongoURL = 'mongodb://mongodb:27017';
 
 let options = {
+    useUnifiedTopology: true,
     keepAlive: 30000, connectTimeoutMS: 30000,
 };
 
@@ -16,9 +17,9 @@ function JobsSchedulerTestServer() {
     this.insertJob = JobsSchedulerTestServer.prototype.insertJob.bind(this);
 }
 
-JobsSchedulerTestServer.prototype.setup = function() {
+JobsSchedulerTestServer.prototype.setup = function () {
     let _this = this;
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         // Setup node env to test during test
         process.env.TEST = 1;
 
@@ -60,7 +61,7 @@ JobsSchedulerTestServer.prototype.setup = function() {
     });
 };
 
-JobsSchedulerTestServer.prototype.shutdown = function() {
+JobsSchedulerTestServer.prototype.shutdown = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
         _this.client.close();
@@ -69,20 +70,20 @@ JobsSchedulerTestServer.prototype.shutdown = function() {
     });
 };
 
-JobsSchedulerTestServer.prototype.insertJob = function(job) {
+JobsSchedulerTestServer.prototype.insertJob = function (job) {
     let _this = this;
-    return new Promise(function(resolve, reject) {
-        _this.db.collection(Constants.EAE_COLLECTION_JOBS).insertOne(job).then(function(document) {
+    return new Promise(function (resolve, reject) {
+        _this.db.collection(Constants.EAE_COLLECTION_JOBS).insertOne(job).then(function (document) {
             resolve(document);
         });
     });
 };
 
-JobsSchedulerTestServer.prototype.insertNode = function(node) {
+JobsSchedulerTestServer.prototype.insertNode = function (node) {
     let _this = this;
-    return new Promise(function(resolve, reject) {
-        _this.db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node).then(function(document) {
-          resolve(document);
+    return new Promise(function (resolve, reject) {
+        _this.db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node).then(function (document) {
+            resolve(document);
         });
     });
 };

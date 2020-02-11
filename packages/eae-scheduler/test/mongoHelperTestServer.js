@@ -1,10 +1,11 @@
-const { Constants, ErrorHelper } =  require('eae-utils');
+const { Constants, ErrorHelper } = require('eae-utils');
 const mongodb = require('mongodb').MongoClient;
 const MongoHelper = require('../src/mongoHelper');
 
 let mongoURL = 'mongodb://mongodb:27017';
 
 let options = {
+    useUnifiedTopology: true,
     keepAlive: 30000, connectTimeoutMS: 30000,
 };
 
@@ -13,12 +14,12 @@ function MongoHelperTestServer() {
     this.shutdown = MongoHelperTestServer.prototype.shutdown.bind(this);
 }
 
-MongoHelperTestServer.prototype.setup = function() {
+MongoHelperTestServer.prototype.setup = function () {
     let _this = this;
     global.eae_scheduler_config = {
         nodesExpiredStatusTime: 1,
     };
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         // Setup node env to test during test
         process.env.TEST = 1;
 
@@ -56,7 +57,7 @@ MongoHelperTestServer.prototype.setup = function() {
     });
 };
 
-MongoHelperTestServer.prototype.shutdown = function() {
+MongoHelperTestServer.prototype.shutdown = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
         _this.client.close();

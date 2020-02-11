@@ -1,4 +1,4 @@
-const { Constants, ErrorHelper } =  require('eae-utils');
+const { Constants, ErrorHelper } = require('eae-utils');
 const mongodb = require('mongodb').MongoClient;
 const MongoHelper = require('../src/mongoHelper');
 let NodesWatchdog = require('../src/nodesWatchdog.js');
@@ -6,6 +6,7 @@ let NodesWatchdog = require('../src/nodesWatchdog.js');
 let mongoURL = 'mongodb://mongodb:27017';
 
 let options = {
+    useUnifiedTopology: true,
     keepAlive: 30000, connectTimeoutMS: 30000,
 };
 
@@ -15,12 +16,12 @@ function NodesWatchdogTestServer() {
     this.insertNode = NodesWatchdogTestServer.prototype.insertNode.bind(this);
 }
 
-NodesWatchdogTestServer.prototype.setup = function() {
+NodesWatchdogTestServer.prototype.setup = function () {
     let _this = this;
     global.eae_scheduler_config = {
         nodesExpiredStatusTime: 1,
     };
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
         // Setup node env to test during test
         process.env.TEST = 1;
 
@@ -51,7 +52,7 @@ NodesWatchdogTestServer.prototype.setup = function() {
     });
 };
 
-NodesWatchdogTestServer.prototype.shutdown = function() {
+NodesWatchdogTestServer.prototype.shutdown = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
         _this.client.close();
@@ -60,10 +61,10 @@ NodesWatchdogTestServer.prototype.shutdown = function() {
     });
 };
 
-NodesWatchdogTestServer.prototype.insertNode = function(node) {
+NodesWatchdogTestServer.prototype.insertNode = function (node) {
     let _this = this;
-    return new Promise(function(resolve, reject) {
-        _this.db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node).then(function(document) {
+    return new Promise(function (resolve, reject) {
+        _this.db.collection(Constants.EAE_COLLECTION_STATUS).insertOne(node).then(function (document) {
             resolve(document);
         });
     });

@@ -2,7 +2,7 @@
 const mongodb = require('mongodb').MongoClient;
 const express = require('express');
 const body_parser = require('body-parser');
-const { ErrorHelper, StatusHelper, Constants } =  require('eae-utils');
+const { ErrorHelper, StatusHelper, Constants } = require('eae-utils');
 
 const package_json = require('../package.json');
 const StatusController = require('./statusController.js');
@@ -47,7 +47,7 @@ function EaeCompute(config) {
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
-EaeCompute.prototype.start = function() {
+EaeCompute.prototype.start = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
         _this._connectDb().then(function () {
@@ -71,13 +71,13 @@ EaeCompute.prototype.start = function() {
  * @return {Promise} Resolves to true on success,
  * rejects an error stack otherwise
  */
-EaeCompute.prototype.stop = function() {
+EaeCompute.prototype.stop = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
         // Stop status update
         _this.status_helper.stopPeriodicUpdate();
         // Disconnect DB --force
-        _this.client.close(true).then(function(error) {
+        _this.client.close(true).then(function (error) {
             if (error)
                 reject(ErrorHelper('Closing mongoDB connection failed', error));
             else
@@ -95,7 +95,9 @@ EaeCompute.prototype.stop = function() {
 EaeCompute.prototype._connectDb = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
-        mongodb.connect(_this.config.mongoURL, {}, function (err, client) {
+        mongodb.connect(_this.config.mongoURL, {
+            useUnifiedTopology: true
+        }, function (err, client) {
             if (err !== null && err !== undefined) {
                 reject(ErrorHelper('Failed to connect to mongoDB', err));
                 return;
