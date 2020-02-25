@@ -32,6 +32,6 @@
   "dependencies": {
     "eae-utils": "git+https://github.com/dsi-icl/eae-utils.git",
     "body-parser": "1.19.0",
-    "mongodb": "3.5.3"
+    "mongodb": "3.5.4"
   }
 }
