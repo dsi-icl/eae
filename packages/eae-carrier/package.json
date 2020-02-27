@@ -27,8 +27,8 @@
   },
   "homepage": "https://github.com/dsi-icl/eae-carrier#readme",
   "devDependencies": {
-    "@babel/core": "7.8.4",
-    "babel-eslint": "10.0.3",
+    "@babel/core": "7.8.6",
+    "babel-eslint": "10.1.0",
     "eslint": "6.8.0",
     "jest": "25.1.0",
     "request": "2.88.2",
