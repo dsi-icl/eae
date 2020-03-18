@@ -62,7 +62,7 @@ function EaeScheduler(config) {
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
-EaeScheduler.prototype.start = function() {
+EaeScheduler.prototype.start = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
         _this._connectDb().then(function () {
@@ -119,13 +119,13 @@ EaeScheduler.prototype.start = function() {
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
-EaeScheduler.prototype.stop = function() {
+EaeScheduler.prototype.stop = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
         // Stop status update
         _this.status_helper.stopPeriodicUpdate();
         // Disconnect DB --force
-        _this.client.close(true).then(function(error) {
+        _this.client.close(true).then(function (error) {
             if (error)
                 reject(ErrorHelper('Closing mongoDB connection failed', error));
             else
@@ -143,7 +143,9 @@ EaeScheduler.prototype.stop = function() {
 EaeScheduler.prototype._connectDb = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
-        mongodb.connect(_this.config.mongoURL, {}, function (err, client) {
+        mongodb.connect(_this.config.mongoURL, {
+            useUnifiedTopology: true
+        }, function (err, client) {
             if (err !== null && err !== undefined) {
                 reject(ErrorHelper('Failed to connect to mongoDB', err));
                 return;
@@ -183,9 +185,9 @@ EaeScheduler.prototype._setupStatusController = function () {
 EaeScheduler.prototype._setupMongoHelper = function () {
     let _this = this;
     _this.mongo_helper.setCollections(_this.db.collection(Constants.EAE_COLLECTION_STATUS),
-                                      _this.db.collection(Constants.EAE_COLLECTION_JOBS),
-                                      _this.db.collection(Constants.EAE_COLLECTION_JOBS_ARCHIVE),
-                                      _this.db.collection(Constants.EAE_COLLECTION_FAILED_JOBS_ARCHIVE));
+        _this.db.collection(Constants.EAE_COLLECTION_JOBS),
+        _this.db.collection(Constants.EAE_COLLECTION_JOBS_ARCHIVE),
+        _this.db.collection(Constants.EAE_COLLECTION_FAILED_JOBS_ARCHIVE));
 };
 
 /**
@@ -196,9 +198,9 @@ EaeScheduler.prototype._setupMongoHelper = function () {
 EaeScheduler.prototype._setupSwiftHelper = function () {
     let _this = this;
     _this.swift_helper = new SwiftHelper({
-                url: _this.config.swiftURL,
-                username: _this.config.swiftUsername,
-                password: _this.config.swiftPassword
+        url: _this.config.swiftURL,
+        username: _this.config.swiftUsername,
+        password: _this.config.swiftPassword
     });
 };
 

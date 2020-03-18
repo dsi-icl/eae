@@ -55,7 +55,7 @@ function EaeCarrier(config) {
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
-EaeCarrier.prototype.start = function() {
+EaeCarrier.prototype.start = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
         _this._connectDb().then(function () {
@@ -85,13 +85,13 @@ EaeCarrier.prototype.start = function() {
  * @return {Promise} Resolves to a Express.js Application router on success,
  * rejects an error stack otherwise
  */
-EaeCarrier.prototype.stop = function() {
+EaeCarrier.prototype.stop = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
         // Stop status update
         _this.status_helper.stopPeriodicUpdate();
         // Disconnect DB --force
-        _this.client.close(true).then(function(error) {
+        _this.client.close(true).then(function (error) {
             if (error)
                 reject(ErrorHelper('Closing mongoDB connection failed', error));
             else
@@ -109,7 +109,9 @@ EaeCarrier.prototype.stop = function() {
 EaeCarrier.prototype._connectDb = function () {
     let _this = this;
     return new Promise(function (resolve, reject) {
-        mongodb.connect(_this.config.mongoURL, {}, function (err, client) {
+        mongodb.connect(_this.config.mongoURL, {
+            useUnifiedTopology: true
+        }, function (err, client) {
             if (err !== null && err !== undefined) {
                 reject(ErrorHelper('Failed to connect to mongoDB', err));
                 return;
@@ -159,7 +161,7 @@ EaeCarrier.prototype._setupSwiftConfig = function () {
  * @desc Initialize the file carrier controller
  * @private
  */
-EaeCarrier.prototype._setupCarrierController = function(){
+EaeCarrier.prototype._setupCarrierController = function () {
     let _this = this;
     _this.carrierController = new CarrierController(_this.swiftStorageConfig);
     _this.carrierController.setCollection(_this.db.collection(Constants.EAE_COLLECTION_CARRIER));
@@ -170,7 +172,7 @@ EaeCarrier.prototype._setupCarrierController = function(){
  * @desc Initialize the file carrier that while put the files into swift
  * @private
  */
-EaeCarrier.prototype._setupFileCarrier = function(){
+EaeCarrier.prototype._setupFileCarrier = function () {
     let _this = this;
 
     // We set up the routes for the file upload
