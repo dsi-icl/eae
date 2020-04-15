@@ -39,6 +39,6 @@
     "eae-utils": "1.0.0",
     "express": "4.17.1",
     "fs-extra": "8.1.0",
-    "mongodb": "3.5.5"
+    "mongodb": "3.5.6"
   }
 }
