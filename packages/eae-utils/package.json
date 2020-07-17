@@ -26,17 +26,17 @@
   },
   "homepage": "https://github.com/dsi-icl/eae-utils#readme",
   "devDependencies": {
-    "@babel/core": "7.9.6",
+    "@babel/core": "7.10.5",
     "babel-eslint": "10.1.0",
-    "eslint": "7.0.0",
+    "eslint": "7.4.0",
     "express": "4.17.1"
   },
   "dependencies": {
     "bytes": "3.1.0",
-    "fs-extra": "9.0.0",
+    "fs-extra": "9.0.1",
     "ip": "1.1.5",
     "memorystream": "0.3.1",
-    "mongodb": "3.5.7",
+    "mongodb": "3.5.9",
     "os2": "0.0.13"
   }
 }
