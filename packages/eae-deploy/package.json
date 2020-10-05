@@ -27,7 +27,7 @@
     "eslint": "7.5.0",
     "jest": "26.1.0",
     "request": "2.88.2",
-    "uuid": "8.2.0"
+    "uuid": "8.3.1"
   },
   "dependencies": {
     "eae-utils": "1.0.0",
