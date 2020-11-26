@@ -1,16 +1,23 @@
 const { ErrorHelper } = require('eae-utils');
 const FileCarrier = require('./fileCarrier.js');
 const ObjectStorage = require('./objectStorage.js');
+const MinIOStorage = require('./minIOStorage.js');
 
 /**
  * @fn CarrierController
  * @desc Controller to manage the file transfer between the outside and the swift in the eAE
  * @constructor
  */
-function CarrierController(swiftConfig) {
+function CarrierController(storageConfig) {
     let _this = this;
     _this._carrierCollection = null;
-    _this._swiftConfig = swiftConfig;
+    if('minIOHost' in storageConfig){
+        _this._minIOConfig = storageConfig;
+        _this._swiftConfig = undefined;
+    }
+    else{
+        _this._swiftConfig = storageConfig;
+    }
 
     // Bind member functions
     _this.executeUpload = CarrierController.prototype.executeUpload.bind(this);
@@ -62,7 +69,13 @@ CarrierController.prototype.executeUpload = function (req, res) {
                     res.json(ErrorHelper('The proposed file for the upload is not valid.'));
                 }
                 if(carrierJob.requester === eaeUsername){
-                    let objectStorage = new ObjectStorage(_this._swiftConfig,jobID,'input');
+                    let objectStorage;
+                    if(_this._swiftConfig === undefined){
+                        objectStorage = new MinIOStorage(_this._swiftConfig,jobID,'input');
+                    }
+                    else{
+                        objectStorage = new ObjectStorage(_this._minIOConfig,jobID,'input');
+                    }
                     let fileCarrier = new FileCarrier(objectStorage);
                     fileCarrier.initializeUpload(req, fileName).then(function (_unused__success) {
                         _this._carrierCollection.findOneAndUpdate({jobId: jobID},

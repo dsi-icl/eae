@@ -31,6 +31,7 @@ function EaeCarrier(config) {
     this._setupCarrierController = EaeCarrier.prototype._setupCarrierController.bind(this);
     this._setupFileCarrier = EaeCarrier.prototype._setupFileCarrier.bind(this);
     this._setupSwiftConfig = EaeCarrier.prototype._setupSwiftConfig.bind(this);
+    this._setupMinIOConfig = EaeCarrier.prototype._setupMinIOConfig.bind(this);
 
     //Remove unwanted express headers
     this.app.set('x-powered-by', false);
@@ -63,7 +64,12 @@ EaeCarrier.prototype.start = function () {
             _this._setupStatusController();
 
             // Setup the helper
-            _this._setupSwiftConfig();
+            if(_this.config.storageComponent !== 'minio') {
+                _this._setupSwiftConfig();
+            }
+            else{
+                _this._setupMinIOConfig();
+            }
 
             // Setup the file carrier
             _this._setupCarrierController();
@@ -157,13 +163,35 @@ EaeCarrier.prototype._setupSwiftConfig = function () {
 };
 
 /**
+ * @fn _setupSwiftHelper
+ * @desc Initialize the helper class to interact with Swift
+ * @private
+ */
+EaeCarrier.prototype._setupMinIOConfig = function () {
+    let _this = this;
+    _this.minIOStorageConfig = {
+        minIOHost: _this.config.minIOHost,
+        minIOPort: _this.config.minIOPort,
+        accessKey: _this.config.accessKey,
+        secretKey: _this.config.secretKey,
+        bucketRegion: _this.config.bucketRegion,
+        useSSL: _this.config.useSSL
+    };
+};
+
+/**
  * @fn _setupCarrierController
  * @desc Initialize the file carrier controller
  * @private
  */
 EaeCarrier.prototype._setupCarrierController = function () {
     let _this = this;
-    _this.carrierController = new CarrierController(_this.swiftStorageConfig);
+    if(_this.config.storageComponent !== 'minio') {
+        _this.carrierController = new CarrierController(_this.swiftStorageConfig);
+    }
+    else{
+        _this.carrierController = new CarrierController(_this.minIOStorageConfig);
+    }
     _this.carrierController.setCollection(_this.db.collection(Constants.EAE_COLLECTION_CARRIER));
 };
 
