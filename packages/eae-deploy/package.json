@@ -32,6 +32,6 @@
   "dependencies": {
     "eae-utils": "1.0.0",
     "body-parser": "1.19.0",
-    "mongodb": "3.5.9"
+    "mongodb": "3.6.4"
   }
 }
