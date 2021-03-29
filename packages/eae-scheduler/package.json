@@ -33,7 +33,7 @@
     "eslint": "7.5.0",
     "jest": "26.1.0",
     "request": "2.88.2",
-    "ajv": "6.12.3"
+    "ajv": "8.0.1"
   },
   "dependencies": {
     "body-parser": "1.19.0",
