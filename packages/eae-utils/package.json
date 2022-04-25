@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "bytes": "3.1.0",
-    "fs-extra": "9.0.1",
+    "fs-extra": "10.1.0",
     "ip": "1.1.5",
     "memorystream": "0.3.1",
     "mongodb": "3.5.9",
