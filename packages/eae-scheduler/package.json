@@ -30,7 +30,7 @@
   "devDependencies": {
     "@babel/core": "7.22.19",
     "babel-eslint": "10.1.0",
-    "eslint": "7.5.0",
+    "eslint": "8.57.0",
     "jest": "26.1.0",
     "request": "2.88.2",
     "ajv": "8.4.0"
