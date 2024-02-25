@@ -28,7 +28,7 @@
   "homepage": "https://github.com/dsi-icl/eae-interface#readme",
   "devDependencies": {
     "@babel/core": "7.22.19",
-    "babel-eslint": "10.1.0",
+    "@babel/eslint-parser": "7.11.0",
     "eslint": "7.5.0",
     "jest": "26.1.0",
     "request": "2.88.2",
